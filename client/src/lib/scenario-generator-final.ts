@@ -11,7 +11,7 @@ interface ScenarioData {
 // All 1000+ unique scenarios from the text file
 const SCENARIO_DATABASE: ScenarioData[] = [
   { id: "friendship_offer", type: "NORMAL", text: "A dragon offers friendship. Do you accept or push them away?" },
-  { id: "mindreading_noise", type: "MINDREADING", text: "You hear multiple thoughts at once. Do you focus or retreat from the noise?", requirements: (c) => c.tribalPowers.includes('Mind Reading') || c.specialPowers.includes('Enhanced Mind Reading') },
+  { id: "mindreading_noise", type: "MINDREADING", text: "You hear multiple thoughts at once. Do you focus or retreat from the noise?", requirements: (c) => (c.tribalPowers || []).includes('Mind Reading') || (c.specialPowers || []).includes('Enhanced Mind Reading') },
   { id: "battle_tactics", type: "LEARNING", text: "You overhear advanced battle tactics. Do you learn them or forget?" },
   { id: "feast_invitation", type: "NORMAL", text: "You are invited to a feast. Do you join, decline, or sneak away?" },
   { id: "skywing_tribute", type: "WARS", text: "The SkyWings demand tribute from your village. Do you resist or submit?" },
@@ -20,54 +20,54 @@ const SCENARIO_DATABASE: ScenarioData[] = [
   { id: "ancient_spells_study", type: "ANIMUS", text: "You are offered a chance to study ancient animus spells. Do you risk it?", requirements: (c) => c.isAnimus },
   { id: "darkstalker_dream", type: "ANIMUS", text: "Darkstalker himself appears in a dream, offering you forbidden knowledge. Do you accept or reject it?", requirements: (c) => c.isAnimus },
   { id: "ancient_object", type: "ANIMUS", text: "You find an ancient object. Do you enchant it for power, wealth, or protection?", requirements: (c) => c.isAnimus },
-  { id: "betrayal_prophecy", type: "PROPHECY", text: "You are told you will betray a friend. Do you cut ties now or wait?", requirements: (c) => c.tribalPowers.includes('Prophecy (rare)') || c.specialPowers.includes('Foresight') || c.specialPowers.includes('Enhanced Prophecy') },
+  { id: "betrayal_prophecy", type: "PROPHECY", text: "You are told you will betray a friend. Do you cut ties now or wait?", requirements: (c) => (c.tribalPowers || []).includes('Prophecy (rare)') || (c.specialPowers || []).includes('Foresight') || (c.specialPowers || []).includes('Enhanced Prophecy') },
   { id: "attack_innocents", type: "WARS", text: "Your commander orders you to attack innocents. Do you obey or disobey?" },
   { id: "difficult_question", type: "LEARNING", text: "A teacher asks you a difficult question. Do you guess or admit ignorance?" },
   { id: "other_territory", type: "NORMAL", text: "You visit another tribe's territory. Do you explore or leave quickly?" },
   { id: "secret_prophecy_class", type: "LEARNING", text: "You stumble into a secret class about prophecy. Do you stay or leave?" },
-  { id: "secret_love", type: "MINDREADING", text: "You discover someone loves you secretly. Do you return the feeling or not?", requirements: (c) => c.tribalPowers.includes('Mind Reading') || c.specialPowers.includes('Enhanced Mind Reading') },
+  { id: "secret_love", type: "MINDREADING", text: "You discover someone loves you secretly. Do you return the feeling or not?", requirements: (c) => (c.tribalPowers || []).includes('Mind Reading') || (c.specialPowers || []).includes('Enhanced Mind Reading') },
   { id: "romantic_dance", type: "NORMAL", text: "At the tribal dance, an attractive dragon asks you to be their partner. Do you accept?" },
   { id: "courtship_gift", type: "NORMAL", text: "A dragon presents you with a beautiful gift, clearly showing romantic interest. How do you respond?" },
   { id: "mate_proposal", type: "NORMAL", text: "A dragon you've grown close to asks to become your mate. Do you accept their proposal?", requirements: (c) => c.age >= 5 },
   { id: "jealous_rival", type: "NORMAL", text: "Another dragon is jealous of your romantic relationship and confronts you. How do you handle it?" },
   { id: "romantic_confession", type: "NORMAL", text: "Under the starlight, you feel compelled to confess your feelings to someone special. Do you?" },
-  { id: "death_prophecy", type: "PROPHECY", text: "A seer whispers a prophecy involving your death. Do you seek to avoid it or embrace destiny?", requirements: (c) => c.tribalPowers.includes('Prophecy (rare)') || c.specialPowers.includes('Foresight') || c.specialPowers.includes('Enhanced Prophecy') },
+  { id: "death_prophecy", type: "PROPHECY", text: "A seer whispers a prophecy involving your death. Do you seek to avoid it or embrace destiny?", requirements: (c) => (c.tribalPowers || []).includes('Prophecy (rare)') || (c.specialPowers || []).includes('Foresight') || (c.specialPowers || []).includes('Enhanced Prophecy') },
   { id: "tribe_battle", type: "WARS", text: "Your tribe prepares for battle. Do you fight, negotiate, or flee?" },
   { id: "war_turns_bad", type: "WARS", text: "The war turns against your side. Do you retreat, rally, or betray your allies?" },
   { id: "animus_discovery", type: "ANIMUS", text: "A tribe discovers you're animus. Do you hide your powers or reveal them?", requirements: (c) => c.isAnimus },
-  { id: "dark_thoughts_friend", type: "MINDREADING", text: "You overhear dark thoughts from your closest friend. Do you confront them or stay silent?", requirements: (c) => c.tribalPowers.includes('Mind Reading') || c.specialPowers.includes('Enhanced Mind Reading') },
-  { id: "save_pyrrhia", type: "PROPHECY", text: "A prophecy declares you will save Pyrrhia. Do you believe it or not?", requirements: (c) => c.tribalPowers.includes('Prophecy (rare)') || c.specialPowers.includes('Foresight') || c.specialPowers.includes('Enhanced Prophecy') },
+  { id: "dark_thoughts_friend", type: "MINDREADING", text: "You overhear dark thoughts from your closest friend. Do you confront them or stay silent?", requirements: (c) => (c.tribalPowers || []).includes('Mind Reading') || (c.specialPowers || []).includes('Enhanced Mind Reading') },
+  { id: "save_pyrrhia", type: "PROPHECY", text: "A prophecy declares you will save Pyrrhia. Do you believe it or not?", requirements: (c) => (c.tribalPowers || []).includes('Prophecy (rare)') || (c.specialPowers || []).includes('Foresight') || (c.specialPowers || []).includes('Enhanced Prophecy') },
   { id: "captured_by_enemies", type: "WARS", text: "You are captured by enemy dragons. Do you plan escape, spy, or accept fate?" },
-  { id: "burnt_prophecy", type: "PROPHECY", text: "You discover a scroll with half-burnt prophecy. Do you try to finish it?", requirements: (c) => c.tribalPowers.includes('Prophecy (rare)') || c.specialPowers.includes('Foresight') || c.specialPowers.includes('Enhanced Prophecy') },
+  { id: "burnt_prophecy", type: "PROPHECY", text: "You discover a scroll with half-burnt prophecy. Do you try to finish it?", requirements: (c) => (c.tribalPowers || []).includes('Prophecy (rare)') || (c.specialPowers || []).includes('Foresight') || (c.specialPowers || []).includes('Enhanced Prophecy') },
   { id: "soul_weakening", type: "ANIMUS", text: "You feel your soul weaken after casting a spell. Do you continue or stop using animus magic?", requirements: (c) => c.isAnimus },
-  { id: "negotiations_lie", type: "MINDREADING", text: "You sense someone lying during negotiations. Do you expose them or keep quiet?", requirements: (c) => c.tribalPowers.includes('Mind Reading') || c.specialPowers.includes('Enhanced Mind Reading') },
+  { id: "negotiations_lie", type: "MINDREADING", text: "You sense someone lying during negotiations. Do you expose them or keep quiet?", requirements: (c) => (c.tribalPowers || []).includes('Mind Reading') || (c.specialPowers || []).includes('Enhanced Mind Reading') },
   { id: "hatchling_story", type: "NORMAL", text: "A hatchling asks for your story. Do you tell the truth or lie?" },
-  { id: "betrayal_thought", type: "MINDREADING", text: "A dragon thinks about betraying you. Do you act first or wait?", requirements: (c) => c.tribalPowers.includes('Mind Reading') || c.specialPowers.includes('Enhanced Mind Reading') },
-  { id: "prophecy_fulfillment", type: "PROPHECY", text: "Your actions today will fulfill a prophecy. Do you act boldly or carefully?", requirements: (c) => c.tribalPowers.includes('Prophecy (rare)') || c.specialPowers.includes('Foresight') || c.specialPowers.includes('Enhanced Prophecy') },
+  { id: "betrayal_thought", type: "MINDREADING", text: "A dragon thinks about betraying you. Do you act first or wait?", requirements: (c) => (c.tribalPowers || []).includes('Mind Reading') || (c.specialPowers || []).includes('Enhanced Mind Reading') },
+  { id: "prophecy_fulfillment", type: "PROPHECY", text: "Your actions today will fulfill a prophecy. Do you act boldly or carefully?", requirements: (c) => (c.tribalPowers || []).includes('Prophecy (rare)') || (c.specialPowers || []).includes('Foresight') || (c.specialPowers || []).includes('Enhanced Prophecy') },
   { id: "hidden_scroll", type: "LEARNING", text: "You find a hidden scroll in a library. Do you read or ignore it?" },
   
   // Additional advanced scenarios
   { id: "animus_temptation_power", type: "ANIMUS", text: "An easy magical solution to your problems tempts you. Do you give in to temptation?", requirements: (c) => c.isAnimus },
-  { id: "mind_reading_ethics", type: "MINDREADING", text: "You could read someone's mind to solve a mystery. Do you invade their privacy?", requirements: (c) => c.tribalPowers.includes('Mind Reading') || c.specialPowers.includes('Enhanced Mind Reading') },
-  { id: "prophecy_warning", type: "PROPHECY", text: "You see a vision of disaster coming. Do you warn others or stay silent?", requirements: (c) => c.tribalPowers.includes('Prophecy (rare)') || c.specialPowers.includes('Foresight') || c.specialPowers.includes('Enhanced Prophecy') },
+  { id: "mind_reading_ethics", type: "MINDREADING", text: "You could read someone's mind to solve a mystery. Do you invade their privacy?", requirements: (c) => (c.tribalPowers || []).includes('Mind Reading') || (c.specialPowers || []).includes('Enhanced Mind Reading') },
+  { id: "prophecy_warning", type: "PROPHECY", text: "You see a vision of disaster coming. Do you warn others or stay silent?", requirements: (c) => (c.tribalPowers || []).includes('Prophecy (rare)') || (c.specialPowers || []).includes('Foresight') || (c.specialPowers || []).includes('Enhanced Prophecy') },
   { id: "war_refugee", type: "WARS", text: "War refugees seek shelter in your territory. Do you help them or turn them away?" },
   { id: "forbidden_knowledge", type: "LEARNING", text: "You discover forbidden knowledge that could be dangerous. Do you study it or destroy it?" },
   { id: "tribal_politics", type: "NORMAL", text: "A political scandal rocks your tribe. Do you get involved or stay neutral?" },
   { id: "magical_artifact", type: "ANIMUS", text: "You find a powerful magical artifact. Do you claim it, leave it, or destroy it?", requirements: (c) => c.isAnimus },
-  { id: "mind_link", type: "MINDREADING", text: "Another mind reader tries to establish a mental link. Do you accept or resist?", requirements: (c) => c.tribalPowers.includes('Mind Reading') || c.specialPowers.includes('Enhanced Mind Reading') },
-  { id: "future_vision", type: "PROPHECY", text: "You see multiple possible futures. Do you try to influence them or let fate decide?", requirements: (c) => c.tribalPowers.includes('Prophecy (rare)') || c.specialPowers.includes('Foresight') || c.specialPowers.includes('Enhanced Prophecy') },
+  { id: "mind_link", type: "MINDREADING", text: "Another mind reader tries to establish a mental link. Do you accept or resist?", requirements: (c) => (c.tribalPowers || []).includes('Mind Reading') || (c.specialPowers || []).includes('Enhanced Mind Reading') },
+  { id: "future_vision", type: "PROPHECY", text: "You see multiple possible futures. Do you try to influence them or let fate decide?", requirements: (c) => (c.tribalPowers || []).includes('Prophecy (rare)') || (c.specialPowers || []).includes('Foresight') || (c.specialPowers || []).includes('Enhanced Prophecy') },
   { id: "war_crimes", type: "WARS", text: "You witness war crimes being committed by your own side. Do you report them or stay silent?" },
   
   // Expanding scenarios for better variety
   { id: "enchanted_item_request", type: "ANIMUS", text: "A desperate parent asks you to enchant an item to save their dragonet. Do you help despite the soul cost?", requirements: (c) => c.isAnimus },
-  { id: "mind_reading_addiction", type: "MINDREADING", text: "You find yourself addicted to reading minds. Do you seek help or continue in secret?", requirements: (c) => c.tribalPowers.includes('Mind Reading') || c.specialPowers.includes('Enhanced Mind Reading') },
-  { id: "prophecy_paradox", type: "PROPHECY", text: "Your prophecy creates a paradox - preventing it might cause it. Do you act or wait?", requirements: (c) => c.tribalPowers.includes('Prophecy (rare)') || c.specialPowers.includes('Foresight') || c.specialPowers.includes('Enhanced Prophecy') },
+  { id: "mind_reading_addiction", type: "MINDREADING", text: "You find yourself addicted to reading minds. Do you seek help or continue in secret?", requirements: (c) => (c.tribalPowers || []).includes('Mind Reading') || (c.specialPowers || []).includes('Enhanced Mind Reading') },
+  { id: "prophecy_paradox", type: "PROPHECY", text: "Your prophecy creates a paradox - preventing it might cause it. Do you act or wait?", requirements: (c) => (c.tribalPowers || []).includes('Prophecy (rare)') || (c.specialPowers || []).includes('Foresight') || (c.specialPowers || []).includes('Enhanced Prophecy') },
   { id: "war_alliance", type: "WARS", text: "A former enemy offers an alliance against a greater threat. Do you trust them?" },
   { id: "dangerous_experiment", type: "LEARNING", text: "A teacher offers to show you a dangerous but enlightening experiment. Do you participate?" },
   { id: "social_outcast", type: "NORMAL", text: "A socially outcast dragon approaches you for friendship. Do you accept them?" },
   { id: "power_corruption", type: "ANIMUS", text: "Your animus powers are slowly corrupting your thoughts. Do you seek help or hide it?", requirements: (c) => c.isAnimus },
-  { id: "mental_scream", type: "MINDREADING", text: "You hear someone's mental scream of anguish. Do you investigate or ignore it?", requirements: (c) => c.tribalPowers.includes('Mind Reading') || c.specialPowers.includes('Enhanced Mind Reading') },
-  { id: "prophecy_burden", type: "PROPHECY", text: "The weight of knowing the future is crushing you. Do you share the burden or bear it alone?", requirements: (c) => c.tribalPowers.includes('Prophecy (rare)') || c.specialPowers.includes('Foresight') || c.specialPowers.includes('Enhanced Prophecy') },
+  { id: "mental_scream", type: "MINDREADING", text: "You hear someone's mental scream of anguish. Do you investigate or ignore it?", requirements: (c) => (c.tribalPowers || []).includes('Mind Reading') || (c.specialPowers || []).includes('Enhanced Mind Reading') },
+  { id: "prophecy_burden", type: "PROPHECY", text: "The weight of knowing the future is crushing you. Do you share the burden or bear it alone?", requirements: (c) => (c.tribalPowers || []).includes('Prophecy (rare)') || (c.specialPowers || []).includes('Foresight') || (c.specialPowers || []).includes('Enhanced Prophecy') },
   { id: "civilian_casualties", type: "WARS", text: "Your military action would save soldiers but harm civilians. Do you proceed?" },
   
   // More varied scenarios for depth
@@ -161,8 +161,8 @@ const SCENARIO_DATABASE: ScenarioData[] = [
   { id: "animus_scroll_request", type: "ANIMUS", text: "A desperate dragon begs you to create a scroll with infinite power to save their dying tribe. Will you risk your soul?", requirements: (c) => c.isAnimus },
   { id: "mysterious_artifact", type: "NORMAL", text: "You discover a glowing artifact buried in ancient ruins. Its power is immense but unknown." },
   { id: "tribal_crisis", type: "NORMAL", text: "A crisis threatens your entire tribe and only swift action can save them. How do you respond?" },
-  { id: "mind_invasion", type: "MINDREADING", text: "Multiple minds are screaming in your head at once, overwhelming your senses.", requirements: (c) => c.tribalPowers.includes('Mind Reading') || c.specialPowers.includes('Enhanced Mind Reading') },
-  { id: "prophecy_paradox", type: "PROPHECY", text: "You see a prophecy where preventing it might actually cause it to happen.", requirements: (c) => c.tribalPowers.includes('Prophecy (rare)') || c.specialPowers.includes('Foresight') || c.specialPowers.includes('Enhanced Prophecy') },
+  { id: "mind_invasion", type: "MINDREADING", text: "Multiple minds are screaming in your head at once, overwhelming your senses.", requirements: (c) => (c.tribalPowers || []).includes('Mind Reading') || (c.specialPowers || []).includes('Enhanced Mind Reading') },
+  { id: "prophecy_paradox", type: "PROPHECY", text: "You see a prophecy where preventing it might actually cause it to happen.", requirements: (c) => (c.tribalPowers || []).includes('Prophecy (rare)') || (c.specialPowers || []).includes('Foresight') || (c.specialPowers || []).includes('Enhanced Prophecy') },
 ];
 
 // Additional choices for romance scenarios
@@ -475,7 +475,7 @@ function generateChoicesForScenario(scenario: ScenarioData, character: Character
   const contextualChoices = generateContextualChoices(scenario, character);
   
   // Add inventory-specific choices if gameData is available
-  if (gameData && gameData.inventory.length > 0) {
+  if (gameData && gameData.inventory && gameData.inventory.length > 0) {
     const inventoryChoices = InventorySystem.getInventoryChoices(gameData, character, scenario.type);
     // Add inventory choices to the end, but limit to 2-3 to avoid overwhelming
     contextualChoices.push(...inventoryChoices.slice(0, 3));
@@ -690,14 +690,14 @@ export function generateScenario(character: Character, gameData: GameData): Scen
       return false;
     }
     if (scenario.type === 'MINDREADING' && 
-        !character.tribalPowers.includes('Mind Reading') && 
-        !character.specialPowers.includes('Enhanced Mind Reading')) {
+        !(character.tribalPowers || []).includes('Mind Reading') && 
+        !(character.specialPowers || []).includes('Enhanced Mind Reading')) {
       return false;
     }
     if (scenario.type === 'PROPHECY' && 
-        !character.tribalPowers.includes('Prophecy (rare)') && 
-        !character.specialPowers.includes('Foresight') &&
-        !character.specialPowers.includes('Enhanced Prophecy')) {
+        !(character.tribalPowers || []).includes('Prophecy (rare)') && 
+        !(character.specialPowers || []).includes('Foresight') &&
+        !(character.specialPowers || []).includes('Enhanced Prophecy')) {
       return false;
     }
     
