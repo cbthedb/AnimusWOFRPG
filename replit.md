@@ -19,6 +19,7 @@ Preferred communication style: Simple, everyday language.
 - **Comprehensive Animus Filtering System** (January 2025): Fixed persistent issue where animus magic prompts appeared for non-animus dragons. Implemented thorough filtering across all AI generation systems.
 - **Enhanced Storyline Progression** (January 2025): Fixed custom actions, tribal powers, and special abilities to actually advance the story rather than just showing static results. Powers now generate new scenarios based on their effects.
 - **Contextual Tribal Powers** (January 2025): Made tribal powers more relevant to current situations and properly integrated with the storyline progression system.
+- **Location-Based Migration System** (January 2025): Added comprehensive travel system with 15+ locations across Pyrrhia and Pantala continents, featuring location-specific scenarios, tribal relationships, migration animations, and Wings of Fire lore integration.
 
 # System Architecture
 

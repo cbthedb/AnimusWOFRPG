@@ -114,6 +114,7 @@ export interface GameData {
   politicalEvents: PoliticalEvent[];
   warStatus: WarStatus;
   explorationLog: ExplorationEvent[];
+  continent?: "Pyrrhia" | "Pantala"; // Track which continent player is on
 }
 
 export interface InventoryItem {

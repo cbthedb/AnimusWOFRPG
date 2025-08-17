@@ -5,6 +5,8 @@ import { generateScenario, generateTimeInfo } from "./scenario-generator-final";
 import { generateEnhancedScenario } from "./enhanced-scenario-system";
 import { MockAIService } from "./mock-ai-service";
 import { RomanceSystem } from "./romance-system";
+import { LocationSystem, LOCATIONS, Location } from "./location-system";
+import { LocationBasedScenarios } from "./location-based-scenarios";
 
 export class EnhancedGameEngine {
   static processChoice(
@@ -109,8 +111,113 @@ export class EnhancedGameEngine {
   }
 
   static generateNextScenario(character: Character, gameData: GameData): Scenario {
-    // Use enhanced scenario system for richer, more varied content
+    const currentLocation = LocationSystem.getCurrentLocation(gameData);
+    
+    // 40% chance to use location-specific scenario if available
+    if (Math.random() < 0.4) {
+      const locationScenario = LocationBasedScenarios.getRandomLocationScenario(currentLocation.id, character);
+      if (locationScenario) {
+        // Convert location scenario to standard scenario format
+        return {
+          id: locationScenario.id,
+          title: locationScenario.title,
+          description: locationScenario.narrativeText[0],
+          narrativeText: locationScenario.narrativeText,
+          choices: this.generateLocationScenarioChoices(locationScenario, character),
+          type: 'mundane', // Default type for location scenarios
+          location: currentLocation.name,
+          timeOfDay: gameData.timeInfo || "Midday",
+          weather: this.getLocationWeather(currentLocation)
+        };
+      }
+    }
+    
+    // Fall back to enhanced scenario generation
     return generateEnhancedScenario(character, gameData);
+  }
+
+  static generateLocationScenarioChoices(locationScenario: any, character: Character): Choice[] {
+    const choices: Choice[] = [];
+    
+    // Generate contextual choices based on location and scenario
+    if (locationScenario.emotionalTone === 'peaceful' || locationScenario.emotionalTone === 'enlightening') {
+      choices.push(
+        {
+          id: `${locationScenario.id}_wise_action`,
+          text: "Act with wisdom and compassion",
+          description: "Choose the path that helps others and strengthens your spirit",
+          soulCost: 0,
+          sanityCost: -3, // Restores sanity
+          consequences: ["Your wise choice brings peace to your spirit and helps those around you."]
+        },
+        {
+          id: `${locationScenario.id}_cautious_observation`,
+          text: "Observe carefully before acting",
+          description: "Take time to understand the situation fully",
+          soulCost: 0,
+          sanityCost: -1, // Restores sanity slightly
+          consequences: ["Your patient observation leads to better understanding."]
+        }
+      );
+    } else if (locationScenario.emotionalTone === 'dramatic' || locationScenario.emotionalTone === 'tense') {
+      choices.push(
+        {
+          id: `${locationScenario.id}_bold_intervention`,
+          text: "Intervene boldly",
+          description: "Take decisive action despite the risks",
+          soulCost: 0,
+          sanityCost: 5,
+          consequences: ["Your bold action changes the situation dramatically..."]
+        },
+        {
+          id: `${locationScenario.id}_strategic_approach`,
+          text: "Plan a strategic approach",
+          description: "Think through the consequences before acting",
+          soulCost: 0,
+          sanityCost: 2,
+          consequences: ["Your strategic thinking helps navigate the complex situation..."]
+        }
+      );
+    }
+    
+    // Always add a choice to leave/avoid
+    choices.push({
+      id: `${locationScenario.id}_withdraw`,
+      text: "Step away from the situation",
+      description: "Avoid getting involved in this matter",
+      soulCost: 1,
+      sanityCost: 3,
+      consequences: ["You choose not to get involved, leaving the situation to resolve itself..."]
+    });
+    
+    return choices;
+  }
+
+  static getLocationWeather(location: Location): string {
+    const weatherPatterns: Record<string, string[]> = {
+      "jade_mountain_academy": ["Clear mountain air", "Light mountain breeze", "Misty morning"],
+      "mud_kingdom": ["Humid and muggy", "Swampy mist", "Gentle rain"],
+      "sand_kingdom": ["Hot and dry", "Sandstorm approaching", "Scorching sun"],
+      "sky_kingdom": ["Thin mountain air", "Strong winds", "Crystal clear skies"],
+      "sea_kingdom": ["Ocean breeze", "Salty mist", "Gentle waves"],
+      "ice_kingdom": ["Bitter cold", "Swirling snow", "Aurora visible"],
+      "rainforest_kingdom": ["Warm humidity", "Tropical rain", "Dappled sunlight"],
+      "poison_jungle": ["Toxic mists", "Oppressive humidity", "Strange plant odors"]
+    };
+    
+    const patterns = weatherPatterns[location.id] || ["Pleasant weather"];
+    return patterns[Math.floor(Math.random() * patterns.length)];
+  }
+
+  static handleLocationMigration(character: Character, gameData: GameData, destination: Location): GameData {
+    const travelTime = LocationSystem.calculateTravelTime(LocationSystem.getCurrentLocation(gameData), destination);
+    
+    return {
+      ...gameData,
+      location: destination.id,
+      turn: gameData.turn + Math.ceil(travelTime / 2), // Advance turns based on travel time
+      timeInfo: generateTimeInfo(character)
+    };
   }
 
   static calculateSoulLoss(baseCost: number): number {

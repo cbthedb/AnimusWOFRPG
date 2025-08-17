@@ -1,7 +1,10 @@
 import { Character, GameData, Choice } from "@shared/schema";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Wand2, Package, SkipForward, Eye, Brain, Sparkles, Zap } from "lucide-react";
+import { Wand2, Package, SkipForward, Eye, Brain, Sparkles, Zap, MapPin } from "lucide-react";
+import { LocationMigrationSystem } from "./location-migration-system";
+import { LocationSystem, Location } from "@/lib/location-system";
+import { useState } from "react";
 
 interface GameplayAreaProps {
   character: Character;
@@ -11,6 +14,7 @@ interface GameplayAreaProps {
   onShowSpecialPower: (powerType: 'prophecy' | 'mindreading' | 'future') => void;
   onShowTribalPowers: () => void;
   onCustomAction: () => void;
+  onLocationMigration?: (destination: Location) => void;
   isProcessing: boolean;
 }
 
@@ -22,9 +26,12 @@ export default function GameplayArea({
   onShowSpecialPower,
   onShowTribalPowers,
   onCustomAction,
+  onLocationMigration,
   isProcessing,
 }: GameplayAreaProps) {
   const scenario = gameData.currentScenario;
+  const [showMigrationSystem, setShowMigrationSystem] = useState(false);
+  const currentLocation = LocationSystem.getCurrentLocation(gameData);
 
   const getChoiceButtonColor = (choice: Choice, index: number) => {
     if (choice.corruption) {
@@ -199,10 +206,52 @@ export default function GameplayArea({
                 <Package className="w-4 h-4 mr-1" />
                 Custom Action
               </Button>
+              
+              {/* Location Migration */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowMigrationSystem(true)}
+                className="border-orange-500/50 text-orange-400 hover:bg-orange-500/10"
+              >
+                <MapPin className="w-4 h-4 mr-1" />
+                Travel
+              </Button>
             </div>
             </div>
           )}
         </div>
+        
+        {/* Location Migration System Modal/Panel */}
+        {showMigrationSystem && (
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+            <div className="bg-black/90 border border-purple-500/30 rounded-lg p-6 max-w-4xl max-h-[80vh] overflow-y-auto">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-fantasy text-purple-300">Location Migration</h2>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => setShowMigrationSystem(false)}
+                  className="text-purple-400 hover:bg-purple-500/20"
+                >
+                  ✕
+                </Button>
+              </div>
+              
+              <LocationMigrationSystem
+                character={character}
+                currentLocation={currentLocation}
+                gameData={gameData}
+                onMigrate={(destination) => {
+                  setShowMigrationSystem(false);
+                  if (onLocationMigration) {
+                    onLocationMigration(destination);
+                  }
+                }}
+              />
+            </div>
+          </div>
+        )}
       </Card>
     </div>
   );
