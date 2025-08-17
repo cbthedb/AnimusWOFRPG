@@ -388,7 +388,9 @@ export const PROPHECY_SCENARIOS: SpecialPowerScenario[] = [
 export class SpecialPowerScenarioSystem {
   static getApplicableScenarios(character: Character, type: 'mindreading' | 'prophecy'): SpecialPowerScenario[] {
     const scenarios = type === 'mindreading' ? MINDREADING_SCENARIOS : PROPHECY_SCENARIOS;
-    return scenarios.filter(scenario => scenario.requirements(character));
+    const applicable = scenarios.filter(scenario => scenario.requirements(character));
+    console.log(`Found ${applicable.length} applicable ${type} scenarios for character with powers: ${character.tribalPowers.join(', ')} / ${character.specialPowers.join(', ')}`);
+    return applicable;
   }
   
   static getRandomScenario(character: Character, type: 'mindreading' | 'prophecy'): SpecialPowerScenario | null {

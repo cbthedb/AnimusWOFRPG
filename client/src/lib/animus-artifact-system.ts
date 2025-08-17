@@ -249,10 +249,23 @@ export class AnimusArtifactSystem {
   private static discoveredArtifacts: Set<string> = new Set();
   
   static getAvailableArtifactsForLocation(location: string): AnimusArtifact[] {
-    return ANIMUS_ARTIFACTS.filter(artifact => 
+    // Allow artifacts to be found at any location, but prefer their discovery location
+    const exactLocationArtifacts = ANIMUS_ARTIFACTS.filter(artifact => 
       artifact.discoveryLocation === location && 
       !this.discoveredArtifacts.has(artifact.id)
     );
+    
+    // If no exact location matches, allow any undiscovered artifact to be found
+    if (exactLocationArtifacts.length === 0) {
+      const anyLocationArtifacts = ANIMUS_ARTIFACTS.filter(artifact => 
+        !this.discoveredArtifacts.has(artifact.id)
+      );
+      console.log(`No artifacts for ${location}, using any available: ${anyLocationArtifacts.length} artifacts`);
+      return anyLocationArtifacts;
+    }
+    
+    console.log(`Found ${exactLocationArtifacts.length} artifacts for ${location}`);
+    return exactLocationArtifacts;
   }
   
   static generateArtifactDiscovery(character: Character, gameData: GameData): AnimusArtifact | null {

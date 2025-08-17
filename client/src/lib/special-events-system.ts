@@ -57,14 +57,16 @@ export class SpecialEventsSystem {
     console.log(`- Last mindreading turn: ${this.eventState.lastMindreadingEventTurn}`);
     console.log(`- Last prophecy turn: ${this.eventState.lastProphecyEventTurn}`);
     
-    // Collect eligible event types
-    const eligibleEvents = [];
-    
     // Check what types of events this character can have
     const hasMindreading = character.tribalPowers.some(p => p.toLowerCase().includes('mind')) ||
                           character.specialPowers.some(p => p.toLowerCase().includes('mind'));
-    const hasProphecy = character.tribalPowers.some(p => p.toLowerCase().includes('prophecy')) ||
-                       character.specialPowers.some(p => p.toLowerCase().includes('prophecy') || p.toLowerCase().includes('foresight'));
+    const hasProphecy = character.tribalPowers.some(p => p.toLowerCase().includes('prophecy') || p.toLowerCase().includes('future') || p.toLowerCase().includes('sight')) ||
+                       character.specialPowers.some(p => p.toLowerCase().includes('prophecy') || p.toLowerCase().includes('foresight') || p.toLowerCase().includes('future'));
+    
+    console.log(`- Has mindreading: ${hasMindreading}, Has prophecy: ${hasProphecy}`);
+    
+    // Collect eligible event types
+    const eligibleEvents = [];
     
     // Always check artifact discovery for all characters
     if (this.canTriggerArtifactEvent(currentTurn) && this.eventState.artifactsDiscovered < this.MAX_ARTIFACTS_PER_GAME) {
