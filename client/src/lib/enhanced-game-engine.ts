@@ -48,8 +48,8 @@ export class EnhancedGameEngine {
       newCharacter.sanityPercentage = Math.max(0, newCharacter.sanityPercentage - 1);
     }
 
-    // Age progression and season changes
-    this.progressTime(newCharacter, newGameData);
+    // Age progression and season changes - faster aging
+    this.progressTime(newCharacter, newGameData, 3); // Age 3x faster
 
     // Handle relationships based on choice
     this.updateRelationships(newCharacter, choice, scenario);
@@ -265,10 +265,10 @@ export class EnhancedGameEngine {
     return Math.floor(baseCost * modifier);
   }
 
-  static progressTime(character: Character, gameData: GameData): void {
-    // Age progression - every 10 turns advances age slightly
-    if (gameData.turn % 10 === 0) {
-      character.age += 0.1;
+  static progressTime(character: Character, gameData: GameData, multiplier: number = 1): void {
+    // Age progression - every 5 turns advances age (faster aging)
+    if (gameData.turn % 5 === 0) {
+      character.age += 0.2 * multiplier;
     }
 
     // Season changes every 25 turns

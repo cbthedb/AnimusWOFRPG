@@ -82,6 +82,60 @@ export default function CustomActionModal({
     setShowWarning(false);
   };
 
+  // Get scenario-specific custom actions
+  const getScenarioActions = () => {
+    const currentScenario = gameData.currentScenario;
+    if (!currentScenario) return [];
+    
+    const actions = [];
+    const description = currentScenario.description.toLowerCase();
+
+    // Common scenario-specific actions based on scenario content
+    if (description.includes('dragon') && description.includes('approach')) {
+      actions.push("Approach the dragon cautiously");
+      actions.push("Try to read their mind");
+      actions.push("Offer them something from your inventory");
+    }
+
+    if (description.includes('battle') || description.includes('fight')) {
+      actions.push("Use animus magic in battle");
+      actions.push("Try to end the fight peacefully");
+      actions.push("Retreat strategically");
+    }
+
+    if (description.includes('ancient') || description.includes('artifact')) {
+      actions.push("Examine the ancient object closely");
+      actions.push("Try to activate the artifact");
+      actions.push("Research its history");
+    }
+
+    if (description.includes('injured') || description.includes('hurt')) {
+      actions.push("Use healing magic");
+      actions.push("Bandage their wounds");
+      actions.push("Find a healer");
+    }
+
+    if (description.includes('prophecy') || description.includes('vision')) {
+      actions.push("Seek more details about the prophecy");
+      actions.push("Try to change the predicted future");
+      actions.push("Share the vision with others");
+    }
+
+    if (description.includes('scroll') || description.includes('message')) {
+      actions.push("Read the scroll carefully");
+      actions.push("Enchant the scroll to reveal hidden text");
+      actions.push("Share the message with trusted allies");
+    }
+
+    if (description.includes('suspicious') || description.includes('strange')) {
+      actions.push("Investigate the strange occurrence");
+      actions.push("Use your tribal abilities to sense danger");
+      actions.push("Alert others to the suspicious activity");
+    }
+
+    return actions.slice(0, 6); // Limit to 6 suggestions
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) { reset(); onClose(); } }}>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
@@ -99,6 +153,29 @@ export default function CustomActionModal({
               explore locations, use items, or try anything you can imagine within the Wings of Fire universe.
             </p>
           </div>
+
+          {/* Scenario-Specific Suggestions */}
+          {getScenarioActions().length > 0 && (
+            <div className="space-y-3">
+              <Label>Quick Actions for This Scenario:</Label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                {getScenarioActions().map((action, index) => (
+                  <Button
+                    key={index}
+                    variant="outline"
+                    onClick={() => setCustomAction(action)}
+                    className="text-left p-3 h-auto whitespace-normal"
+                    disabled={isGenerating}
+                  >
+                    <div className="flex items-start">
+                      <Sparkles className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
+                      <span className="text-sm">{action}</span>
+                    </div>
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Action Input */}
           <div className="space-y-2">

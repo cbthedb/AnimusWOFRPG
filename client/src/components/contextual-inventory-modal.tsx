@@ -34,7 +34,6 @@ export default function ContextualInventoryModal({
   const [actionResult, setActionResult] = useState<string>("");
 
   const giveableItems = InventorySystem.getGiveableItems(gameData);
-  const contextualChoices = InventorySystem.getInventoryChoices(gameData, character, scenarioContext);
   
   // Extract NPC names from recent scenarios and relationships
   const potentialNPCs = [
@@ -183,15 +182,14 @@ export default function ContextualInventoryModal({
           </DialogTitle>
         </DialogHeader>
         
-        <Tabs defaultValue="actions" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 bg-black/50">
-            <TabsTrigger value="actions" className="data-[state=active]:bg-purple-600/30">Quick Actions</TabsTrigger>
+        <Tabs defaultValue="inventory" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 bg-black/50">
+            <TabsTrigger value="inventory" className="data-[state=active]:bg-purple-600/30">View Items</TabsTrigger>
             <TabsTrigger value="give" className="data-[state=active]:bg-purple-600/30">Give Items</TabsTrigger>
-            <TabsTrigger value="contextual" className="data-[state=active]:bg-purple-600/30">Scenario Options</TabsTrigger>
           </TabsList>
           
-          {/* Quick Actions Tab */}
-          <TabsContent value="actions" className="mt-4">
+          {/* View Items Tab */}
+          <TabsContent value="inventory" className="mt-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Item Selection */}
               <div>
@@ -199,7 +197,7 @@ export default function ContextualInventoryModal({
                   <Package className="w-4 h-4 mr-2" />
                   Select Item
                 </h3>
-                <ScrollArea className="h-64 pr-4">
+                <div className="h-64 overflow-y-auto pr-4">
                   <div className="space-y-2">
                     {!gameData.inventory || gameData.inventory.length === 0 ? (
                       <p className="text-slate-400 text-sm">No items in inventory.</p>
@@ -254,7 +252,7 @@ export default function ContextualInventoryModal({
                       ))
                     )}
                   </div>
-                </ScrollArea>
+                </div>
               </div>
 
               {/* Actions for Selected Item */}
@@ -406,56 +404,7 @@ export default function ContextualInventoryModal({
             </div>
           </TabsContent>
           
-          {/* Contextual Options Tab */}
-          <TabsContent value="contextual" className="mt-4">
-            <div>
-              <h3 className="font-semibold text-purple-300 mb-3">
-                Scenario-Specific Actions
-              </h3>
-              {contextualChoices.length === 0 ? (
-                <p className="text-slate-400 text-sm">
-                  No special inventory actions are available for the current scenario.
-                </p>
-              ) : (
-                <div className="space-y-3">
-                  {contextualChoices.map((choice) => (
-                    <Card key={choice.id} className="bg-black/40 border-purple-500/20">
-                      <CardContent className="p-4">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <h4 className="font-medium text-purple-300">{choice.text}</h4>
-                            <p className="text-sm text-slate-400 mt-1">{choice.description}</p>
-                            {choice.soulCost > 0 && (
-                              <Badge className="mt-2 bg-red-500/20 text-red-300">
-                                Soul Cost: {choice.soulCost}
-                              </Badge>
-                            )}
-                            {choice.sanityCost > 0 && (
-                              <Badge className="mt-2 ml-2 bg-yellow-500/20 text-yellow-300">
-                                Sanity Cost: {choice.sanityCost}
-                              </Badge>
-                            )}
-                          </div>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              const result = (choice.consequences && choice.consequences[0]) || "You take the action.";
-                              onInventoryAction(choice.id, choice.requiresItem || "", result);
-                              setActionResult(result);
-                            }}
-                            className="ml-4"
-                          >
-                            Use
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </div>
-          </TabsContent>
+
         </Tabs>
 
         <div className="flex justify-end space-x-2 pt-4 border-t border-purple-500/20">

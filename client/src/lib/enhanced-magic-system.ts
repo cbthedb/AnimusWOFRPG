@@ -6,7 +6,7 @@ export const ENHANCED_MAGIC_SPELLS: MagicSpell[] = [
     name: "Object Enchantment",
     category: "minor",
     type: "enchantment",
-    soulCost: [0.5, 2],
+    soulCost: [0.2, 1],
     description: "Imbue objects with magical properties",
     examples: [
       "Make a pouch that never empties of coins",
@@ -19,7 +19,7 @@ export const ENHANCED_MAGIC_SPELLS: MagicSpell[] = [
     name: "Greater Enchantments", 
     category: "moderate",
     type: "enchantment",
-    soulCost: [3, 8],
+    soulCost: [1, 3],
     description: "Create powerful magical artifacts",
     examples: [
       "Forge a sword that cuts through any material",
@@ -34,7 +34,7 @@ export const ENHANCED_MAGIC_SPELLS: MagicSpell[] = [
     name: "Combat Enhancement",
     category: "minor", 
     type: "combat",
-    soulCost: [1, 3],
+    soulCost: [0.3, 1.5],
     description: "Enhance fighting abilities temporarily",
     examples: [
       "Make your claws razor-sharp for one battle",
@@ -47,7 +47,7 @@ export const ENHANCED_MAGIC_SPELLS: MagicSpell[] = [
     name: "Battlefield Control",
     category: "major",
     type: "combat", 
-    soulCost: [8, 15],
+    soulCost: [1.5, 4],
     description: "Control entire battlefields",
     examples: [
       "Create an army of animated stone warriors",
@@ -62,7 +62,7 @@ export const ENHANCED_MAGIC_SPELLS: MagicSpell[] = [
     name: "Healing Touch",
     category: "minor",
     type: "healing",
-    soulCost: [0.5, 2],
+    soulCost: [0.2, 1],
     description: "Cure injuries and ailments",
     examples: [
       "Instantly heal broken bones",
@@ -90,7 +90,7 @@ export const ENHANCED_MAGIC_SPELLS: MagicSpell[] = [
     name: "Weather Manipulation",
     category: "moderate",
     type: "weather",
-    soulCost: [2, 6],
+    soulCost: [1, 3],
     description: "Control local weather patterns",
     examples: [
       "Summon lightning storms",
@@ -118,7 +118,7 @@ export const ENHANCED_MAGIC_SPELLS: MagicSpell[] = [
     name: "Minor Curses",
     category: "minor",
     type: "curse",
-    soulCost: [1, 4],
+    soulCost: [0.5, 2],
     description: "Inflict misfortune on enemies",
     examples: [
       "Make someone's words come out backwards",
@@ -131,7 +131,7 @@ export const ENHANCED_MAGIC_SPELLS: MagicSpell[] = [
     name: "Devastating Curses",
     category: "major",
     type: "curse",
-    soulCost: [8, 18],
+    soulCost: [4, 10],
     description: "Destroy lives with dark magic",
     examples: [
       "Curse an entire bloodline with madness",
@@ -146,7 +146,7 @@ export const ENHANCED_MAGIC_SPELLS: MagicSpell[] = [
     name: "Creature Summoning",
     category: "moderate",
     type: "summoning",
-    soulCost: [3, 8],
+    soulCost: [1.5, 4],
     description: "Call forth magical beings",
     examples: [
       "Summon a storm of deadly insects",
