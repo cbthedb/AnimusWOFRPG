@@ -636,7 +636,7 @@ export class EnhancedAIController {
       "Sand Manipulation": "Creates sandstorms to blind and disorient peaceful travelers"
     };
 
-    const availablePowers = character.tribalPowers.filter(power => 
+    const availablePowers = (character.tribalPowers || []).filter(power => 
       corruptedUses[power as keyof typeof corruptedUses]
     );
 

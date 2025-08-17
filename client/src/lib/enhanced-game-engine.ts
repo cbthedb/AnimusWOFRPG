@@ -65,7 +65,7 @@ export class EnhancedGameEngine {
 
     // Handle item consumption if required
     if (choice.requiresItem && choice.consumesItem) {
-      const requiredItem = newGameData.inventory.find(item => 
+      const requiredItem = (newGameData.inventory || []).find(item => 
         item.id === choice.requiresItem || 
         item.name.toLowerCase().includes(choice.requiresItem.toLowerCase())
       );
@@ -137,7 +137,7 @@ export class EnhancedGameEngine {
       const locationScenario = LocationBasedScenarios.getRandomLocationScenario(currentLocation.id, character);
       if (locationScenario) {
         // Add random chance for item collection scenarios
-        const enhancedChoices = locationScenario.choices?.map((choice: any) => {
+        const enhancedChoices = (locationScenario.choices || []).map((choice: any) => {
           // Add item rewards to some choices
           if (Math.random() < 0.3) {
             const item = InventorySystem.generateCollectibleItem(currentLocation.name, locationScenario.title);
@@ -287,10 +287,10 @@ export class EnhancedGameEngine {
     }
 
     // Handle general relationship consequences
-    if (choice.consequences.some(c => c.toLowerCase().includes('friend'))) {
+    if (choice.consequences && choice.consequences.some(c => c.toLowerCase().includes('friend'))) {
       // Positive social interaction
       const dragonName = this.extractDragonName(choice.consequences.join(' '));
-      if (dragonName && character.relationships[dragonName] !== undefined) {
+      if (dragonName && character.relationships && character.relationships[dragonName] !== undefined) {
         const relationship = character.relationships[dragonName];
         if (typeof relationship === 'object') {
           relationship.strength = Math.min(100, relationship.strength + 10);
@@ -299,10 +299,10 @@ export class EnhancedGameEngine {
       }
     }
 
-    if (choice.consequences.some(c => c.toLowerCase().includes('betray') || c.toLowerCase().includes('hurt'))) {
+    if (choice.consequences && choice.consequences.some(c => c.toLowerCase().includes('betray') || c.toLowerCase().includes('hurt'))) {
       // Negative social interaction  
       const dragonName = this.extractDragonName(choice.consequences.join(' '));
-      if (dragonName && character.relationships[dragonName] !== undefined) {
+      if (dragonName && character.relationships && character.relationships[dragonName] !== undefined) {
         const relationship = character.relationships[dragonName];
         if (typeof relationship === 'object') {
           relationship.strength = Math.max(-100, relationship.strength - 15);
@@ -312,9 +312,10 @@ export class EnhancedGameEngine {
     }
 
     // Check for romance progression with existing relationships
-    Object.keys(character.relationships).forEach(dragonName => {
-      const relationship = character.relationships[dragonName];
-      if (typeof relationship === 'object' && relationship.type === 'romantic') {
+    if (character.relationships) {
+      Object.keys(character.relationships).forEach(dragonName => {
+        const relationship = character.relationships[dragonName];
+        if (typeof relationship === 'object' && relationship.type === 'romantic') {
         // Check if ready to become mates
         if (RomanceSystem.canMate(character, dragonName) && !character.mate && Math.random() < 0.2) {
           character.mate = dragonName;
@@ -344,13 +345,14 @@ export class EnhancedGameEngine {
             }
           }
         }
-      }
-    });
+        }
+      });
+    }
   }
 
   static handleRomanceChoice(character: Character, choice: Choice, scenario: Scenario): void {
     // Extract partner name from scenario narrative
-    const narrativeText = scenario.narrativeText.join(' ');
+    const narrativeText = (scenario.narrativeText || []).join(' ');
     const partnerName = this.extractPartnerFromRomanceScenario(narrativeText);
     
     if (!partnerName) return;
@@ -372,6 +374,7 @@ export class EnhancedGameEngine {
       
     } else if (choice.id === 'romance_cautious') {
       // Cautious approach - develop friendship first
+      if (!character.relationships) character.relationships = {};
       character.relationships[partnerName] = {
         name: partnerName,
         type: 'friend',
@@ -382,6 +385,7 @@ export class EnhancedGameEngine {
       
     } else if (choice.id === 'romance_reject') {
       // Polite rejection - neutral relationship
+      if (!character.relationships) character.relationships = {};
       character.relationships[partnerName] = {
         name: partnerName,
         type: 'neutral',
