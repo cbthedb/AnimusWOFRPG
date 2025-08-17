@@ -9,6 +9,7 @@ import { LocationSystem, LOCATIONS, Location } from "./location-system";
 import { LocationBasedScenarios } from "./location-based-scenarios";
 import { InventorySystem } from "./inventory-system";
 import { SpecialEventsSystem } from "./special-events-system";
+import { ExpandedScenarioSystem } from './expanded-scenarios';
 
 export class EnhancedGameEngine {
   static processChoice(
@@ -146,12 +147,27 @@ export class EnhancedGameEngine {
         SpecialEventsSystem.saveEventState(newGameData);
       } else {
         console.log(`No special event triggered at turn ${nextTurn}`);
+        
+        // Try location-specific special scenario
+        const locationSpecial = ExpandedScenarioSystem.tryGetLocationSpecialScenario(newCharacter, newGameData.location);
+        if (locationSpecial) {
+          console.log(`Location special scenario triggered: ${locationSpecial.title}`);
+          nextScenario = ExpandedScenarioSystem.convertToScenario(locationSpecial, newGameData);
+        } else {
+          // Generate next scenario using original system
+          nextScenario = this.generateNextScenario(newCharacter, newGameData);
+        }
+      }
+    } else {
+      // Try location-specific special scenario occasionally
+      const locationSpecial = ExpandedScenarioSystem.tryGetLocationSpecialScenario(newCharacter, newGameData.location);
+      if (locationSpecial) {
+        console.log(`Location special scenario triggered: ${locationSpecial.title}`);
+        nextScenario = ExpandedScenarioSystem.convertToScenario(locationSpecial, newGameData);
+      } else {
         // Generate next scenario using original system
         nextScenario = this.generateNextScenario(newCharacter, newGameData);
       }
-    } else {
-      // Generate next scenario using original system
-      nextScenario = this.generateNextScenario(newCharacter, newGameData);
     }
 
     // Create game event

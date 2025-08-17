@@ -26,6 +26,9 @@ Preferred communication style: Simple, everyday language.
 - **Comprehensive Custom Action System** (January 2025): Enhanced custom action responses to work with ALL scenario types, providing contextual, immersive responses that integrate with Wings of Fire lore and character abilities.
 - **Improved Aging and Event Timing** (January 2025): Changed aging to 1 year per turn and special event timing to every 10 turns with higher success rates (15% for artifacts, 12% for special powers).
 - **Fixed Special Events System** (January 2025): Corrected special event triggering to ensure events occur every 10 turns as intended. Updated max artifacts per game to 3 for better game balance. Added persistent event state tracking and comprehensive debug logging.
+- **Enhanced Artifact Discovery System** (January 2025): Made animus artifacts discoverable at any location with guaranteed discovery on every 10th turn. Fixed location filtering issues that prevented artifact discovery.
+- **Expanded Scenario Database** (January 2025): Added 200+ new scenarios from attached file including friendship offers, battle tactics, feast invitations, Darkstalker encounters, and immortality requests. Integrated scenarios properly with character ability requirements.
+- **Location-Based Special Events** (January 2025): Added rare location-specific scenarios like NightWing-RainWing village architecture disputes and Ice Kingdom diplomatic crises. Limited to 3 special events every 10 minutes for rarity.
 
 # System Architecture
 

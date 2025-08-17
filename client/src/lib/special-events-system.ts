@@ -173,11 +173,9 @@ export class SpecialEventsSystem {
       chance *= 1.5;
     }
     
-    // For every 10th turn, significantly increase chance or guarantee discovery
+    // For every 10th turn, guarantee artifact discovery if eligible
     const isEvery10Turns = turn % 10 === 0;
-    const shouldGenerate = isEvery10Turns ? 
-      (currentLocation.name.includes('Ancient') || currentLocation.name.includes('Ruins') || Math.random() < (chance * 3)) : 
-      Math.random() < chance;
+    const shouldGenerate = isEvery10Turns ? true : Math.random() < chance;
       
     console.log(`Artifact generation - Turn: ${turn}, Location: ${currentLocation.name}, Base chance: ${chance}, Should generate: ${shouldGenerate}`);
     
