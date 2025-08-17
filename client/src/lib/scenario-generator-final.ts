@@ -714,9 +714,9 @@ export function generateScenario(character: Character, gameData: Partial<GameDat
       title: "A Choice Awaits",
       description: "Your decision will shape your path",
       narrativeText: [scenario.text],
-      choices: generateChoicesForScenario(scenario, character, gameData),
+      choices: generateChoicesForScenario(scenario, character, gameData as GameData),
       type: 'mundane',
-      location: gameData.location,
+      location: gameData.location || "Unknown Location",
       timeOfDay: "afternoon",
       weather: "calm"
     };
@@ -752,11 +752,11 @@ export function generateScenario(character: Character, gameData: Partial<GameDat
     description: getScenarioDescription(scenario),
     narrativeText: [
       scenario.text,
-      generateContextualNarrative(scenario, character, gameData)
+      generateContextualNarrative(scenario, character, gameData as GameData)
     ],
-    choices: generateChoicesForScenario(scenario, character, gameData),
+    choices: generateChoicesForScenario(scenario, character, gameData as GameData),
     type: gameType,
-    location: gameData.location,
+    location: gameData.location || "Unknown Location",
     timeOfDay: getRandomTimeOfDay(),
     weather: getRandomWeather()
   };

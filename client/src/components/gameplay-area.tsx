@@ -76,7 +76,25 @@ export default function GameplayArea({
         {/* Narrative Display */}
         <div className="flex-1 p-6 overflow-y-auto">
           <div className="narrative-text font-narrative text-base leading-relaxed">
-            {scenario.narrativeText.map((paragraph, index) => (
+            {/* Show choice outcome if waiting for user to continue */}
+            {gameData.lastChoiceResult && gameData.awaitingResponse && (
+              <div className="bg-gradient-to-r from-blue-900/50 to-purple-900/50 border border-purple-400/50 rounded-lg p-6 mb-6 animate-pulse">
+                <h4 className="font-fantasy text-lg font-semibold text-purple-300 mb-3 flex items-center">
+                  <Sparkles className="w-5 h-5 mr-2" />
+                  What Happened
+                </h4>
+                <p className="text-purple-100 leading-relaxed mb-4">{gameData.lastChoiceResult}</p>
+                <Button
+                  onClick={() => onChoice({ id: 'continue', text: 'Continue', description: '', soulCost: 0, sanityCost: 0, consequences: [], corruption: false })}
+                  className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2"
+                >
+                  <SkipForward className="w-4 h-4 mr-2" />
+                  Continue Your Story
+                </Button>
+              </div>
+            )}
+
+            {!gameData.awaitingResponse && scenario.narrativeText.map((paragraph, index) => (
               <p
                 key={index}
                 className="mb-4"
@@ -88,10 +106,24 @@ export default function GameplayArea({
               />
             ))}
 
-            {scenario.type === 'magical' && (
+            {!gameData.awaitingResponse && scenario.type === 'magical' && (
               <div className="bg-black/50 border-l-4 border-purple-400 p-4 rounded-r-lg mb-6">
                 <p className="font-semibold text-purple-300 mb-2">Current Scenario:</p>
                 <p>{scenario.description}</p>
+              </div>
+            )}
+
+            {/* Special Event Indicators */}
+            {!gameData.awaitingResponse && (scenario.type === 'magical' || scenario.id.includes('artifact') || scenario.id.includes('mindreading') || scenario.id.includes('prophecy')) && (
+              <div className="bg-gradient-to-r from-yellow-900/30 to-red-900/30 border border-yellow-500/50 rounded-lg p-4 mb-6">
+                <p className="font-semibold text-yellow-300 mb-2 flex items-center">
+                  <Zap className="w-4 h-4 mr-2" />
+                  {scenario.id.includes('artifact') && "Rare Animus Artifact Discovery!"}
+                  {scenario.id.includes('mindreading') && "Mind Reading Event!"}
+                  {scenario.id.includes('prophecy') && "Prophetic Vision!"}
+                  {scenario.type === 'magical' && !scenario.id.includes('artifact') && !scenario.id.includes('mindreading') && !scenario.id.includes('prophecy') && "Magical Event!"}
+                </p>
+                <p className="text-yellow-200 text-sm">This is a rare special event that will have significant consequences for your dragon's journey.</p>
               </div>
             )}
           </div>
@@ -99,43 +131,58 @@ export default function GameplayArea({
 
         {/* Choice Selection Area */}
         <div className="border-t border-purple-500/30 p-6">
-          {character.isAIControlled ? (
-            <div className="bg-red-900/50 border border-red-500/50 rounded-lg p-4 mb-4">
-              <h4 className="font-fantasy text-lg font-semibold text-red-300 mb-2 flex items-center">
-                <Eye className="w-5 h-5 mr-2 animate-pulse" />
-                AI Controlling Your Dragon
-              </h4>
-              <p className="text-red-200 text-sm">
-                Your corrupted dragon is now under AI control. Watch as evil choices are made automatically...
-              </p>
-            </div>
-          ) : (
-            <h4 className="font-fantasy text-lg font-semibold text-purple-300 mb-4">
-              Choose your action:
-            </h4>
-          )}
-
-          <div className="space-y-3">
-            {scenario.choices.map((choice, index) => (
-              <Button
-                key={choice.id}
-                variant="ghost"
-                className={`choice-button w-full text-left p-4 border transition-all duration-300 ${getChoiceButtonColor(choice, index)}`}
-                onClick={() => onChoice(choice)}
-                disabled={isProcessing || character.isAIControlled}
-              >
-                <div className="flex items-start">
-                  <div className="bg-purple-400 text-black rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 mt-1">
-                    {index + 1}
-                  </div>
-                  <div className="flex-1">
-                    <div className="font-medium text-slate-200">{choice.text}</div>
-                    <div className="text-sm text-slate-400 mt-1">{choice.description}</div>
-                  </div>
+          {/* Don't show choices if awaiting response */}
+          {!gameData.awaitingResponse && (
+            <>
+              {character.isAIControlled ? (
+                <div className="bg-red-900/50 border border-red-500/50 rounded-lg p-4 mb-4">
+                  <h4 className="font-fantasy text-lg font-semibold text-red-300 mb-2 flex items-center">
+                    <Eye className="w-5 h-5 mr-2 animate-pulse" />
+                    AI Controlling Your Dragon
+                  </h4>
+                  <p className="text-red-200 text-sm">
+                    Your corrupted dragon is now under AI control. Watch as evil choices are made automatically...
+                  </p>
                 </div>
-              </Button>
-            ))}
-          </div>
+              ) : (
+                <h4 className="font-fantasy text-lg font-semibold text-purple-300 mb-4">
+                  Choose your action:
+                </h4>
+              )}
+
+              <div className="space-y-3">
+                {scenario.choices.map((choice, index) => (
+                  <Button
+                    key={choice.id}
+                    variant="ghost"
+                    className={`choice-button w-full text-left p-4 border transition-all duration-300 ${getChoiceButtonColor(choice, index)}`}
+                    onClick={() => onChoice(choice)}
+                    disabled={isProcessing || character.isAIControlled}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <p className="font-semibold">{choice.text}</p>
+                        {choice.description && (
+                          <p className="text-xs opacity-75 mt-1">{choice.description}</p>
+                        )}
+                      </div>
+                      <div className="text-right text-xs flex flex-col items-end gap-1">
+                        {choice.soulCost > 0 && (
+                          <span className="text-red-400">-{choice.soulCost} Soul</span>
+                        )}
+                        {choice.sanityCost > 0 && (
+                          <span className="text-yellow-400">-{choice.sanityCost} Sanity</span>
+                        )}
+                        {choice.corruption && (
+                          <span className="text-red-500 font-bold">⚠ Corrupting</span>
+                        )}
+                      </div>
+                    </div>
+                  </Button>
+                ))}
+              </div>
+            </>
+          )}
 
           {/* Quick Actions Bar */}
           {!character.isAIControlled && (

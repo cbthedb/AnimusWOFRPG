@@ -8,6 +8,7 @@ import { RomanceSystem } from "./romance-system";
 import { LocationSystem, LOCATIONS, Location } from "./location-system";
 import { LocationBasedScenarios } from "./location-based-scenarios";
 import { InventorySystem } from "./inventory-system";
+import { SpecialEventsSystem } from "./special-events-system";
 
 export class EnhancedGameEngine {
   static processChoice(
@@ -54,9 +55,45 @@ export class EnhancedGameEngine {
     // Handle relationships based on choice
     this.updateRelationships(newCharacter, choice, scenario);
     
-    // Add response system - store last choice result for user acknowledgment
+    // Handle continue button - clear outcome display and generate next scenario
+    if (choice.id === 'continue' && gameData.awaitingResponse) {
+      newGameData.lastChoiceResult = undefined;
+      newGameData.awaitingResponse = false;
+      
+      // Generate next scenario after clearing outcome
+      const nextScenario = this.generateNextScenario(newCharacter, newGameData);
+      newGameData.currentScenario = nextScenario;
+      
+      return {
+        newCharacter,
+        newGameData
+      };
+    }
+
+    // Store outcome for display with continue button
+    let outcomeText = "";
     if (choice.consequences && choice.consequences.length > 0) {
-      newGameData.lastChoiceResult = choice.consequences.join(". ");
+      outcomeText = choice.consequences.join(". ");
+    }
+    
+    // Check if this is a special event choice
+    if (scenario.id.includes('artifact_') || scenario.id.includes('mindreading_') || scenario.id.includes('prophecy_')) {
+      try {
+        const specialEvent = SpecialEventsSystem.checkForSpecialEvent(newCharacter, newGameData);
+        if (specialEvent && specialEvent.scenario.id === scenario.id) {
+          const result = SpecialEventsSystem.processSpecialEventChoice(specialEvent, choice.id, newCharacter, newGameData);
+          outcomeText = result.outcome;
+          Object.assign(newCharacter, result.newCharacter);
+          Object.assign(newGameData, result.newGameData);
+        }
+      } catch (error) {
+        console.warn("Special event processing failed:", error);
+      }
+    }
+    
+    // Set outcome for display
+    if (outcomeText) {
+      newGameData.lastChoiceResult = outcomeText;
       newGameData.awaitingResponse = true;
     }
 
@@ -81,8 +118,16 @@ export class EnhancedGameEngine {
       }
     }
 
-    // Generate next scenario using original system
-    const nextScenario = this.generateNextScenario(newCharacter, newGameData);
+    // Check for special events first (artifacts, special powers)
+    const specialEvent = SpecialEventsSystem.checkForSpecialEvent(newCharacter, newGameData);
+    let nextScenario: Scenario;
+    
+    if (specialEvent) {
+      nextScenario = specialEvent.scenario;
+    } else {
+      // Generate next scenario using original system
+      nextScenario = this.generateNextScenario(newCharacter, newGameData);
+    }
 
     // Create game event
     const event: GameEvent = {

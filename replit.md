@@ -20,6 +20,9 @@ Preferred communication style: Simple, everyday language.
 - **Enhanced Storyline Progression** (January 2025): Fixed custom actions, tribal powers, and special abilities to actually advance the story rather than just showing static results. Powers now generate new scenarios based on their effects.
 - **Contextual Tribal Powers** (January 2025): Made tribal powers more relevant to current situations and properly integrated with the storyline progression system.
 - **Location-Based Migration System** (January 2025): Added comprehensive travel system with 15+ locations across Pyrrhia and Pantala continents, featuring location-specific scenarios, tribal relationships, migration animations, and Wings of Fire lore integration.
+- **Special Events System** (January 2025): Implemented rare, time-gated special events including animus artifact discoveries, mindreading scenarios, and prophecy events. These complement existing gameplay with 5-minute cooldowns and dragon-type requirements.
+- **Animus Artifact System** (January 2025): Added 5 unique collectible animus artifacts with complex moral choices, soul corruption mechanics, and location-based discovery system. Maximum 3 artifacts per playthrough.
+- **Enhanced Outcome Display** (January 2025): Integrated continue button system that displays story outcomes before proceeding to next scenario, improving narrative flow and player engagement.
 
 # System Architecture
 
