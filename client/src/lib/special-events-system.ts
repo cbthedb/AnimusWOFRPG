@@ -11,56 +11,56 @@ export interface SpecialEvent {
 }
 
 export interface SpecialEventState {
-  lastArtifactEvent: number;
-  lastMindreadingEvent: number;
-  lastProphecyEvent: number;
+  lastArtifactEventTurn: number;
+  lastMindreadingEventTurn: number;
+  lastProphecyEventTurn: number;
   artifactsDiscovered: number;
   maxArtifactsPerGame: number;
 }
 
 export class SpecialEventsSystem {
-  private static readonly ARTIFACT_COOLDOWN = 5 * 60 * 1000; // 5 minutes
-  private static readonly MINDREADING_COOLDOWN = 5 * 60 * 1000; // 5 minutes  
-  private static readonly PROPHECY_COOLDOWN = 5 * 60 * 1000; // 5 minutes
-  private static readonly ARTIFACT_BASE_CHANCE = 0.02; // 2% chance per turn
-  private static readonly SPECIAL_POWER_BASE_CHANCE = 0.03; // 3% chance per turn
-  private static readonly MAX_ARTIFACTS_PER_GAME = 3;
+  private static readonly ARTIFACT_COOLDOWN_TURNS = 10; // 10 turns
+  private static readonly MINDREADING_COOLDOWN_TURNS = 10; // 10 turns  
+  private static readonly PROPHECY_COOLDOWN_TURNS = 10; // 10 turns
+  private static readonly ARTIFACT_BASE_CHANCE = 0.15; // 15% chance per turn
+  private static readonly SPECIAL_POWER_BASE_CHANCE = 0.12; // 12% chance per turn
+  private static readonly MAX_ARTIFACTS_PER_GAME = 5;
   
   private static eventState: SpecialEventState = {
-    lastArtifactEvent: 0,
-    lastMindreadingEvent: 0,
-    lastProphecyEvent: 0,
+    lastArtifactEventTurn: 0,
+    lastMindreadingEventTurn: 0,
+    lastProphecyEventTurn: 0,
     artifactsDiscovered: 0,
     maxArtifactsPerGame: this.MAX_ARTIFACTS_PER_GAME
   };
   
   static checkForSpecialEvent(character: Character, gameData: GameData): SpecialEvent | null {
-    const now = Date.now();
+    const currentTurn = gameData.turn;
     
     // Check for artifact discovery (location-based)
-    if (this.canTriggerArtifactEvent(now) && this.eventState.artifactsDiscovered < this.MAX_ARTIFACTS_PER_GAME) {
-      const artifactEvent = this.tryGenerateArtifactEvent(character, gameData, now);
+    if (this.canTriggerArtifactEvent(currentTurn) && this.eventState.artifactsDiscovered < this.MAX_ARTIFACTS_PER_GAME) {
+      const artifactEvent = this.tryGenerateArtifactEvent(character, gameData, currentTurn);
       if (artifactEvent) {
-        this.eventState.lastArtifactEvent = now;
+        this.eventState.lastArtifactEventTurn = currentTurn;
         this.eventState.artifactsDiscovered++;
         return artifactEvent;
       }
     }
     
     // Check for mindreading special scenario
-    if (this.canTriggerMindreadingEvent(character, now)) {
-      const mindreadingEvent = this.tryGenerateMindreadingEvent(character, gameData, now);
+    if (this.canTriggerMindreadingEvent(character, currentTurn)) {
+      const mindreadingEvent = this.tryGenerateMindreadingEvent(character, gameData, currentTurn);
       if (mindreadingEvent) {
-        this.eventState.lastMindreadingEvent = now;
+        this.eventState.lastMindreadingEventTurn = currentTurn;
         return mindreadingEvent;
       }
     }
     
     // Check for prophecy special scenario
-    if (this.canTriggerProphecyEvent(character, now)) {
-      const prophecyEvent = this.tryGenerateProphecyEvent(character, gameData, now);
+    if (this.canTriggerProphecyEvent(character, currentTurn)) {
+      const prophecyEvent = this.tryGenerateProphecyEvent(character, gameData, currentTurn);
       if (prophecyEvent) {
-        this.eventState.lastProphecyEvent = now;
+        this.eventState.lastProphecyEventTurn = currentTurn;
         return prophecyEvent;
       }
     }
@@ -68,23 +68,23 @@ export class SpecialEventsSystem {
     return null;
   }
   
-  private static canTriggerArtifactEvent(now: number): boolean {
-    return (now - this.eventState.lastArtifactEvent) >= this.ARTIFACT_COOLDOWN;
+  private static canTriggerArtifactEvent(currentTurn: number): boolean {
+    return (currentTurn - this.eventState.lastArtifactEventTurn) >= this.ARTIFACT_COOLDOWN_TURNS;
   }
   
-  private static canTriggerMindreadingEvent(character: Character, now: number): boolean {
+  private static canTriggerMindreadingEvent(character: Character, currentTurn: number): boolean {
     const hasMindreading = character.tribalPowers.some(p => p.toLowerCase().includes('mind')) ||
                           character.specialPowers.some(p => p.toLowerCase().includes('mind'));
-    return hasMindreading && (now - this.eventState.lastMindreadingEvent) >= this.MINDREADING_COOLDOWN;
+    return hasMindreading && (currentTurn - this.eventState.lastMindreadingEventTurn) >= this.MINDREADING_COOLDOWN_TURNS;
   }
   
-  private static canTriggerProphecyEvent(character: Character, now: number): boolean {
+  private static canTriggerProphecyEvent(character: Character, currentTurn: number): boolean {
     const hasProphecy = character.tribalPowers.some(p => p.toLowerCase().includes('prophecy')) ||
                        character.specialPowers.some(p => p.toLowerCase().includes('prophecy') || p.toLowerCase().includes('foresight'));
-    return hasProphecy && (now - this.eventState.lastProphecyEvent) >= this.PROPHECY_COOLDOWN;
+    return hasProphecy && (currentTurn - this.eventState.lastProphecyEventTurn) >= this.PROPHECY_COOLDOWN_TURNS;
   }
   
-  private static tryGenerateArtifactEvent(character: Character, gameData: GameData, timestamp: number): SpecialEvent | null {
+  private static tryGenerateArtifactEvent(character: Character, gameData: GameData, turn: number): SpecialEvent | null {
     const currentLocation = LocationSystem.getCurrentLocation(gameData);
     if (!currentLocation) return null;
     
