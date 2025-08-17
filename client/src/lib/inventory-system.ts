@@ -5,6 +5,11 @@ export class InventorySystem {
    * Adds an item to the player's inventory
    */
   static addItem(gameData: GameData, item: InventoryItem): GameData {
+    // Initialize inventory if it doesn't exist
+    if (!gameData.inventory) {
+      gameData.inventory = [];
+    }
+    
     // Check if item already exists and is stackable
     const existingItemIndex = gameData.inventory.findIndex(
       (invItem) => invItem.name === item.name && invItem.type === item.type
@@ -17,7 +22,7 @@ export class InventorySystem {
       // Add new item to inventory
       return {
         ...gameData,
-        inventory: [...gameData.inventory, { ...item, id: `${item.name}_${Date.now()}` }]
+        inventory: [...(gameData.inventory || []), { ...item, id: `${item.name}_${Date.now()}` }]
       };
     }
   }
@@ -28,7 +33,7 @@ export class InventorySystem {
   static removeItem(gameData: GameData, itemId: string): GameData {
     return {
       ...gameData,
-      inventory: gameData.inventory.filter(item => item.id !== itemId)
+      inventory: (gameData.inventory || []).filter(item => item.id !== itemId)
     };
   }
 
@@ -41,7 +46,7 @@ export class InventorySystem {
     itemId: string, 
     npcName: string
   ): { character: Character; gameData: GameData; storyAdvanced: boolean; result: string } {
-    const item = gameData.inventory.find(inv => inv.id === itemId);
+    const item = (gameData.inventory || []).find(inv => inv.id === itemId);
     
     if (!item) {
       return {
