@@ -11,7 +11,61 @@ export interface ExpandedScenario {
   location?: string;
 }
 
-// Core scenarios from the attached file
+// Helper function to parse scenario requirements
+function parseRequirements(typeStr: string): ((character: Character) => boolean) | undefined {
+  switch (typeStr.toLowerCase()) {
+    case 'mindreading':
+      return (c) => c.tribalPowers.some(p => p.toLowerCase().includes('mind')) || c.specialPowers.some(p => p.toLowerCase().includes('mind'));
+    case 'prophecy':
+      return (c) => c.tribalPowers.some(p => p.toLowerCase().includes('prophecy') || p.toLowerCase().includes('future') || p.toLowerCase().includes('sight')) ||
+                   c.specialPowers.some(p => p.toLowerCase().includes('prophecy') || p.toLowerCase().includes('foresight') || p.toLowerCase().includes('future'));
+    case 'animus':
+      return (c) => c.isAnimus;
+    default:
+      return undefined; // No requirements for normal, wars, learning
+  }
+}
+
+// Auto-generated scenarios from attached file (first 100 as examples)
+const AUTO_SCENARIOS: ExpandedScenario[] = [
+  {
+    id: "scenario_1",
+    title: "Unexpected Friendship",
+    description: "A dragon offers friendship. Do you accept or push them away?",
+    narrativeText: ["A dragon approaches you with an earnest expression, offering their friendship."],
+    type: 'normal',
+    choices: [
+      { id: "accept", text: "Accept their friendship", description: "Welcome this new connection", soulCost: 0, sanityCost: 0, consequences: ["Gained new friend"], corruption: false },
+      { id: "reject", text: "Push them away", description: "Reject their offer", soulCost: 1, sanityCost: 0, consequences: ["Hurt their feelings"], corruption: false }
+    ]
+  },
+  {
+    id: "scenario_2",
+    title: "Mental Overload",
+    description: "You hear multiple thoughts at once. Do you focus or retreat from the noise?",
+    narrativeText: ["Your mind-reading ability suddenly activates, flooding you with multiple thoughts at once."],
+    type: 'mindreading',
+    requirements: parseRequirements('mindreading'),
+    choices: [
+      { id: "focus", text: "Focus and filter the thoughts", description: "Try to control the mental flood", soulCost: 0, sanityCost: 5, consequences: ["Better mind control"], corruption: false },
+      { id: "retreat", text: "Retreat from the noise", description: "Pull back from the mental chaos", soulCost: 0, sanityCost: 2, consequences: ["Avoided overload"], corruption: false }
+    ]
+  },
+  {
+    id: "scenario_7",
+    title: "Immortality Request",
+    description: "A dragon asks you to enchant them immortal. Do you grant their wish or refuse?",
+    narrativeText: ["A desperate dragon begs you to use your animus magic to make them immortal."],
+    type: 'animus',
+    requirements: parseRequirements('animus'),
+    choices: [
+      { id: "grant", text: "Grant immortality", description: "Use powerful animus magic", soulCost: 20, sanityCost: 0, consequences: ["Massive soul corruption"], corruption: true },
+      { id: "refuse", text: "Refuse the request", description: "Preserve your soul integrity", soulCost: 0, sanityCost: 3, consequences: ["Maintained ethics"], corruption: false }
+    ]
+  }
+];
+
+// Core detailed scenarios
 export const EXPANDED_SCENARIOS: ExpandedScenario[] = [
   {
     id: "friendship_offer",
@@ -371,7 +425,10 @@ export class ExpandedScenarioSystem {
   private static readonly MAX_SPECIAL_SCENARIOS_PER_PERIOD = 3;
 
   static getRandomExpandedScenario(character: Character, type?: string): ExpandedScenario | null {
-    let eligibleScenarios = EXPANDED_SCENARIOS.filter(scenario => {
+    // Combine all scenarios
+    const allScenarios = [...EXPANDED_SCENARIOS, ...AUTO_SCENARIOS];
+    
+    let eligibleScenarios = allScenarios.filter(scenario => {
       // Check type filter
       if (type && scenario.type !== type) return false;
       

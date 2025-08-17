@@ -247,6 +247,7 @@ export const ANIMUS_ARTIFACTS: AnimusArtifact[] = [
 
 export class AnimusArtifactSystem {
   private static discoveredArtifacts: Set<string> = new Set();
+  private static readonly MAX_ARTIFACTS_PER_GAME = 3;
   
   static getAvailableArtifactsForLocation(location: string): AnimusArtifact[] {
     // Allow artifacts to be found at any location, but prefer their discovery location
@@ -269,32 +270,32 @@ export class AnimusArtifactSystem {
   }
   
   static generateArtifactDiscovery(character: Character, gameData: GameData): AnimusArtifact | null {
-    const currentLocation = LocationSystem.getCurrentLocation(gameData);
-    if (!currentLocation) return null;
+    console.log(`Trying to generate artifact discovery. Discovered: ${this.discoveredArtifacts.size}/${this.MAX_ARTIFACTS_PER_GAME}`);
     
-    const availableArtifacts = this.getAvailableArtifactsForLocation(currentLocation.name);
-    if (availableArtifacts.length === 0) return null;
-    
-    // Calculate discovery chance based on location exploration and rarity
-    const baseChance = 0.15; // 15% base chance per turn in new location
-    const rarityModifiers = {
-      common: 1.0,
-      uncommon: 0.7,
-      rare: 0.4, 
-      legendary: 0.2,
-      mythical: 0.1
-    };
-    
-    for (const artifact of availableArtifacts) {
-      const discoveryChance = baseChance * rarityModifiers[artifact.rarity];
-      
-      if (Math.random() < discoveryChance) {
-        this.discoveredArtifacts.add(artifact.id);
-        return { ...artifact, isDiscovered: true };
-      }
+    if (this.discoveredArtifacts.size >= this.MAX_ARTIFACTS_PER_GAME) {
+      console.log("Max artifacts already discovered");
+      return null;
     }
+
+    const currentLocation = LocationSystem.getCurrentLocation(gameData);
+    if (!currentLocation) {
+      console.log("No current location found");
+      return null;
+    }
+
+    const availableArtifacts = this.getAvailableArtifactsForLocation(currentLocation.name);
+    console.log(`Available artifacts at ${currentLocation.name}: ${availableArtifacts.length}`);
     
-    return null;
+    if (availableArtifacts.length === 0) {
+      console.log("No available artifacts for location");
+      return null;
+    }
+
+    // Just pick the first available artifact for guaranteed discovery
+    const artifact = availableArtifacts[0];
+    this.discoveredArtifacts.add(artifact.id);
+    console.log(`Generated artifact: ${artifact.name}`);
+    return { ...artifact, isDiscovered: true };
   }
   
   static useArtifact(artifact: AnimusArtifact, optionId: string, character: Character, gameData: GameData): {
