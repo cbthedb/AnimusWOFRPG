@@ -2,6 +2,7 @@ import { Character, GameData, Choice, GameEvent, Scenario } from "@shared/schema
 import { AIDungeonMaster } from "./ai-dungeon-master";
 import { SoulCorruptionManager } from "./enhanced-magic-system";
 import { generateScenario, generateTimeInfo } from "./scenario-generator-final";
+import { generateEnhancedScenario } from "./enhanced-scenario-system";
 import { MockAIService } from "./mock-ai-service";
 import { RomanceSystem } from "./romance-system";
 
@@ -16,8 +17,8 @@ export class EnhancedGameEngine {
     const newGameData = { ...gameData };
 
     // Regeneration system: restore soul/sanity based on positive actions
-    const isPositiveAction = this.isPositiveChoice(choice);
-    const isNegativeAction = this.isNegativeChoice(choice);
+    const isPositiveAction = EnhancedGameEngine.isPositiveChoice(choice);
+    const isNegativeAction = EnhancedGameEngine.isNegativeChoice(choice);
     
     if (isPositiveAction) {
       // Good deeds restore small amounts of soul and sanity
@@ -108,8 +109,8 @@ export class EnhancedGameEngine {
   }
 
   static generateNextScenario(character: Character, gameData: GameData): Scenario {
-    // Use original scenario generator
-    return generateScenario(character, gameData);
+    // Use enhanced scenario system for richer, more varied content
+    return generateEnhancedScenario(character, gameData);
   }
 
   static calculateSoulLoss(baseCost: number): number {
@@ -452,5 +453,17 @@ export class EnhancedGameEngine {
     const inheritedCount = Math.floor(Math.random() * 3) + 1; // 1-3 traits
     const shuffled = traits.sort(() => 0.5 - Math.random());
     return shuffled.slice(0, inheritedCount);
+  }
+
+  static isPositiveChoice(choice: Choice): boolean {
+    const positiveKeywords = ['help', 'heal', 'save', 'protect', 'befriend', 'share', 'aid', 'comfort', 'mercy', 'forgive', 'peaceful', 'kind'];
+    const text = choice.text.toLowerCase() + ' ' + choice.description.toLowerCase();
+    return positiveKeywords.some(keyword => text.includes(keyword)) || choice.sanityCost < 0;
+  }
+
+  static isNegativeChoice(choice: Choice): boolean {
+    const negativeKeywords = ['attack', 'hurt', 'betray', 'steal', 'kill', 'harm', 'cruel', 'abandon', 'ignore', 'threaten', 'manipulate'];
+    const text = choice.text.toLowerCase() + ' ' + choice.description.toLowerCase();
+    return negativeKeywords.some(keyword => text.includes(keyword)) || choice.corruption === true;
   }
 }
