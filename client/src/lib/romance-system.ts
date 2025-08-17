@@ -13,7 +13,9 @@ export class RomanceSystem {
   }
 
   static canHaveRomance(character: Character): boolean {
-    return character.age >= 7 && character.soulCorruptionStage !== "Broken";
+    return character.age >= 3 && 
+           character.soulPercentage >= 50 && 
+           character.sanityPercentage >= 50;
   }
 
   static generateRomanticEncounter(character: Character): {
@@ -78,7 +80,7 @@ export class RomanceSystem {
     return relationship && 
            relationship.type === "romantic" && 
            relationship.strength >= 60 &&
-           character.age >= 8;
+           character.age >= 5;
   }
 
   static attemptMating(character: Character, partnerName: string): boolean {

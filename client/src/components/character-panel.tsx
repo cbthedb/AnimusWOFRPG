@@ -273,7 +273,7 @@ export default function CharacterPanel({ character, inventory = [], onShowTribal
                 ) : (
                   <div className="space-y-3">
                     <p className="text-sm text-slate-400">No mate yet</p>
-                    {character.age >= 7 && character.soulCorruptionStage !== "Broken" && onSeekRomance && (
+                    {character.age >= 3 && character.soulPercentage >= 50 && character.sanityPercentage >= 50 && onSeekRomance && (
                       <Button
                         onClick={onSeekRomance}
                         size="sm"

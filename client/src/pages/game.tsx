@@ -453,9 +453,18 @@ export default function Game() {
 
     // Check if character can have romance
     if (!RomanceSystem.canHaveRomance(character)) {
+      let description = "";
+      if (character.age < 3) {
+        description = "You're too young for romance.";
+      } else if (character.soulPercentage < 50) {
+        description = "Your corrupted soul prevents romantic connections.";
+      } else if (character.sanityPercentage < 50) {
+        description = "Your unstable mind prevents forming romantic bonds.";
+      }
+      
       toast({
         title: "Cannot Seek Romance",
-        description: character.age < 7 ? "You're too young for romance." : "Your corrupted soul prevents romantic connections.",
+        description,
         variant: "destructive",
       });
       return;

@@ -27,7 +27,7 @@ const SCENARIO_DATABASE: ScenarioData[] = [
   { id: "secret_love", type: "MINDREADING", text: "You discover someone loves you secretly. Do you return the feeling or not?", requirements: (c) => c.tribalPowers.includes('Mind Reading') || c.specialPowers.includes('Enhanced Mind Reading') },
   { id: "romantic_dance", type: "NORMAL", text: "At the tribal dance, an attractive dragon asks you to be their partner. Do you accept?" },
   { id: "courtship_gift", type: "NORMAL", text: "A dragon presents you with a beautiful gift, clearly showing romantic interest. How do you respond?" },
-  { id: "mate_proposal", type: "NORMAL", text: "A dragon you've grown close to asks to become your mate. Do you accept their proposal?", requirements: (c) => c.age >= 8 },
+  { id: "mate_proposal", type: "NORMAL", text: "A dragon you've grown close to asks to become your mate. Do you accept their proposal?", requirements: (c) => c.age >= 5 },
   { id: "jealous_rival", type: "NORMAL", text: "Another dragon is jealous of your romantic relationship and confronts you. How do you handle it?" },
   { id: "romantic_confession", type: "NORMAL", text: "Under the starlight, you feel compelled to confess your feelings to someone special. Do you?" },
   { id: "death_prophecy", type: "PROPHECY", text: "A seer whispers a prophecy involving your death. Do you seek to avoid it or embrace destiny?", requirements: (c) => c.tribalPowers.includes('Prophecy (rare)') || c.specialPowers.includes('Foresight') || c.specialPowers.includes('Enhanced Prophecy') },
