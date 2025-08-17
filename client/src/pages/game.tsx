@@ -18,6 +18,7 @@ import { LocalGameStorage } from "@/lib/local-storage";
 import { RomanceSystem } from "@/lib/romance-system";
 import { AIDungeonMaster } from "@/lib/ai-dungeon-master";
 import { Location } from "@/lib/location-system";
+import { InventorySystem } from "@/lib/inventory-system";
 
 export default function Game() {
   const { gameId } = useParams();
@@ -476,6 +477,43 @@ export default function Game() {
       toast({
         title: "Travel Failed",
         description: "Something went wrong during travel. Try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleGiveItem = (itemId: string, npcName: string, result: string) => {
+    if (!gameState || !gameId) return;
+
+    const character = gameState.characterData;
+    const gameData = gameState.gameData;
+
+    // Process item giving using inventory system
+    const { character: newCharacter, gameData: newGameData } = InventorySystem.giveItemToNPC(
+      character, gameData, itemId, npcName
+    );
+    
+    try {
+      const updatedGame = updateGame(gameId, {
+        characterData: newCharacter,
+        gameData: newGameData,
+        turn: newGameData.turn,
+        location: newGameData.location,
+      });
+      
+      setGameState({
+        characterData: updatedGame.characterData,
+        gameData: updatedGame.gameData
+      });
+
+      toast({
+        title: "Item Given",
+        description: result,
+      });
+    } catch (error) {
+      toast({
+        title: "Failed to Give Item",
+        description: "Something went wrong. Try again.",
         variant: "destructive",
       });
     }
@@ -1045,6 +1083,7 @@ export default function Game() {
             onShowTribalPowers={() => setShowTribalPowersModal(true)}
             onCustomAction={() => setShowCustomActionModal(true)}
             onLocationMigration={handleLocationMigration}
+            onGiveItem={handleGiveItem}
             isProcessing={character.isAIControlled}
           />
         </div>
@@ -1155,6 +1194,11 @@ export default function Game() {
           </div>
         </div>
       )}
+      
+      {/* Version Number */}
+      <div className="fixed bottom-4 right-4 text-xs text-purple-400/60 font-mono">
+        V0.2
+      </div>
     </div>
   );
 }

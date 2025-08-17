@@ -7,6 +7,7 @@ import { MockAIService } from "./mock-ai-service";
 import { RomanceSystem } from "./romance-system";
 import { LocationSystem, LOCATIONS, Location } from "./location-system";
 import { LocationBasedScenarios } from "./location-based-scenarios";
+import { InventorySystem } from "./inventory-system";
 
 export class EnhancedGameEngine {
   static processChoice(
@@ -55,6 +56,24 @@ export class EnhancedGameEngine {
 
     // Check for achievements
     this.checkAchievements(newCharacter, choice, scenario);
+
+    // Handle inventory rewards from choices
+    if (choice.rewardItem) {
+      const updatedGameData = InventorySystem.addItem(newGameData, choice.rewardItem);
+      newGameData.inventory = updatedGameData.inventory;
+    }
+
+    // Handle item consumption if required
+    if (choice.requiresItem && choice.consumesItem) {
+      const requiredItem = newGameData.inventory.find(item => 
+        item.id === choice.requiresItem || 
+        item.name.toLowerCase().includes(choice.requiresItem.toLowerCase())
+      );
+      if (requiredItem) {
+        const updatedGameData = InventorySystem.removeItem(newGameData, requiredItem.id);
+        newGameData.inventory = updatedGameData.inventory;
+      }
+    }
 
     // Generate next scenario using original system
     const nextScenario = this.generateNextScenario(newCharacter, newGameData);
@@ -117,13 +136,27 @@ export class EnhancedGameEngine {
     if (Math.random() < 0.4) {
       const locationScenario = LocationBasedScenarios.getRandomLocationScenario(currentLocation.id, character);
       if (locationScenario) {
+        // Add random chance for item collection scenarios
+        const enhancedChoices = locationScenario.choices?.map((choice: any) => {
+          // Add item rewards to some choices
+          if (Math.random() < 0.3) {
+            const item = InventorySystem.generateCollectibleItem(currentLocation.name, locationScenario.title);
+            return {
+              ...choice,
+              rewardItem: item,
+              consequences: [...(choice.consequences || []), `You found ${item.name}!`]
+            };
+          }
+          return choice;
+        }) || [];
+
         // Convert location scenario to standard scenario format
         return {
           id: locationScenario.id,
           title: locationScenario.title,
           description: locationScenario.narrativeText[0],
           narrativeText: locationScenario.narrativeText,
-          choices: this.generateLocationScenarioChoices(locationScenario, character),
+          choices: enhancedChoices,
           type: 'mundane', // Default type for location scenarios
           location: currentLocation.name,
           timeOfDay: gameData.timeInfo || "Midday",

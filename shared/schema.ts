@@ -126,6 +126,9 @@ export interface InventoryItem {
   soulCostToCreate?: number;
   turnCreated?: number;
   isActive: boolean;
+  canGiveAway?: boolean; // Whether this item can be given to NPCs
+  questItem?: string; // ID of NPC or quest that wants this item
+  rarity?: "common" | "uncommon" | "rare" | "legendary";
 }
 
 export interface Scenario {
@@ -150,6 +153,9 @@ export interface Choice {
   requirements?: string[];
   corruption?: boolean;
   requiresModal?: string;
+  rewardItem?: InventoryItem; // Item to add to inventory when choice is made
+  requiresItem?: string; // Item ID required to make this choice
+  consumesItem?: boolean; // Whether the choice consumes the required item
 }
 
 export interface GameEvent {

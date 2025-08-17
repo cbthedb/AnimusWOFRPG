@@ -1,8 +1,9 @@
 import { Character, GameData, Choice } from "@shared/schema";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Wand2, Package, SkipForward, Eye, Brain, Sparkles, Zap, MapPin } from "lucide-react";
+import { Wand2, Package, SkipForward, Eye, Brain, Sparkles, Zap, MapPin, Gift } from "lucide-react";
 import { LocationMigrationSystem } from "./location-migration-system";
+import InventoryGivingModal from "./inventory-giving-modal";
 import { LocationSystem, Location } from "@/lib/location-system";
 import { useState } from "react";
 
@@ -15,6 +16,7 @@ interface GameplayAreaProps {
   onShowTribalPowers: () => void;
   onCustomAction: () => void;
   onLocationMigration?: (destination: Location) => void;
+  onGiveItem?: (itemId: string, npcName: string, result: string) => void;
   isProcessing: boolean;
 }
 
@@ -27,10 +29,12 @@ export default function GameplayArea({
   onShowTribalPowers,
   onCustomAction,
   onLocationMigration,
+  onGiveItem,
   isProcessing,
 }: GameplayAreaProps) {
   const scenario = gameData.currentScenario;
   const [showMigrationSystem, setShowMigrationSystem] = useState(false);
+  const [showGivingModal, setShowGivingModal] = useState(false);
   const currentLocation = LocationSystem.getCurrentLocation(gameData);
 
   const getChoiceButtonColor = (choice: Choice, index: number) => {
@@ -54,7 +58,7 @@ export default function GameplayArea({
           <div className="flex items-center justify-between">
             <div>
               <h3 className="font-fantasy text-xl font-semibold text-purple-300">
-                {gameData.location}
+                {currentLocation?.name || gameData.location.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
               </h3>
               <p className="text-sm text-purple-200">
                 Day {Math.floor(gameData.turn / 3)} • {gameData.timeInfo}
@@ -217,6 +221,18 @@ export default function GameplayArea({
                 <MapPin className="w-4 h-4 mr-1" />
                 Travel
               </Button>
+              
+              {/* Give Items */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowGivingModal(true)}
+                className="border-pink-500/50 text-pink-400 hover:bg-pink-500/10"
+                disabled={gameData.inventory.length === 0}
+              >
+                <Gift className="w-4 h-4 mr-1" />
+                Give Item
+              </Button>
             </div>
             </div>
           )}
@@ -251,6 +267,21 @@ export default function GameplayArea({
               />
             </div>
           </div>
+        )}
+        
+        {/* Inventory Giving Modal */}
+        {showGivingModal && (
+          <InventoryGivingModal
+            isOpen={showGivingModal}
+            onClose={() => setShowGivingModal(false)}
+            character={character}
+            gameData={gameData}
+            onGiveItem={(itemId, npcName, result) => {
+              if (onGiveItem) {
+                onGiveItem(itemId, npcName, result);
+              }
+            }}
+          />
         )}
       </Card>
     </div>
