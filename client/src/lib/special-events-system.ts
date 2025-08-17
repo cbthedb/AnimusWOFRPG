@@ -51,42 +51,73 @@ export class SpecialEventsSystem {
     const currentTurn = gameData.turn;
     
     console.log(`Checking special events at turn ${currentTurn}:`);
+    console.log(`- Character abilities: ${character.tribalPowers.join(', ')}, ${character.specialPowers.join(', ')}`);
     console.log(`- Artifacts discovered: ${this.eventState.artifactsDiscovered}/${this.MAX_ARTIFACTS_PER_GAME}`);
     console.log(`- Last artifact turn: ${this.eventState.lastArtifactEventTurn}`);
     console.log(`- Last mindreading turn: ${this.eventState.lastMindreadingEventTurn}`);
     console.log(`- Last prophecy turn: ${this.eventState.lastProphecyEventTurn}`);
     
-    // Check for artifact discovery (location-based)
+    // Collect eligible event types
+    const eligibleEvents = [];
+    
+    // Check what types of events this character can have
+    const hasMindreading = character.tribalPowers.some(p => p.toLowerCase().includes('mind')) ||
+                          character.specialPowers.some(p => p.toLowerCase().includes('mind'));
+    const hasProphecy = character.tribalPowers.some(p => p.toLowerCase().includes('prophecy')) ||
+                       character.specialPowers.some(p => p.toLowerCase().includes('prophecy') || p.toLowerCase().includes('foresight'));
+    
+    // Always check artifact discovery for all characters
     if (this.canTriggerArtifactEvent(currentTurn) && this.eventState.artifactsDiscovered < this.MAX_ARTIFACTS_PER_GAME) {
-      console.log('Attempting to generate artifact event...');
-      const artifactEvent = this.tryGenerateArtifactEvent(character, gameData, currentTurn);
-      if (artifactEvent) {
-        this.eventState.lastArtifactEventTurn = currentTurn;
-        this.eventState.artifactsDiscovered++;
-        console.log('Artifact event generated successfully!');
-        return artifactEvent;
-      }
+      eligibleEvents.push('artifact');
     }
     
-    // Check for mindreading special scenario
-    if (this.canTriggerMindreadingEvent(character, currentTurn)) {
-      console.log('Attempting to generate mindreading event...');
-      const mindreadingEvent = this.tryGenerateMindreadingEvent(character, gameData, currentTurn);
-      if (mindreadingEvent) {
-        this.eventState.lastMindreadingEventTurn = currentTurn;
-        console.log('Mindreading event generated successfully!');
-        return mindreadingEvent;
-      }
+    // Only check mindreading if character has the ability
+    if (hasMindreading && this.canTriggerMindreadingEvent(character, currentTurn)) {
+      eligibleEvents.push('mindreading');
     }
     
-    // Check for prophecy special scenario
-    if (this.canTriggerProphecyEvent(character, currentTurn)) {
-      console.log('Attempting to generate prophecy event...');
-      const prophecyEvent = this.tryGenerateProphecyEvent(character, gameData, currentTurn);
-      if (prophecyEvent) {
-        this.eventState.lastProphecyEventTurn = currentTurn;
-        console.log('Prophecy event generated successfully!');
-        return prophecyEvent;
+    // Only check prophecy if character has the ability
+    if (hasProphecy && this.canTriggerProphecyEvent(character, currentTurn)) {
+      eligibleEvents.push('prophecy');
+    }
+    
+    console.log(`Eligible events: ${eligibleEvents.join(', ')}`);
+    
+    // Try each eligible event type
+    for (const eventType of eligibleEvents) {
+      let event = null;
+      
+      switch (eventType) {
+        case 'artifact':
+          console.log('Attempting to generate artifact event...');
+          event = this.tryGenerateArtifactEvent(character, gameData, currentTurn);
+          if (event) {
+            this.eventState.lastArtifactEventTurn = currentTurn;
+            this.eventState.artifactsDiscovered++;
+            console.log('Artifact event generated successfully!');
+            return event;
+          }
+          break;
+          
+        case 'mindreading':
+          console.log('Attempting to generate mindreading event...');
+          event = this.tryGenerateMindreadingEvent(character, gameData, currentTurn);
+          if (event) {
+            this.eventState.lastMindreadingEventTurn = currentTurn;
+            console.log('Mindreading event generated successfully!');
+            return event;
+          }
+          break;
+          
+        case 'prophecy':
+          console.log('Attempting to generate prophecy event...');
+          event = this.tryGenerateProphecyEvent(character, gameData, currentTurn);
+          if (event) {
+            this.eventState.lastProphecyEventTurn = currentTurn;
+            console.log('Prophecy event generated successfully!');
+            return event;
+          }
+          break;
       }
     }
     
@@ -140,8 +171,15 @@ export class SpecialEventsSystem {
       chance *= 1.5;
     }
     
-    // Guarantee artifact discovery every 10 turns if eligible, with increased chance
-    if (currentLocation.name.includes('Ancient') || currentLocation.name.includes('Ruins') || Math.random() < chance) {
+    // For every 10th turn, significantly increase chance or guarantee discovery
+    const isEvery10Turns = turn % 10 === 0;
+    const shouldGenerate = isEvery10Turns ? 
+      (currentLocation.name.includes('Ancient') || currentLocation.name.includes('Ruins') || Math.random() < (chance * 3)) : 
+      Math.random() < chance;
+      
+    console.log(`Artifact generation - Turn: ${turn}, Location: ${currentLocation.name}, Base chance: ${chance}, Should generate: ${shouldGenerate}`);
+    
+    if (shouldGenerate) {
       const artifact = AnimusArtifactSystem.generateArtifactDiscovery(character, gameData);
       if (!artifact) return null;
     
@@ -186,7 +224,11 @@ export class SpecialEventsSystem {
   }
   
   private static tryGenerateMindreadingEvent(character: Character, gameData: GameData, turn: number): SpecialEvent | null {
-    if (Math.random() > this.SPECIAL_POWER_BASE_CHANCE) return null;
+    // For every 10th turn, increase chance significantly
+    const isEvery10Turns = turn % 10 === 0;
+    const chance = isEvery10Turns ? this.SPECIAL_POWER_BASE_CHANCE * 4 : this.SPECIAL_POWER_BASE_CHANCE;
+    
+    if (Math.random() > chance) return null;
     
     const mindreadingScenario = SpecialPowerScenarioSystem.getRandomScenario(character, 'mindreading');
     if (!mindreadingScenario) return null;
@@ -225,7 +267,11 @@ export class SpecialEventsSystem {
   }
   
   private static tryGenerateProphecyEvent(character: Character, gameData: GameData, turn: number): SpecialEvent | null {
-    if (Math.random() > this.SPECIAL_POWER_BASE_CHANCE) return null;
+    // For every 10th turn, increase chance significantly
+    const isEvery10Turns = turn % 10 === 0;
+    const chance = isEvery10Turns ? this.SPECIAL_POWER_BASE_CHANCE * 4 : this.SPECIAL_POWER_BASE_CHANCE;
+    
+    if (Math.random() > chance) return null;
     
     const prophecyScenario = SpecialPowerScenarioSystem.getRandomScenario(character, 'prophecy');
     if (!prophecyScenario) return null;
