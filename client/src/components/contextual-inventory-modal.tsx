@@ -201,7 +201,7 @@ export default function ContextualInventoryModal({
                 </h3>
                 <ScrollArea className="h-64 pr-4">
                   <div className="space-y-2">
-                    {gameData.inventory.length === 0 ? (
+                    {!gameData.inventory || gameData.inventory.length === 0 ? (
                       <p className="text-slate-400 text-sm">No items in inventory.</p>
                     ) : (
                       gameData.inventory.map((item) => (
@@ -229,7 +229,7 @@ export default function ContextualInventoryModal({
                                 <p className="text-xs text-slate-400 mt-1">
                                   {item.description}
                                 </p>
-                                {item.enchantments.length > 0 && (
+                                {item.enchantments && item.enchantments.length > 0 && (
                                   <div className="mt-2">
                                     <p className="text-xs text-purple-300 flex items-center">
                                       <Sparkles className="w-3 h-3 mr-1" />
@@ -360,7 +360,7 @@ export default function ContextualInventoryModal({
                         }}
                       >
                         {npc}
-                        {character.relationships[npc] && (
+                        {character.relationships && character.relationships[npc] && (
                           <Badge className="ml-2 text-xs bg-green-500/20 text-green-300">
                             Known
                           </Badge>
@@ -440,7 +440,7 @@ export default function ContextualInventoryModal({
                             variant="outline"
                             size="sm"
                             onClick={() => {
-                              const result = choice.consequences[0] || "You take the action.";
+                              const result = (choice.consequences && choice.consequences[0]) || "You take the action.";
                               onInventoryAction(choice.id, choice.requiresItem || "", result);
                               setActionResult(result);
                             }}
