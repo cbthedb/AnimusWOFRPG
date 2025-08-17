@@ -27,11 +27,11 @@ export default function Home() {
     const gameData: GameData = {
       turn: 1,
       location: "Jade Mountain Academy",
-      timeInfo: generateTimeInfo(),
+      timeInfo: generateTimeInfo(character),
       currentScenario: generateScenario(character, {
         turn: 1,
         location: "Jade Mountain Academy",
-        timeInfo: generateTimeInfo(),
+        timeInfo: generateTimeInfo(character),
         currentScenario: {} as any,
         history: [],
         relationships: {},
