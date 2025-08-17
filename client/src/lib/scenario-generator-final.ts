@@ -92,9 +92,108 @@ const SCENARIO_DATABASE: ScenarioData[] = [
   { id: "animus_council", type: "ANIMUS", text: "A secret council of animus dragons invites you to join. Do you accept or maintain independence?", requirements: (c) => c.isAnimus },
   { id: "power_transfer", type: "ANIMUS", text: "You could transfer your animus powers to someone else. Do you consider it or keep them?", requirements: (c) => c.isAnimus },
   { id: "temporal_magic", type: "ANIMUS", text: "You discover you can manipulate time with magic. Do you experiment or fear the consequences?", requirements: (c) => c.isAnimus },
+  
+  // More extensive original scenarios from attached files
+  { id: "animus_first_power", type: "ANIMUS", text: "You discover your Animus power for the first time in a heated battle. Do you embrace the power or fear it?", requirements: (c) => c.isAnimus },
+  { id: "animus_backfire", type: "ANIMUS", text: "Your Animus power suddenly backfires during a fight. Do you retreat to recover or push through?", requirements: (c) => c.isAnimus },
+  { id: "animus_healing", type: "ANIMUS", text: "You must heal an ally with Animus magic without harming them. Do you attempt it or find another way?", requirements: (c) => c.isAnimus },
+  { id: "magical_barrier", type: "ANIMUS", text: "You're tasked with breaking a magical barrier using your powers. Do you analyze it first or strike immediately?", requirements: (c) => c.isAnimus },
+  { id: "energy_drain", type: "ANIMUS", text: "Your Animus power begins draining your energy rapidly. Do you stop using it or risk fainting?", requirements: (c) => c.isAnimus },
+  { id: "animus_duel", type: "ANIMUS", text: "A fellow Animus dragon challenges you to a duel. Do you accept or decline?", requirements: (c) => c.isAnimus },
+  { id: "stolen_magic", type: "ANIMUS", text: "A dragon steals your Animus magic temporarily. Do you track them down or wait for it to return?", requirements: (c) => c.isAnimus },
+  { id: "child_animus", type: "ANIMUS", text: "A child dragon shows signs of Animus magic. Do you train them or report them to authorities?", requirements: (c) => c.isAnimus },
+  { id: "accidental_break", type: "ANIMUS", text: "You accidentally break something important using Animus magic. Do you repair it or confess?", requirements: (c) => c.isAnimus },
+  { id: "storm_magic", type: "ANIMUS", text: "Your Animus powers glow uncontrollably during a storm. Do you seek shelter or harness the power?", requirements: (c) => c.isAnimus },
+  { id: "defend_village", type: "ANIMUS", text: "You must use Animus magic to defend a village from invaders. Do you use lethal or non-lethal force?", requirements: (c) => c.isAnimus },
+  { id: "ancient_artifact", type: "ANIMUS", text: "An ancient artifact enhances your Animus powers, but at a cost. Do you use it anyway?", requirements: (c) => c.isAnimus },
+  { id: "forbidden_technique", type: "ANIMUS", text: "You discover a forbidden Animus technique. Do you study it or destroy the knowledge?", requirements: (c) => c.isAnimus },
+  { id: "dangerous_attention", type: "ANIMUS", text: "Your Animus magic attracts dangerous attention. Do you hide your powers or face the threat?", requirements: (c) => c.isAnimus },
+  { id: "hit_friend", type: "ANIMUS", text: "You accidentally hit a friend with Animus magic. Do you help them heal or run away?", requirements: (c) => c.isAnimus },
+  { id: "prophecy_magic", type: "ANIMUS", text: "Your Animus power interacts strangely with a prophecy. Do you study the connection or ignore it?", requirements: (c) => c.isAnimus },
+  { id: "secret_teacher", type: "ANIMUS", text: "A mysterious dragon offers to teach you a secret Animus ability. Do you accept or decline?", requirements: (c) => c.isAnimus },
+  { id: "dream_magic", type: "ANIMUS", text: "Your Animus magic starts affecting dreams. Do you learn to control it or let it happen?", requirements: (c) => c.isAnimus },
+  
+  // Wars and battles scenarios  
+  { id: "skywing_tribute", type: "WARS", text: "The SkyWings demand tribute from your village. Do you resist or submit?" },
+  { id: "battle_preparation", type: "WARS", text: "Your tribe prepares for a major battle. Do you volunteer to fight on the front lines?" },
+  { id: "enemy_spy", type: "WARS", text: "You suspect someone in your tribe is a spy. Do you investigate or report your suspicions?" },
+  { id: "war_prisoner", type: "WARS", text: "You're tasked with guarding war prisoners. Do you treat them kindly or strictly?" },
+  { id: "deserter_friend", type: "WARS", text: "Your friend deserts from the army. Do you help them escape or turn them in?" },
+  { id: "civilian_evacuation", type: "WARS", text: "Civilians need evacuation from a war zone. Do you help or focus on military objectives?" },
+  { id: "peace_treaty", type: "WARS", text: "A peace treaty is offered by the enemy. Do you support it or advocate for continued fighting?" },
+  { id: "wounded_enemy", type: "WARS", text: "You find a wounded enemy soldier. Do you help them, capture them, or leave them?" },
+  
+  // Mind reading scenarios
+  { id: "overwhelming_thoughts", type: "MINDREADING", text: "You're overwhelmed by multiple thoughts at once. Do you focus on one or retreat mentally?", requirements: (c) => c.tribalPowers.includes('Mind Reading') || c.specialPowers.includes('Enhanced Mind Reading') },
+  { id: "parents_secret", type: "MINDREADING", text: "You accidentally read your parents' deepest secret. Do you confront them or pretend you don't know?", requirements: (c) => c.tribalPowers.includes('Mind Reading') || c.specialPowers.includes('Enhanced Mind Reading') },
+  { id: "teacher_doubts", type: "MINDREADING", text: "You sense your teacher doubts your abilities. Do you work harder or ask them directly?", requirements: (c) => c.tribalPowers.includes('Mind Reading') || c.specialPowers.includes('Enhanced Mind Reading') },
+  { id: "love_confession", type: "MINDREADING", text: "You hear someone thinking about confessing love to you. Do you make it easier or act surprised?", requirements: (c) => c.tribalPowers.includes('Mind Reading') || c.specialPowers.includes('Enhanced Mind Reading') },
+  { id: "danger_warning", type: "MINDREADING", text: "You sense danger in someone's thoughts. Do you warn others or investigate yourself?", requirements: (c) => c.tribalPowers.includes('Mind Reading') || c.specialPowers.includes('Enhanced Mind Reading') },
+  { id: "mind_reader_meeting", type: "MINDREADING", text: "You meet another mind reader. Do you try to communicate telepathically or keep your abilities hidden?", requirements: (c) => c.tribalPowers.includes('Mind Reading') || c.specialPowers.includes('Enhanced Mind Reading') },
+  
+  // Prophecy scenarios
+  { id: "cryptic_vision", type: "PROPHECY", text: "You have a cryptic vision that could mean many things. Do you act on it or seek interpretation?", requirements: (c) => c.tribalPowers.includes('Prophecy (rare)') || c.specialPowers.includes('Foresight') || c.specialPowers.includes('Enhanced Prophecy') },
+  { id: "prevent_disaster", type: "PROPHECY", text: "Your vision shows a disaster you could prevent. Do you intervene or let fate take its course?", requirements: (c) => c.tribalPowers.includes('Prophecy (rare)') || c.specialPowers.includes('Foresight') || c.specialPowers.includes('Enhanced Prophecy') },
+  { id: "prophecy_scroll", type: "PROPHECY", text: "You find an ancient prophecy scroll. Do you study it alone or share it with scholars?", requirements: (c) => c.tribalPowers.includes('Prophecy (rare)') || c.specialPowers.includes('Foresight') || c.specialPowers.includes('Enhanced Prophecy') },
+  { id: "false_prophecy", type: "PROPHECY", text: "You realize one of your prophecies was false. Do you admit the mistake or stay silent?", requirements: (c) => c.tribalPowers.includes('Prophecy (rare)') || c.specialPowers.includes('Foresight') || c.specialPowers.includes('Enhanced Prophecy') },
+  
+  // Learning and discovery scenarios
+  { id: "ancient_library", type: "LEARNING", text: "You discover an ancient library with forbidden texts. Do you study them or report the find?" },
+  { id: "failed_experiment", type: "LEARNING", text: "A magical experiment fails spectacularly. Do you try to fix it or abandon the research?" },
+  { id: "rival_student", type: "LEARNING", text: "A rival student challenges your research. Do you defend your work or collaborate with them?" },
+  { id: "cheating_opportunity", type: "LEARNING", text: "You have an opportunity to cheat on an important test. Do you take it or study harder?" },
+  { id: "dangerous_knowledge", type: "LEARNING", text: "You learn something that could be dangerous in the wrong hands. Do you keep it secret or share wisely?" },
+  
+  // Social and normal scenarios
+  { id: "mysterious_stranger", type: "NORMAL", text: "A mysterious stranger arrives in town asking questions. Do you help them or stay suspicious?" },
+  { id: "lost_dragonet", type: "NORMAL", text: "You find a lost dragonet far from home. Do you return them personally or alert authorities?" },
+  { id: "talent_competition", type: "NORMAL", text: "There's a talent competition with a valuable prize. Do you compete or help a friend prepare?" },
+  { id: "tribal_ceremony", type: "NORMAL", text: "An important tribal ceremony requires volunteers. Do you participate or observe from afar?" },
+  { id: "merchant_deal", type: "NORMAL", text: "A merchant offers you a suspiciously good deal. Do you accept it or investigate first?" },
+  { id: "sick_dragon", type: "NORMAL", text: "A dragon in your community falls seriously ill. Do you help care for them or avoid infection?" },
+  { id: "family_dispute", type: "NORMAL", text: "A family dispute threatens to split your community. Do you mediate or stay neutral?" },
+  { id: "treasure_map", type: "NORMAL", text: "You find what appears to be a treasure map. Do you follow it alone or gather a group?" },
+  { id: "weather_disaster", type: "NORMAL", text: "A severe storm is coming. Do you help prepare the community or secure only your own belongings?" },
+  { id: "elder_request", type: "NORMAL", text: "A tribal elder asks you to carry out a mysterious task. Do you accept without question or ask for details?" },
+];
+
+// Additional choices for romance scenarios
+const ROMANCE_CHOICES = [
+  {
+    id: "romance_accept",
+    text: "Accept their romantic interest",
+    description: "Open your heart to this potential relationship",
+    soulCost: 0,
+    sanityCost: 0,
+    consequences: ["You decide to explore this romantic connection..."]
+  },
+  {
+    id: "romance_cautious",
+    text: "Be cautious but interested", 
+    description: "Take things slowly and get to know them better",
+    soulCost: 0,
+    sanityCost: 0,
+    consequences: ["You choose to take a careful approach to romance..."]
+  },
+  {
+    id: "romance_reject",
+    text: "Politely decline",
+    description: "Thank them but explain you're not interested",
+    soulCost: 0,
+    sanityCost: 2,
+    consequences: ["You politely decline their romantic advances..."]
+  }
 ];
 
 function generateChoicesForScenario(scenario: ScenarioData, character: Character): Choice[] {
+  // Special handling for romance scenarios
+  if (scenario.id.includes('romantic_') || scenario.id.includes('courtship_') || scenario.id.includes('secret_love') || scenario.id.includes('love_confession') || scenario.id.includes('mate_proposal')) {
+    return ROMANCE_CHOICES.map(choice => ({
+      ...choice,
+      id: `${scenario.id}_${choice.id}`
+    }));
+  }
+
   const baseChoices = [
     {
       id: `${scenario.id}_choice_1`,
