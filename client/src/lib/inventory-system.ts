@@ -72,13 +72,13 @@ export class InventorySystem {
       storyAdvanced = true;
       
       // Special rewards for completing quests
-      if (item.enchantments.some(e => e.toLowerCase().includes("immortal"))) {
+      if (item.enchantments && item.enchantments.some(e => e.toLowerCase().includes("immortal"))) {
         newCharacter.soulPercentage = Math.min(100, newCharacter.soulPercentage + 10);
         result += ` ${npcName} is overjoyed and grants you a powerful blessing that restores your soul!`;
-      } else if (item.enchantments.some(e => e.toLowerCase().includes("heal"))) {
+      } else if (item.enchantments && item.enchantments.some(e => e.toLowerCase().includes("heal"))) {
         newCharacter.sanityPercentage = Math.min(100, newCharacter.sanityPercentage + 15);
         result += ` ${npcName} feels much better and shares ancient wisdom that clears your mind!`;
-      } else if (item.enchantments.some(e => e.toLowerCase().includes("power"))) {
+      } else if (item.enchantments && item.enchantments.some(e => e.toLowerCase().includes("power"))) {
         result += ` ${npcName} becomes incredibly powerful and swears a life debt to you!`;
       } else {
         result += ` ${npcName} is extremely grateful and your reputation grows!`;
@@ -86,6 +86,9 @@ export class InventorySystem {
       }
 
       // Add relationship improvement
+      if (!newCharacter.relationships) {
+        newCharacter.relationships = {};
+      }
       if (newCharacter.relationships[npcName]) {
         newCharacter.relationships[npcName].strength = Math.min(100, 
           newCharacter.relationships[npcName].strength + 30
@@ -168,6 +171,7 @@ export class InventorySystem {
    * Checks if player has required item for a choice
    */
   static hasRequiredItem(gameData: GameData, requiredItemId: string): boolean {
+    if (!gameData.inventory) return false;
     return gameData.inventory.some(item => 
       item.id === requiredItemId || 
       item.name.toLowerCase().includes(requiredItemId.toLowerCase()) ||
@@ -180,6 +184,7 @@ export class InventorySystem {
    */
   static getGiveableItems(gameData: GameData): InventoryItem[] {
     // Default to true if canGiveAway is undefined (most items can be given)
+    if (!gameData.inventory) return [];
     return gameData.inventory.filter(item => item.canGiveAway !== false);
   }
 
@@ -188,7 +193,7 @@ export class InventorySystem {
    */
   static getInventoryChoices(gameData: GameData, character: Character, scenarioType: string): Choice[] {
     const choices: Choice[] = [];
-    const inventory = gameData.inventory;
+    const inventory = gameData.inventory || [];
 
     // Scroll-related choices
     const scrolls = inventory.filter(item => item.type === "scroll" || item.name.toLowerCase().includes("scroll"));

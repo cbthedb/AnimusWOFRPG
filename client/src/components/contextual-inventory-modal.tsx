@@ -38,7 +38,7 @@ export default function ContextualInventoryModal({
   
   // Extract NPC names from recent scenarios and relationships
   const potentialNPCs = [
-    ...Object.keys(character.relationships),
+    ...(character.relationships ? Object.keys(character.relationships) : []),
     "Suspicious Dragon", "Injured Dragon", "Young Dragonet", "Elder Dragon",
     "Animus Dragon", "Prophecy Dragon", "Academy Student", "Tribal Guard"
   ].filter((name, index, arr) => arr.indexOf(name) === index);
@@ -79,7 +79,7 @@ export default function ContextualInventoryModal({
         break;
       case "examine":
         result = `You carefully examine the ${selectedItem.name}. ${selectedItem.description}`;
-        if (selectedItem.enchantments.length > 0) {
+        if (selectedItem.enchantments && selectedItem.enchantments.length > 0) {
           result += ` You sense magical enchantments: ${selectedItem.enchantments.join(", ")}.`;
         }
         break;
