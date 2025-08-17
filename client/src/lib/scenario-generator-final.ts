@@ -474,6 +474,200 @@ function generateChoicesForScenario(scenario: ScenarioData, character: Character
   return generateContextualChoices(scenario, character);
 }
 
+function generateContextualChoices(scenario: ScenarioData, character: Character): Choice[] {
+  const choices: Choice[] = [];
+
+  // Generate choices based on scenario text and type
+  if (scenario.text.includes("friend") && scenario.text.includes("offers")) {
+    choices.push({
+      id: `${scenario.id}_accept_friendship`,
+      text: "Accept their friendship warmly",
+      description: "Welcome this new relationship",
+      soulCost: 0,
+      sanityCost: 0,
+      consequences: ["You gain a new friend and ally..."]
+    });
+    choices.push({
+      id: `${scenario.id}_be_cautious`,
+      text: "Be cautious but polite",
+      description: "Keep some distance while being respectful",
+      soulCost: 0,
+      sanityCost: 3,
+      consequences: ["You maintain polite distance, unsure of their intentions..."]
+    });
+    choices.push({
+      id: `${scenario.id}_reject_friendship`,
+      text: "Politely decline their friendship",
+      description: "You prefer to remain alone",
+      soulCost: 0,
+      sanityCost: 8,
+      consequences: ["You choose solitude over companionship..."]
+    });
+  } else if (scenario.text.includes("battle") || scenario.text.includes("fight")) {
+    choices.push({
+      id: `${scenario.id}_fight_bravely`,
+      text: "Fight with courage and honor",
+      description: "Face the battle head-on",
+      soulCost: 0,
+      sanityCost: 5,
+      consequences: ["You enter battle with valor, ready to face whatever comes..."]
+    });
+    choices.push({
+      id: `${scenario.id}_strategic_retreat`,
+      text: "Make a strategic retreat",
+      description: "Live to fight another day",
+      soulCost: 0,
+      sanityCost: 10,
+      consequences: ["Sometimes retreat is the wisest course of action..."]
+    });
+    if (character.isAnimus) {
+      choices.push({
+        id: `${scenario.id}_use_magic`,
+        text: "Use Animus magic to end the fight",
+        description: "Unleash your magical powers",
+        soulCost: 20,
+        sanityCost: 0,
+        consequences: ["Magic turns the tide, but corrupts your soul..."],
+        corruption: true,
+        requiresModal: "animus"
+      });
+    }
+  } else if (scenario.text.includes("herbs") || scenario.text.includes("collect")) {
+    choices.push({
+      id: `${scenario.id}_collect_carefully`,
+      text: "Carefully collect the herbs",
+      description: "Gather what you need without waste",
+      soulCost: 0,
+      sanityCost: 0,
+      consequences: ["You gather valuable herbs for future use..."]
+    });
+    choices.push({
+      id: `${scenario.id}_take_everything`,
+      text: "Take as many as possible",
+      description: "Gather everything you can carry",
+      soulCost: 0,
+      sanityCost: 5,
+      consequences: ["Greed drives you to take more than you need..."]
+    });
+    choices.push({
+      id: `${scenario.id}_leave_untouched`,
+      text: "Leave them for others to find",
+      description: "Let nature remain undisturbed",
+      soulCost: 0,
+      sanityCost: 3,
+      consequences: ["You show respect for nature and other dragons' needs..."]
+    });
+  } else if (scenario.text.includes("feast") || scenario.text.includes("invited")) {
+    choices.push({
+      id: `${scenario.id}_join_feast`,
+      text: "Join the feast happily",
+      description: "Participate in the celebration",
+      soulCost: 0,
+      sanityCost: 0,
+      consequences: ["You enjoy good food and company..."]
+    });
+    choices.push({
+      id: `${scenario.id}_attend_briefly`,
+      text: "Make a brief appearance",
+      description: "Show respect but don't stay long",
+      soulCost: 0,
+      sanityCost: 2,
+      consequences: ["You fulfill social obligations without overcommitting..."]
+    });
+    choices.push({
+      id: `${scenario.id}_decline_politely`,
+      text: "Politely decline the invitation",
+      description: "Respectfully stay away",
+      soulCost: 0,
+      sanityCost: 5,
+      consequences: ["You choose solitude over social gatherings..."]
+    });
+  }
+
+  // Add power-specific options based on scenario type and character abilities
+  if (scenario.type === 'ANIMUS' && character.isAnimus) {
+    choices.push({
+      id: `${scenario.id}_animus_solution`,
+      text: "Use Animus magic to solve this",
+      description: "Apply magical power to resolve the situation",
+      soulCost: Math.floor(Math.random() * 25) + 15,
+      sanityCost: 0,
+      consequences: ["Magic provides a solution, but at the cost of your soul..."],
+      corruption: true,
+      requiresModal: "animus"
+    });
+  }
+
+  if (scenario.type === 'MINDREADING' && (character.tribalPowers.includes('Mind Reading') || character.specialPowers.includes('Enhanced Mind Reading'))) {
+    choices.push({
+      id: `${scenario.id}_read_minds`,
+      text: "Read their thoughts",
+      description: "Use your mind reading abilities",
+      soulCost: 0,
+      sanityCost: Math.floor(Math.random() * 12) + 8,
+      consequences: ["You peer into their mind, learning their true intentions..."],
+      requiresModal: "mindreading"
+    });
+  }
+
+  if (scenario.type === 'PROPHECY' && (character.tribalPowers.includes('Prophecy (rare)') || character.specialPowers.includes('Foresight') || character.specialPowers.includes('Enhanced Prophecy'))) {
+    choices.push({
+      id: `${scenario.id}_see_future`,
+      text: "Look into the future",
+      description: "Use your prophetic powers for guidance",
+      soulCost: 0,
+      sanityCost: Math.floor(Math.random() * 18) + 12,
+      consequences: ["Visions of possible futures fill your mind..."],
+      requiresModal: "prophecy"
+    });
+  }
+
+  // Always add a custom action option for complex scenarios
+  if (choices.length >= 2) {
+    choices.push({
+      id: `${scenario.id}_custom_action`,
+      text: "Take a different approach",
+      description: "Handle this your own unique way",
+      soulCost: 0,
+      sanityCost: 0,
+      consequences: ["You decide to approach this situation in your own way..."],
+      requiresModal: "custom"
+    });
+  }
+
+  // If no specific choices generated, fall back to generic ones
+  if (choices.length === 0) {
+    choices.push(
+      {
+        id: `${scenario.id}_thoughtful`,
+        text: "Consider all options carefully",
+        description: "Think through the situation thoroughly",
+        soulCost: 0,
+        sanityCost: 3,
+        consequences: ["Careful thought guides your decision..."]
+      },
+      {
+        id: `${scenario.id}_intuitive`,
+        text: "Trust your instincts",
+        description: "Go with your first impulse",
+        soulCost: 0,
+        sanityCost: 1,
+        consequences: ["You follow your heart and intuition..."]
+      },
+      {
+        id: `${scenario.id}_avoid`,
+        text: "Avoid the situation",
+        description: "Step away from potential complications",
+        soulCost: 0,
+        sanityCost: 8,
+        consequences: ["Sometimes the wisest choice is not to choose..."]
+      }
+    );
+  }
+
+  return choices;
+}
+
 export function generateScenario(character: Character, gameData: GameData): Scenario {
   // Filter scenarios based on character abilities
   const availableScenarios = SCENARIO_DATABASE.filter(scenario => {
