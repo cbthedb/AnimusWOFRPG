@@ -115,6 +115,8 @@ export interface GameData {
   warStatus: WarStatus;
   explorationLog: ExplorationEvent[];
   continent?: "Pyrrhia" | "Pantala"; // Track which continent player is on
+  lastChoiceResult?: string; // Store the outcome text to display
+  awaitingResponse?: boolean; // Whether waiting for user to continue
 }
 
 export interface InventoryItem {
@@ -128,7 +130,7 @@ export interface InventoryItem {
   isActive: boolean;
   canGiveAway?: boolean; // Whether this item can be given to NPCs
   questItem?: string; // ID of NPC or quest that wants this item
-  rarity?: "common" | "uncommon" | "rare" | "legendary";
+  rarity?: "common" | "uncommon" | "rare" | "legendary" | "mythical";
 }
 
 export interface Scenario {

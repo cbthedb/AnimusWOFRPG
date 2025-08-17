@@ -1,5 +1,5 @@
-import { InventoryItem, Character, GameData, Location } from "@shared/schema";
-import { LocationSystem } from "./location-system";
+import { InventoryItem, Character, GameData } from "@shared/schema";
+import { LocationSystem, Location } from "./location-system";
 
 export interface AnimusArtifact extends InventoryItem {
   discoveryLocation: string;
