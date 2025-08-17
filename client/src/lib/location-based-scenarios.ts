@@ -118,7 +118,111 @@ export const LOCATION_BASED_SCENARIOS: LocationScenario[] = [
     ]
   },
 
-  // SEA KINGDOM SCENARIOS
+  // Additional JADE MOUNTAIN ACADEMY SCENARIOS
+  {
+    id: "academy_winglet_rivalry",
+    locationId: "jade_mountain_academy",
+    title: "Winglet Competition",
+    setting: "Academy Training Grounds",
+    emotionalTone: "tense",
+    narrativeText: [
+      "The annual inter-winglet competition has begun, and tensions run high between the different student groups. Your winglet has been challenged to a series of contests by the reigning champions.",
+      "The competition covers flight maneuvers, combat training, and academic challenges. Winning would bring honor to your winglet but also create enemies among the losing groups.",
+      "Some students are suggesting underhanded tactics to ensure victory, while others insist on fair play. Your choice could define your winglet's reputation for years to come."
+    ]
+  },
+  {
+    id: "academy_professor_mystery",
+    locationId: "jade_mountain_academy",
+    title: "The Missing Professor",
+    setting: "Academy Underground Tunnels",
+    emotionalTone: "ominous",
+    narrativeText: [
+      "Professor Webs has been missing for three days, and strange sounds echo from the academy's underground tunnel system. The administration claims he's simply ill, but you know better.",
+      "You've discovered claw marks on the tunnel walls and what appears to be signs of a struggle. Other students are too frightened to investigate, leaving the mystery unsolved.",
+      "The tunnels are supposedly dangerous and off-limits, but they might hold the key to finding the missing professor before it's too late."
+    ]
+  },
+
+  // Additional MUD KINGDOM SCENARIOS  
+  {
+    id: "mud_kingdom_family_honor",
+    locationId: "mud_kingdom", 
+    title: "A Family's Honor",
+    setting: "MudWing Village Square",
+    emotionalTone: "dramatic",
+    narrativeText: [
+      "A MudWing family has been accused of cowardice after their eldest son fled from a battle. The shame threatens to destroy their standing in the community and affect their younger dragonets.",
+      "The family patriarch begs you to help restore their honor, offering a family heirloom as payment. However, doing so would require you to publicly vouch for dragons you don't really know.",
+      "The alternative is to remain neutral, but the family's desperation suggests that without help, they may be forced to leave their ancestral home forever."
+    ]
+  },
+  {
+    id: "mud_kingdom_drought_crisis",
+    locationId: "mud_kingdom",
+    title: "The Great Drought", 
+    setting: "Dried Riverbed",
+    emotionalTone: "tense",
+    narrativeText: [
+      "A severe drought has dried up the sacred mud springs that give MudWings their strength. The tribal elders are desperate for a solution as their dragons grow weak without the mineral-rich mud.",
+      "Ancient texts speak of a hidden spring deep in dangerous territory, but the journey would be perilous and might claim lives. Some suggest asking other tribes for help, risking pride for survival.",
+      "Time is running out as younger dragonets begin showing signs of serious weakness. Your advice could determine whether the MudWings maintain their independence or humble themselves before other tribes."
+    ]
+  },
+
+  // Additional SAND KINGDOM SCENARIOS
+  {
+    id: "sand_kingdom_oasis_conflict", 
+    locationId: "sand_kingdom",
+    title: "The Disputed Oasis",
+    setting: "Remote Desert Oasis",
+    emotionalTone: "tense",
+    narrativeText: [
+      "Two SandWing clans claim ownership of the same vital oasis, and their dispute has escalated to the brink of violence. Both have legitimate historical claims to the water source.",
+      "The oasis is large enough to support both clans, but pride and old grudges prevent them from sharing. A neutral mediator could resolve this peacefully, or it could explode into tribal warfare.",
+      "Travelers need the oasis for survival, but taking sides could make you enemies for life. Meanwhile, the longer this drags on, the more likely it is that dragons will die fighting over water."
+    ]
+  },
+  {
+    id: "sand_kingdom_ancient_curse",
+    locationId: "sand_kingdom", 
+    title: "The Cursed Pyramid",
+    setting: "Ancient Pyramid Ruins",
+    emotionalTone: "ominous", 
+    narrativeText: [
+      "Local SandWings warn you away from an ancient pyramid, claiming it's cursed by the spirits of long-dead animus dragons. Strange lights flicker inside at night, and those who enter often emerge... changed.",
+      "A scholar offers to pay handsomely for artifacts from within, insisting the 'curse' is merely superstition. However, you've noticed that several recent visitors to the pyramid now speak in whispers and avoid sunlight.",
+      "The pyramid clearly contains something valuable, but whether it's treasure, knowledge, or something far more dangerous remains unknown. The locals' fear seems genuine, but so does the scholar's desperation."
+    ]
+  },
+
+  // Additional SKY KINGDOM SCENARIOS
+  {
+    id: "sky_kingdom_territorial_dispute",
+    locationId: "sky_kingdom",
+    title: "Border Skirmish",
+    setting: "Sky Kingdom Border Mountains",
+    emotionalTone: "tense",
+    narrativeText: [
+      "SkyWing border guards have intercepted you near a disputed mountain pass. They claim you've entered restricted airspace, though the borders seem arbitrarily drawn and change frequently.",
+      "The guards are young and nervous, clearly eager to prove themselves by making an arrest. However, their commander seems more interested in gathering information about travelers than enforcing arbitrary rules.",
+      "This could be a simple misunderstanding, a test of your intentions, or something more serious. Your response will determine whether you continue your journey peacefully or end up in a SkyWing prison."
+    ]
+  },
+  {
+    id: "sky_kingdom_storm_prophecy",
+    locationId: "sky_kingdom",
+    title: "The Storm Prophet", 
+    setting: "Windswept Mountain Peak",
+    emotionalTone: "ominous",
+    narrativeText: [
+      "An elderly SkyWing prophet claims to read the future in storm patterns, and her recent visions have the local population terrified. She speaks of a great catastrophe coming to those who fly too high.",
+      "Some dragons dismiss her as mad, but her previous prophecies have proven disturbingly accurate. She singles you out from the crowd, claiming your arrival was foretold in the lightning patterns.",
+      "The prophet offers to share her vision with you, but warns that knowledge of the future comes with a price. The growing storm above seems to respond to her words, lightning striking closer with each prophecy."
+    ]
+  },
+
+  // SEA KINGDOM SCENARIOS  
   {
     id: "sea_kingdom_deep_court",
     locationId: "sea_kingdom",
@@ -220,72 +324,48 @@ export const LOCATION_BASED_SCENARIOS: LocationScenario[] = [
     setting: "Active Volcano - Ancient Chambers",
     emotionalTone: "ominous",
     narrativeText: [
-      "Within the dangerous volcanic chambers of the old Night Kingdom, you've discovered NightWing artifacts that predate the tribe's exile. These relics hint at powers and knowledge that were lost when the NightWings fled their homeland.",
-      "The volcanic activity makes exploration incredibly dangerous, with lava flows and toxic gases threatening any dragon who ventures too deep. However, the artifacts you've glimpsed could contain secrets about prophecy and mind-reading abilities.",
-      "Ancient warnings carved into the walls suggest that some knowledge was deliberately hidden or destroyed. Pursuing these secrets might uncover powers that the NightWings chose to abandon for good reason."
+      "Deep within the volcanic tunnels of the old Night Kingdom, you discover chambers that predate the tribe's exodus. Ancient scrolls and artifacts lie scattered among the lava flows, preserved by the dry heat.",
+      "The volcanic activity seems to be increasing, and local dragons whisper that it's because the mountain is angry about the NightWings' abandonment. Strange magical currents flow through the lava, suggesting this was once a place of great power.",
+      "Some of the artifacts bear Darkstalker's mark, while others seem older still. Taking anything could provide valuable knowledge, but disturbing this place might awaken forces better left sleeping."
     ]
   },
-
-  // PANTALA SCENARIOS
   {
-    id: "jewel_hive_mind_control",
-    locationId: "jewel_hive",
-    title: "The Queen's Influence",
-    setting: "Jewel Hive - Crystal Chambers",
+    id: "old_night_kingdom_darkstalker_legacy",
+    locationId: "night_kingdom_old", 
+    title: "The Darkstalker Shrine",
+    setting: "Hidden Mountain Shrine",
     emotionalTone: "ominous",
     narrativeText: [
-      "You can feel Queen Wasp's mind control abilities pressing against your consciousness as you navigate Jewel Hive. The other HiveWings move with eerie coordination, their individual personalities suppressed by the queen's overwhelming mental presence.",
-      "A SilkWing servant whispers a warning that some visitors have never left the hive, their minds permanently enslaved. You notice your own thoughts becoming hazier the longer you remain in the crystalline chambers.",
-      "Escape might be possible now, but staying longer could provide crucial intelligence about the HiveWing power structure. However, each moment you remain increases the risk of losing your mental freedom forever."
-    ]
-  },
-  {
-    id: "poison_jungle_resistance",
-    locationId: "poison_jungle", 
-    title: "The Green Rebellion",
-    setting: "Deep Jungle - Hidden Resistance Camp",
-    emotionalTone: "dramatic",
-    narrativeText: [
-      "You've discovered a secret LeafWing resistance camp hidden deep in the Poison Jungle. The rebels are planning a major strike against HiveWing oppression, but their methods are as dangerous as they are desperate.",
-      "The LeafWings show you weapons made from the jungle's most toxic plants - substances that could kill hundreds of HiveWings but would also devastate the local ecosystem. Their leader argues that extreme measures are necessary for survival.",
-      "They offer you a choice: join their cause and help strike a blow against tyranny, or leave and pretend you never found them. Neutrality isn't an option - they can't risk their location being revealed."
-    ]
-  },
-
-  {
-    id: "cicada_hive_silk_rebellion",
-    locationId: "cicada_hive",
-    title: "Underground Networks",
-    setting: "Silk Production Facility - Hidden Chamber",
-    emotionalTone: "tense",
-    narrativeText: [
-      "While touring Cicada Hive's silk production facilities, you discover that some SilkWings are using their work areas to communicate secretly. They've developed a code using silk patterns to coordinate resistance activities.",
-      "A SilkWing worker approaches you cautiously, clearly assessing whether you can be trusted with dangerous information. They hint at plans to sabotage production and potentially help imprisoned dragons escape.",
-      "The worker warns that HiveWing overseers are becoming suspicious of production irregularities. Getting involved could help the resistance, but being caught would likely result in imprisonment or worse."
+      "You discover a hidden shrine dedicated to Darkstalker, maintained by a secretive cult of NightWings who never left the old kingdom. They believe he will return to reclaim his rightful place as ruler of all dragons.",
+      "The cultists offer to share their 'true' history of Darkstalker, claiming that the stories told in schools are lies meant to discredit him. Their version paints him as a misunderstood hero who was betrayed by those he tried to save.",
+      "They have artifacts and spells that they claim belonged to Darkstalker himself. Joining them could grant access to incredible power, but their fanatical devotion suggests they might be dangerous to refuse or cross."
     ]
   }
 ];
 
+// Class to manage location-based scenarios
 export class LocationBasedScenarios {
-  static getScenariosByLocation(locationId: string): LocationScenario[] {
-    return LOCATION_BASED_SCENARIOS.filter(scenario => scenario.locationId === locationId);
-  }
-
   static getRandomLocationScenario(locationId: string, character: Character): LocationScenario | null {
-    const availableScenarios = LOCATION_BASED_SCENARIOS.filter(scenario => {
+    const locationScenarios = LOCATION_BASED_SCENARIOS.filter(scenario => {
+      // Match location ID
       if (scenario.locationId !== locationId) return false;
+      
+      // Check requirements if any
       if (scenario.requirements && !scenario.requirements(character)) return false;
+      
       return true;
     });
-
-    if (availableScenarios.length === 0) return null;
     
-    return availableScenarios[Math.floor(Math.random() * availableScenarios.length)];
+    if (locationScenarios.length === 0) return null;
+    
+    return locationScenarios[Math.floor(Math.random() * locationScenarios.length)];
   }
-
-  static getAllLocationScenarioIds(locationId: string): string[] {
-    return LOCATION_BASED_SCENARIOS
-      .filter(scenario => scenario.locationId === locationId)
-      .map(scenario => scenario.id);
+  
+  static getAllScenariosForLocation(locationId: string): LocationScenario[] {
+    return LOCATION_BASED_SCENARIOS.filter(scenario => scenario.locationId === locationId);
+  }
+  
+  static getScenarioById(scenarioId: string): LocationScenario | null {
+    return LOCATION_BASED_SCENARIOS.find(scenario => scenario.id === scenarioId) || null;
   }
 }

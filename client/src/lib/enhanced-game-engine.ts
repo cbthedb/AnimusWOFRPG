@@ -66,7 +66,12 @@ export class EnhancedGameEngine {
       
       return {
         newCharacter,
-        newGameData
+        newGameData,
+        event: {
+          type: 'story_continue',
+          message: 'Story continues...',
+          timestamp: Date.now()
+        }
       };
     }
 
@@ -118,12 +123,25 @@ export class EnhancedGameEngine {
       }
     }
 
-    // Check for special events first (artifacts, special powers)
-    const specialEvent = SpecialEventsSystem.checkForSpecialEvent(newCharacter, newGameData);
+    // Check for special events every 10 turns using turn count
     let nextScenario: Scenario;
     
-    if (specialEvent) {
-      nextScenario = specialEvent.scenario;
+    // Increment turn count if not present
+    if (!(newGameData as any).turnCount) {
+      (newGameData as any).turnCount = 1;
+    } else {
+      (newGameData as any).turnCount += 1;
+    }
+    
+    // Check for special events every 10 turns
+    if ((newGameData as any).turnCount % 10 === 0) {
+      const specialEvent = SpecialEventsSystem.tryGenerateSpecialEvent(newCharacter, newGameData, (newGameData as any).turnCount);
+      if (specialEvent) {
+        nextScenario = specialEvent.scenario;
+      } else {
+        // Generate next scenario using original system
+        nextScenario = this.generateNextScenario(newCharacter, newGameData);
+      }
     } else {
       // Generate next scenario using original system
       nextScenario = this.generateNextScenario(newCharacter, newGameData);
