@@ -24,7 +24,7 @@ export class SpecialEventsSystem {
   private static readonly PROPHECY_COOLDOWN_TURNS = 10; // 10 turns
   private static readonly ARTIFACT_BASE_CHANCE = 0.15; // 15% chance per turn
   private static readonly SPECIAL_POWER_BASE_CHANCE = 0.12; // 12% chance per turn
-  private static readonly MAX_ARTIFACTS_PER_GAME = 5;
+  private static readonly MAX_ARTIFACTS_PER_GAME = 3;
   
   private static eventState: SpecialEventState = {
     lastArtifactEventTurn: 0,
@@ -34,54 +34,92 @@ export class SpecialEventsSystem {
     maxArtifactsPerGame: this.MAX_ARTIFACTS_PER_GAME
   };
   
+  // Load event state from game data if available
+  static initializeEventState(gameData: GameData): void {
+    const stored = (gameData as any).specialEventState;
+    if (stored) {
+      this.eventState = { ...this.eventState, ...stored };
+    }
+  }
+  
+  // Save event state to game data
+  static saveEventState(gameData: GameData): void {
+    (gameData as any).specialEventState = { ...this.eventState };
+  }
+  
   static checkForSpecialEvent(character: Character, gameData: GameData): SpecialEvent | null {
     const currentTurn = gameData.turn;
     
+    console.log(`Checking special events at turn ${currentTurn}:`);
+    console.log(`- Artifacts discovered: ${this.eventState.artifactsDiscovered}/${this.MAX_ARTIFACTS_PER_GAME}`);
+    console.log(`- Last artifact turn: ${this.eventState.lastArtifactEventTurn}`);
+    console.log(`- Last mindreading turn: ${this.eventState.lastMindreadingEventTurn}`);
+    console.log(`- Last prophecy turn: ${this.eventState.lastProphecyEventTurn}`);
+    
     // Check for artifact discovery (location-based)
     if (this.canTriggerArtifactEvent(currentTurn) && this.eventState.artifactsDiscovered < this.MAX_ARTIFACTS_PER_GAME) {
+      console.log('Attempting to generate artifact event...');
       const artifactEvent = this.tryGenerateArtifactEvent(character, gameData, currentTurn);
       if (artifactEvent) {
         this.eventState.lastArtifactEventTurn = currentTurn;
         this.eventState.artifactsDiscovered++;
+        console.log('Artifact event generated successfully!');
         return artifactEvent;
       }
     }
     
     // Check for mindreading special scenario
     if (this.canTriggerMindreadingEvent(character, currentTurn)) {
+      console.log('Attempting to generate mindreading event...');
       const mindreadingEvent = this.tryGenerateMindreadingEvent(character, gameData, currentTurn);
       if (mindreadingEvent) {
         this.eventState.lastMindreadingEventTurn = currentTurn;
+        console.log('Mindreading event generated successfully!');
         return mindreadingEvent;
       }
     }
     
     // Check for prophecy special scenario
     if (this.canTriggerProphecyEvent(character, currentTurn)) {
+      console.log('Attempting to generate prophecy event...');
       const prophecyEvent = this.tryGenerateProphecyEvent(character, gameData, currentTurn);
       if (prophecyEvent) {
         this.eventState.lastProphecyEventTurn = currentTurn;
+        console.log('Prophecy event generated successfully!');
         return prophecyEvent;
       }
     }
     
+    console.log('No special events triggered this turn');
     return null;
   }
   
   private static canTriggerArtifactEvent(currentTurn: number): boolean {
-    return (currentTurn - this.eventState.lastArtifactEventTurn) >= this.ARTIFACT_COOLDOWN_TURNS;
+    // Special events trigger every 10 turns, but we should reset cooldowns every 10 turns to ensure they can trigger
+    if (currentTurn % 10 === 0) {
+      return (currentTurn - this.eventState.lastArtifactEventTurn) >= this.ARTIFACT_COOLDOWN_TURNS;
+    }
+    return false;
   }
   
   private static canTriggerMindreadingEvent(character: Character, currentTurn: number): boolean {
     const hasMindreading = character.tribalPowers.some(p => p.toLowerCase().includes('mind')) ||
                           character.specialPowers.some(p => p.toLowerCase().includes('mind'));
-    return hasMindreading && (currentTurn - this.eventState.lastMindreadingEventTurn) >= this.MINDREADING_COOLDOWN_TURNS;
+    // Only check on turns divisible by 10
+    if (currentTurn % 10 === 0 && hasMindreading) {
+      return (currentTurn - this.eventState.lastMindreadingEventTurn) >= this.MINDREADING_COOLDOWN_TURNS;
+    }
+    return false;
   }
   
   private static canTriggerProphecyEvent(character: Character, currentTurn: number): boolean {
     const hasProphecy = character.tribalPowers.some(p => p.toLowerCase().includes('prophecy')) ||
                        character.specialPowers.some(p => p.toLowerCase().includes('prophecy') || p.toLowerCase().includes('foresight'));
-    return hasProphecy && (currentTurn - this.eventState.lastProphecyEventTurn) >= this.PROPHECY_COOLDOWN_TURNS;
+    // Only check on turns divisible by 10
+    if (currentTurn % 10 === 0 && hasProphecy) {
+      return (currentTurn - this.eventState.lastProphecyEventTurn) >= this.PROPHECY_COOLDOWN_TURNS;
+    }
+    return false;
   }
   
   private static tryGenerateArtifactEvent(character: Character, gameData: GameData, turn: number): SpecialEvent | null {
@@ -102,46 +140,49 @@ export class SpecialEventsSystem {
       chance *= 1.5;
     }
     
-    if (Math.random() > chance) return null;
+    // Guarantee artifact discovery every 10 turns if eligible, with increased chance
+    if (currentLocation.name.includes('Ancient') || currentLocation.name.includes('Ruins') || Math.random() < chance) {
+      const artifact = AnimusArtifactSystem.generateArtifactDiscovery(character, gameData);
+      if (!artifact) return null;
     
-    const artifact = AnimusArtifactSystem.generateArtifactDiscovery(character, gameData);
-    if (!artifact) return null;
+      // Create scenario for artifact discovery
+      const scenario: Scenario = {
+        id: `artifact_discovery_${artifact.id}`,
+        title: `Discovery: ${artifact.name}`,
+        description: `You have discovered a mysterious animus artifact!`,
+        narrativeText: [
+          `While exploring ${currentLocation.name}, you stumble upon something extraordinary...`,
+          artifact.discoveryScenario,
+          `The artifact radiates ${artifact.cursed ? 'dark' : 'ancient'} magical energy. What do you do?`
+        ],
+        choices: artifact.usageOptions.map((option, index) => ({
+          id: option.id,
+          text: option.text,
+          description: `${option.outcome.substring(0, 100)}...`,
+          soulCost: option.soulCost,
+          sanityCost: option.sanityCost,
+          consequences: option.consequences,
+          corruption: option.corruption,
+          requiresModal: 'artifact'
+        })),
+        type: 'magical',
+        location: currentLocation.name,
+        timeOfDay: 'afternoon',
+        weather: 'mysterious'
+      };
+      
+      // Add artifact to inventory for the scenario
+      gameData.inventory.push(artifact);
+      
+      return {
+        id: `artifact_${artifact.id}`,
+        type: 'artifact_discovery',
+        scenario,
+        timestamp: turn
+      };
+    }
     
-    // Create scenario for artifact discovery
-    const scenario: Scenario = {
-      id: `artifact_discovery_${artifact.id}`,
-      title: `Discovery: ${artifact.name}`,
-      description: `You have discovered a mysterious animus artifact!`,
-      narrativeText: [
-        `While exploring ${currentLocation.name}, you stumble upon something extraordinary...`,
-        artifact.discoveryScenario,
-        `The artifact radiates ${artifact.cursed ? 'dark' : 'ancient'} magical energy. What do you do?`
-      ],
-      choices: artifact.usageOptions.map((option, index) => ({
-        id: option.id,
-        text: option.text,
-        description: `${option.outcome.substring(0, 100)}...`,
-        soulCost: option.soulCost,
-        sanityCost: option.sanityCost,
-        consequences: option.consequences,
-        corruption: option.corruption,
-        requiresModal: 'artifact'
-      })),
-      type: 'magical',
-      location: currentLocation.name,
-      timeOfDay: 'afternoon',
-      weather: 'mysterious'
-    };
-    
-    // Add artifact to inventory for the scenario
-    gameData.inventory.push(artifact);
-    
-    return {
-      id: `artifact_${artifact.id}`,
-      type: 'artifact_discovery',
-      scenario,
-      timestamp: turn
-    };
+    return null;
   }
   
   private static tryGenerateMindreadingEvent(character: Character, gameData: GameData, turn: number): SpecialEvent | null {

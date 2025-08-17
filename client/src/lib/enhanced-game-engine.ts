@@ -68,9 +68,12 @@ export class EnhancedGameEngine {
         newCharacter,
         newGameData,
         event: {
-          type: 'story_continue',
-          message: 'Story continues...',
-          timestamp: Date.now()
+          turn: gameData.turn,
+          scenario: 'continue',
+          choice: 'continue',
+          consequences: ['Story continues...'],
+          soulLoss: 0,
+          sanityLoss: 0
         }
       };
     }
@@ -123,22 +126,26 @@ export class EnhancedGameEngine {
       }
     }
 
-    // Check for special events every 10 turns using turn count
+    // Check for special events every 10 turns using the actual turn number
     let nextScenario: Scenario;
     
-    // Increment turn count if not present
-    if (!(newGameData as any).turnCount) {
-      (newGameData as any).turnCount = 1;
-    } else {
-      (newGameData as any).turnCount += 1;
-    }
+    // Increment turn first
+    const nextTurn = gameData.turn + 1;
     
-    // Check for special events every 10 turns
-    if ((newGameData as any).turnCount % 10 === 0) {
-      const specialEvent = SpecialEventsSystem.tryGenerateSpecialEvent(newCharacter, newGameData, (newGameData as any).turnCount);
+    // Initialize special events system with current game data
+    SpecialEventsSystem.initializeEventState(newGameData);
+    
+    // Check for special events every 10 turns (turn 10, 20, 30, etc.)
+    if (nextTurn % 10 === 0) {
+      console.log(`Turn ${nextTurn}: Checking for special events...`);
+      const specialEvent = SpecialEventsSystem.checkForSpecialEvent(newCharacter, { ...newGameData, turn: nextTurn });
       if (specialEvent) {
+        console.log(`Special event triggered at turn ${nextTurn}:`, specialEvent.type);
         nextScenario = specialEvent.scenario;
+        // Save updated event state
+        SpecialEventsSystem.saveEventState(newGameData);
       } else {
+        console.log(`No special event triggered at turn ${nextTurn}`);
         // Generate next scenario using original system
         nextScenario = this.generateNextScenario(newCharacter, newGameData);
       }
