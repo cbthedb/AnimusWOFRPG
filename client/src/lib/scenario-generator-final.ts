@@ -155,6 +155,13 @@ const SCENARIO_DATABASE: ScenarioData[] = [
   { id: "treasure_map", type: "NORMAL", text: "You find what appears to be a treasure map. Do you follow it alone or gather a group?" },
   { id: "weather_disaster", type: "NORMAL", text: "A severe storm is coming. Do you help prepare the community or secure only your own belongings?" },
   { id: "elder_request", type: "NORMAL", text: "A tribal elder asks you to carry out a mysterious task. Do you accept without question or ask for details?" },
+  
+  // Special interactive scenarios that require specific modal interactions
+  { id: "animus_scroll_request", type: "ANIMUS", text: "A desperate dragon begs you to create a scroll with infinite power to save their dying tribe. Will you risk your soul?", requirements: (c) => c.isAnimus },
+  { id: "mysterious_artifact", type: "NORMAL", text: "You discover a glowing artifact buried in ancient ruins. Its power is immense but unknown." },
+  { id: "tribal_crisis", type: "NORMAL", text: "A crisis threatens your entire tribe and only swift action can save them. How do you respond?" },
+  { id: "mind_invasion", type: "MINDREADING", text: "Multiple minds are screaming in your head at once, overwhelming your senses.", requirements: (c) => c.tribalPowers.includes('Mind Reading') || c.specialPowers.includes('Enhanced Mind Reading') },
+  { id: "prophecy_paradox", type: "PROPHECY", text: "You see a prophecy where preventing it might actually cause it to happen.", requirements: (c) => c.tribalPowers.includes('Prophecy (rare)') || c.specialPowers.includes('Foresight') || c.specialPowers.includes('Enhanced Prophecy') },
 ];
 
 // Additional choices for romance scenarios
@@ -185,6 +192,270 @@ const ROMANCE_CHOICES = [
   }
 ];
 
+// Specific choices for each unique scenario
+const SCENARIO_SPECIFIC_CHOICES: Record<string, Choice[]> = {
+  // Animus Power Scenarios
+  animus_scroll_request: [
+    {
+      id: "animus_scroll_request_create",
+      text: "Use Animus Magic to create the scroll",
+      description: "Grant their wish with powerful magic",
+      soulCost: 25,
+      sanityCost: 0,
+      consequences: ["You create a scroll of immense power, but at great cost to your soul..."],
+      corruption: true,
+      requiresModal: "animus"
+    },
+    {
+      id: "animus_scroll_request_refuse",
+      text: "Refuse their dangerous request",
+      description: "Explain the dangers of such powerful magic",
+      soulCost: 0,
+      sanityCost: 5,
+      consequences: ["You wisely refuse, knowing the corruption such magic would bring."]
+    },
+    {
+      id: "animus_scroll_request_compromise",
+      text: "Offer a lesser enchantment instead",
+      description: "Suggest something safer but still helpful",
+      soulCost: 10,
+      sanityCost: 0,
+      consequences: ["You offer a compromise - helpful magic without the devastating cost."]
+    }
+  ],
+
+  // Mind Reading Scenarios
+  secret_love: [
+    {
+      id: "secret_love_read_deeper",
+      text: "Use Mind Reading to understand their feelings",
+      description: "Delve deeper into their thoughts about you",
+      soulCost: 0,
+      sanityCost: 3,
+      consequences: ["You explore their mind and discover the depth of their affection..."],
+      requiresModal: "mindreading"
+    },
+    {
+      id: "secret_love_reciprocate",
+      text: "Reveal that you share their feelings",
+      description: "Let them know you feel the same way",
+      soulCost: 0,
+      sanityCost: 0,
+      consequences: ["You open your heart and confess your mutual feelings..."]
+    },
+    {
+      id: "secret_love_pretend",
+      text: "Pretend you don't know",
+      description: "Act as if you never heard their thoughts",
+      soulCost: 0,
+      sanityCost: 8,
+      consequences: ["You keep their secret, but the burden weighs on your mind..."]
+    }
+  ],
+
+  // Prophecy Scenarios
+  death_prophecy: [
+    {
+      id: "death_prophecy_investigate",
+      text: "Use Prophecy powers to see more",
+      description: "Try to understand the vision better",
+      soulCost: 0,
+      sanityCost: 10,
+      consequences: ["You peer deeper into the future, seeking clarity about your fate..."],
+      requiresModal: "prophecy"
+    },
+    {
+      id: "death_prophecy_accept",
+      text: "Accept your destiny with courage",
+      description: "Face whatever comes with bravery",
+      soulCost: 0,
+      sanityCost: 5,
+      consequences: ["You embrace your fate, finding peace in acceptance..."]
+    },
+    {
+      id: "death_prophecy_defy",
+      text: "Defy the prophecy and change fate",
+      description: "Fight against the predicted outcome",
+      soulCost: 0,
+      sanityCost: 15,
+      consequences: ["You rebel against destiny itself, consequences unknown..."]
+    }
+  ],
+
+  // War Scenarios
+  skywing_tribute: [
+    {
+      id: "skywing_tribute_resist",
+      text: "Rally the village to resist",
+      description: "Organize a defense against the tribute demands",
+      soulCost: 0,
+      sanityCost: 10,
+      consequences: ["You inspire resistance, but war may come to your doorstep..."]
+    },
+    {
+      id: "skywing_tribute_negotiate",
+      text: "Attempt to negotiate terms",
+      description: "Try to find a peaceful compromise",
+      soulCost: 0,
+      sanityCost: 5,
+      consequences: ["You seek middle ground, hoping diplomacy can prevent bloodshed..."]
+    },
+    {
+      id: "skywing_tribute_submit",
+      text: "Advise paying the tribute",
+      description: "Choose safety over pride",
+      soulCost: 0,
+      sanityCost: 12,
+      consequences: ["You counsel submission, valuing lives over honor..."]
+    }
+  ],
+
+  // Learning Scenarios
+  ancient_animus_study: [
+    {
+      id: "ancient_animus_study_learn",
+      text: "Study the forbidden spells",
+      description: "Risk corruption for knowledge",
+      soulCost: 15,
+      sanityCost: 0,
+      consequences: ["You delve into dangerous magic, gaining power at a terrible price..."],
+      corruption: true
+    },
+    {
+      id: "ancient_animus_study_report",
+      text: "Report the discovery to authorities",
+      description: "Let others handle the dangerous knowledge",
+      soulCost: 0,
+      sanityCost: 3,
+      consequences: ["You wisely leave dangerous magic to those more experienced..."]
+    },
+    {
+      id: "ancient_animus_study_destroy",
+      text: "Destroy the forbidden knowledge",
+      description: "Eliminate the temptation entirely",
+      soulCost: 0,
+      sanityCost: 8,
+      consequences: ["You destroy the texts, knowing some knowledge is too dangerous..."]
+    }
+  ],
+
+  // Custom Action Scenarios
+  mysterious_artifact: [
+    {
+      id: "mysterious_artifact_examine",
+      text: "Examine it closely",
+      description: "Study the artifact carefully",
+      soulCost: 0,
+      sanityCost: 5,
+      consequences: ["You examine the mysterious object, trying to understand its purpose..."]
+    },
+    {
+      id: "mysterious_artifact_touch",
+      text: "Touch the artifact",
+      description: "Risk activating its power",
+      soulCost: 0,
+      sanityCost: 15,
+      consequences: ["You reach out and touch the artifact, unsure what will happen..."]
+    },
+    {
+      id: "mysterious_artifact_custom",
+      text: "Take a custom action",
+      description: "Decide your own approach",
+      soulCost: 0,
+      sanityCost: 0,
+      consequences: ["You decide to handle this situation in your own unique way..."],
+      requiresModal: "custom"
+    }
+  ],
+
+  // Tribal Powers Scenarios
+  tribal_crisis: [
+    {
+      id: "tribal_crisis_powers",
+      text: "Use your tribal abilities",
+      description: "Apply your unique tribal gifts to help",
+      soulCost: 0,
+      sanityCost: 5,
+      consequences: ["You call upon your tribal heritage to address the crisis..."],
+      requiresModal: "tribal"
+    },
+    {
+      id: "tribal_crisis_diplomacy",
+      text: "Attempt diplomatic solution",
+      description: "Try to resolve through negotiation",
+      soulCost: 0,
+      sanityCost: 8,
+      consequences: ["You seek to solve this through words rather than power..."]
+    },
+    {
+      id: "tribal_crisis_withdraw",
+      text: "Step back and observe",
+      description: "Let others handle the situation",
+      soulCost: 0,
+      sanityCost: 10,
+      consequences: ["You choose not to get involved in tribal politics..."]
+    }
+  ],
+
+  // Mind Reading specific scenarios
+  mind_invasion: [
+    {
+      id: "mind_invasion_focus",
+      text: "Use Mind Reading to focus on one voice",
+      description: "Try to isolate a single mind from the chaos",
+      soulCost: 0,
+      sanityCost: 8,
+      consequences: ["You struggle to focus on one voice among many..."],
+      requiresModal: "mindreading"
+    },
+    {
+      id: "mind_invasion_block",
+      text: "Block out all the voices",
+      description: "Shut down your mind reading completely",
+      soulCost: 0,
+      sanityCost: 15,
+      consequences: ["You desperately try to silence the mental chaos..."]
+    },
+    {
+      id: "mind_invasion_embrace",
+      text: "Embrace the chaos",
+      description: "Accept all the voices and try to understand them",
+      soulCost: 0,
+      sanityCost: 25,
+      consequences: ["You open your mind fully to the overwhelming flood of thoughts..."]
+    }
+  ],
+
+  // Prophecy specific scenarios  
+  prophecy_paradox: [
+    {
+      id: "prophecy_paradox_investigate",
+      text: "Use Prophecy to see deeper into the paradox",
+      description: "Try to understand how the prophecy works",
+      soulCost: 0,
+      sanityCost: 20,
+      consequences: ["You peer deeper into the threads of fate..."],
+      requiresModal: "prophecy"
+    },
+    {
+      id: "prophecy_paradox_ignore",
+      text: "Ignore the prophecy completely",
+      description: "Refuse to engage with the paradox",
+      soulCost: 0,
+      sanityCost: 12,
+      consequences: ["You turn away from the visions, hoping ignorance will help..."]
+    },
+    {
+      id: "prophecy_paradox_act",
+      text: "Act according to the prophecy",
+      description: "Follow what the vision shows despite the risk",
+      soulCost: 0,
+      sanityCost: 18,
+      consequences: ["You choose to trust the prophecy despite its paradox..."]
+    }
+  ]
+};
+
 function generateChoicesForScenario(scenario: ScenarioData, character: Character): Choice[] {
   // Special handling for romance scenarios
   if (scenario.id.includes('romantic_') || scenario.id.includes('courtship_') || scenario.id.includes('secret_love') || scenario.id.includes('love_confession') || scenario.id.includes('mate_proposal')) {
@@ -194,60 +465,13 @@ function generateChoicesForScenario(scenario: ScenarioData, character: Character
     }));
   }
 
-  const baseChoices = [
-    {
-      id: `${scenario.id}_choice_1`,
-      text: "Take action decisively",
-      description: "Act quickly and decisively",
-      soulCost: scenario.type === 'ANIMUS' && character.isAnimus ? Math.floor(Math.random() * 10) + 5 : 0,
-      sanityCost: Math.floor(Math.random() * 5),
-      consequences: ["Your decisive action has consequences..."]
-    },
-    {
-      id: `${scenario.id}_choice_2`, 
-      text: "Consider carefully before acting",
-      description: "Take time to think through the situation",
-      soulCost: scenario.type === 'ANIMUS' && character.isAnimus ? Math.floor(Math.random() * 5) : 0,
-      sanityCost: Math.floor(Math.random() * 3),
-      consequences: ["Careful consideration guides your path..."]
-    },
-    {
-      id: `${scenario.id}_choice_3`,
-      text: "Avoid getting involved",
-      description: "Stay out of the situation entirely",
-      soulCost: 0,
-      sanityCost: Math.floor(Math.random() * 8) + 2,
-      consequences: ["Sometimes wisdom is knowing when not to act..."]
-    }
-  ];
-
-  // Add special choice for animus scenarios
-  if (scenario.type === 'ANIMUS' && character.isAnimus) {
-    const magicChoice: Choice = {
-      id: `${scenario.id}_choice_magic`,
-      text: "Use powerful animus magic",
-      description: "Solve the problem with raw magical power",
-      soulCost: Math.floor(Math.random() * 20) + 10,
-      sanityCost: 0,
-      consequences: ["Power solves problems, but at what cost to your soul?"],
-      corruption: true
-    };
-    baseChoices.push(magicChoice);
+  // Use specific choices if available
+  if (SCENARIO_SPECIFIC_CHOICES[scenario.id]) {
+    return SCENARIO_SPECIFIC_CHOICES[scenario.id];
   }
 
-  // Add special choice for mind reading scenarios
-  if (scenario.type === 'MINDREADING' && (character.tribalPowers.includes('Mind Reading') || character.specialPowers.includes('Enhanced Mind Reading'))) {
-    baseChoices.push({
-      id: `${scenario.id}_choice_mindread`,
-      text: "Use mind reading abilities",
-      description: "Read the thoughts of others involved",
-      soulCost: 0,
-      sanityCost: Math.floor(Math.random() * 10) + 5,
-      consequences: ["Knowledge gained through mental intrusion carries its own weight..."]
-    });
-  }
-
-  return baseChoices;
+  // Generate scenario-specific choices based on content and type
+  return generateContextualChoices(scenario, character);
 }
 
 export function generateScenario(character: Character, gameData: GameData): Scenario {

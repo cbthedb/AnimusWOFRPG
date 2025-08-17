@@ -148,6 +148,7 @@ export interface Choice {
   consequences: string[];
   requirements?: string[];
   corruption?: boolean;
+  requiresModal?: string;
 }
 
 export interface GameEvent {
