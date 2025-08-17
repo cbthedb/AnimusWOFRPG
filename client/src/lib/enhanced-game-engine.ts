@@ -49,8 +49,8 @@ export class EnhancedGameEngine {
       newCharacter.sanityPercentage = Math.max(0, newCharacter.sanityPercentage - 1);
     }
 
-    // Age progression and season changes - faster aging
-    this.progressTime(newCharacter, newGameData, 3); // Age 3x faster
+    // Age progression - 1 year per turn
+    this.progressTime(newCharacter, newGameData, 1);
 
     // Handle relationships based on choice
     this.updateRelationships(newCharacter, choice, scenario);

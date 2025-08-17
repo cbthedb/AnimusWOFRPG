@@ -167,35 +167,56 @@ export class IntelligentActionProcessor {
     gameData: GameData,
     item?: InventoryItem
   ): string {
+    // Enhanced contextual responses that work for ALL scenario types
+    const location = gameData?.location || 'unknown location';
+    const characterName = character?.name || 'the dragon';
+    const rawAction = analysis.rawAction;
+    
+    // Get current scenario context if available
+    const currentScenario = gameData?.currentScenario;
+    const scenarioType = currentScenario?.type || 'normal';
+    
+    // Generate result based on action type with comprehensive responses
+    let baseResult: string;
     
     // If using an enchanted item with specific effects
     if (analysis.itemContext?.triggersEnchantment && item) {
       return this.generateEnchantedItemResult(analysis, character, gameData, item);
     }
     
-    // Generate result based on action type
+    // Generate result based on action type with enhanced scenario awareness
     switch (analysis.actionType) {
       case 'magical':
-        return this.generateMagicalResult(analysis, character, gameData);
+        baseResult = this.generateMagicalResult(analysis, character, gameData);
+        break;
       
       case 'combat':
-        return this.generateCombatResult(analysis, character, gameData);
+        baseResult = this.generateCombatResult(analysis, character, gameData);
+        break;
       
       case 'item_usage':
-        return this.generateItemUsageResult(analysis, character, gameData, item);
+        baseResult = this.generateItemUsageResult(analysis, character, gameData, item);
+        break;
       
       case 'exploration':
-        return this.generateExplorationResult(analysis, character, gameData);
+        baseResult = this.generateExplorationResult(analysis, character, gameData);
+        break;
       
       case 'stealth':
-        return this.generateStealthResult(analysis, character, gameData);
+        baseResult = this.generateStealthResult(analysis, character, gameData);
+        break;
       
       case 'diplomatic':
-        return this.generateDiplomaticResult(analysis, character, gameData);
+        baseResult = this.generateDiplomaticResult(analysis, character, gameData);
+        break;
       
       default:
-        return this.generateSocialResult(analysis, character, gameData);
+        baseResult = this.generateSocialResult(analysis, character, gameData);
+        break;
     }
+    
+    // Add scenario-specific context to ALL action results
+    return this.addScenarioContextToResult(baseResult, scenarioType, currentScenario, analysis, character);
   }
   
   private static generateEnchantedItemResult(
@@ -352,6 +373,40 @@ Your action draws various reactions from those around you. Some dragons ${charac
 ${this.generateSocialConsequence(character, gameData)}`;
   }
   
+  // Add scenario-specific context to make custom actions more immersive
+  private static addScenarioContextToResult(
+    baseResult: string,
+    scenarioType: string,
+    currentScenario: any,
+    analysis: ActionAnalysis,
+    character: Character
+  ): string {
+    const scenarioSpecificAdditions = {
+      'magical': `\n\nThe magical energies in the air seem to respond to your action, creating ripples of power that extend beyond what you intended.`,
+      'prophetic': `\n\nYour action triggers a brief flash of prophetic insight - you glimpse potential futures branching from this moment.`,
+      'tribal': `\n\nOther dragons of your tribe take notice of your actions, their reactions varying based on tribal customs and your standing among them.`,
+      'political': `\n\nYour choice here could have far-reaching political implications for the relationships between tribes.`,
+      'romantic': `\n\nThe romantic tension in the air shifts as your actions change the dynamics of the relationships around you.`,
+      'learning': `\n\nThis experience teaches you something new about yourself and the world around you, adding to your growing wisdom.`,
+      'combat': `\n\nThe sounds of battle echo around you as your actions influence the tide of conflict.`,
+      'mystery': `\n\nYour action reveals new clues about the mysteries surrounding this place, but also raises additional questions.`
+    };
+    
+    // Add scenario-specific context if available
+    const additionalContext = scenarioSpecificAdditions[scenarioType] || 
+      `\n\nThe consequences of your action ripple outward, affecting the world around you in ways both seen and unseen.`;
+    
+    // Add Wings of Fire lore context based on character's situation
+    let loreContext = '';
+    if (character.isAnimus && analysis.magicalNature) {
+      loreContext = `\n\nAs an animus dragon, you feel the familiar yet dangerous pull of unlimited power. Every use of magic leaves its mark on your soul.`;
+    } else if (character.tribalPowers.includes('Mind Reading') && scenarioType === 'social') {
+      loreContext = `\n\nYour mind reading abilities pick up the emotional responses of those around you, giving you insight into their true feelings about your actions.`;
+    }
+    
+    return baseResult + additionalContext + loreContext;
+  }
+
   private static generateFollowUpScenario(
     analysis: ActionAnalysis,
     actionResult: string,

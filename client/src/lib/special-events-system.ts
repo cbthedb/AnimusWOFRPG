@@ -140,11 +140,11 @@ export class SpecialEventsSystem {
       id: `artifact_${artifact.id}`,
       type: 'artifact_discovery',
       scenario,
-      timestamp
+      timestamp: turn
     };
   }
   
-  private static tryGenerateMindreadingEvent(character: Character, gameData: GameData, timestamp: number): SpecialEvent | null {
+  private static tryGenerateMindreadingEvent(character: Character, gameData: GameData, turn: number): SpecialEvent | null {
     if (Math.random() > this.SPECIAL_POWER_BASE_CHANCE) return null;
     
     const mindreadingScenario = SpecialPowerScenarioSystem.getRandomScenario(character, 'mindreading');
@@ -179,11 +179,11 @@ export class SpecialEventsSystem {
       id: `mindreading_${mindreadingScenario.id}`,
       type: 'mindreading_event',
       scenario,
-      timestamp
+      timestamp: turn
     };
   }
   
-  private static tryGenerateProphecyEvent(character: Character, gameData: GameData, timestamp: number): SpecialEvent | null {
+  private static tryGenerateProphecyEvent(character: Character, gameData: GameData, turn: number): SpecialEvent | null {
     if (Math.random() > this.SPECIAL_POWER_BASE_CHANCE) return null;
     
     const prophecyScenario = SpecialPowerScenarioSystem.getRandomScenario(character, 'prophecy');
@@ -218,7 +218,7 @@ export class SpecialEventsSystem {
       id: `prophecy_${prophecyScenario.id}`,
       type: 'prophecy_event',
       scenario,
-      timestamp
+      timestamp: turn
     };
   }
   
@@ -275,9 +275,9 @@ export class SpecialEventsSystem {
   
   static resetEventState(): void {
     this.eventState = {
-      lastArtifactEvent: 0,
-      lastMindreadingEvent: 0,
-      lastProphecyEvent: 0,
+      lastArtifactEventTurn: 0,
+      lastMindreadingEventTurn: 0,
+      lastProphecyEventTurn: 0,
       artifactsDiscovered: 0,
       maxArtifactsPerGame: this.MAX_ARTIFACTS_PER_GAME
     };

@@ -23,6 +23,8 @@ Preferred communication style: Simple, everyday language.
 - **Special Events System** (January 2025): Implemented rare, time-gated special events including animus artifact discoveries, mindreading scenarios, and prophecy events. These complement existing gameplay with 5-minute cooldowns and dragon-type requirements.
 - **Animus Artifact System** (January 2025): Added 5 unique collectible animus artifacts with complex moral choices, soul corruption mechanics, and location-based discovery system. Maximum 3 artifacts per playthrough.
 - **Enhanced Outcome Display** (January 2025): Integrated continue button system that displays story outcomes before proceeding to next scenario, improving narrative flow and player engagement.
+- **Comprehensive Custom Action System** (January 2025): Enhanced custom action responses to work with ALL scenario types, providing contextual, immersive responses that integrate with Wings of Fire lore and character abilities.
+- **Improved Aging and Event Timing** (January 2025): Changed aging to 1 year per turn and special event timing to every 10 turns with higher success rates (15% for artifacts, 12% for special powers).
 
 # System Architecture
 
