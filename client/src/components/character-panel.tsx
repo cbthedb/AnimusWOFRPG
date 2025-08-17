@@ -14,9 +14,10 @@ interface CharacterPanelProps {
   inventory?: InventoryItem[];
   onShowTribalPowers?: () => void;
   onUseInventoryItem?: (item: InventoryItem) => void;
+  onSeekRomance?: () => void;
 }
 
-export default function CharacterPanel({ character, inventory = [], onShowTribalPowers, onUseInventoryItem }: CharacterPanelProps) {
+export default function CharacterPanel({ character, inventory = [], onShowTribalPowers, onUseInventoryItem, onSeekRomance }: CharacterPanelProps) {
   const [activeTab, setActiveTab] = useState<"info" | "family" | "social" | "inventory">("info");
   const corruptionLevel = GameEngine.getCorruptionLevel(character.soulPercentage);
   
@@ -256,20 +257,59 @@ export default function CharacterPanel({ character, inventory = [], onShowTribal
               </div>
 
               {/* Mate & Romance */}
-              {character.mate && (
-                <div>
-                  <h3 className="font-fantasy text-lg font-semibold text-purple-300 mb-3">
-                    <Heart className="w-4 h-4 inline mr-2" />
-                    Romantic Life
-                  </h3>
+              <div>
+                <h3 className="font-fantasy text-lg font-semibold text-purple-300 mb-3">
+                  <Heart className="w-4 h-4 inline mr-2" />
+                  Romantic Life
+                </h3>
+                
+                {character.mate ? (
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                       <span className="text-slate-400">Mate:</span>
                       <span className="text-pink-300">{character.mate}</span>
                     </div>
                   </div>
-                </div>
-              )}
+                ) : (
+                  <div className="space-y-3">
+                    <p className="text-sm text-slate-400">No mate yet</p>
+                    {character.age >= 7 && character.soulCorruptionStage !== "Broken" && onSeekRomance && (
+                      <Button
+                        onClick={onSeekRomance}
+                        size="sm"
+                        variant="outline"
+                        className="w-full border-pink-500/50 text-pink-400 hover:bg-pink-500/10"
+                      >
+                        <Heart className="w-4 h-4 mr-2" />
+                        Seek Romance
+                      </Button>
+                    )}
+                  </div>
+                )}
+
+                {/* Romantic History */}
+                {character.romanticHistory && character.romanticHistory.length > 0 && (
+                  <div className="mt-4">
+                    <h4 className="text-sm font-semibold text-purple-400 mb-2">Romantic History</h4>
+                    <div className="space-y-2">
+                      {character.romanticHistory.slice(-3).map((event, index) => (
+                        <div key={index} className="bg-black/30 rounded p-2 text-xs">
+                          <div className="flex justify-between items-center">
+                            <span className="text-pink-300">{event.partnerName}</span>
+                            <Badge variant="outline" className="text-xs">
+                              {event.eventType}
+                            </Badge>
+                          </div>
+                          <p className="text-slate-400 mt-1">{event.outcome}</p>
+                        </div>
+                      ))}
+                      {character.romanticHistory.length > 3 && (
+                        <p className="text-xs text-slate-400 text-center">+{character.romanticHistory.length - 3} more romantic events...</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
 
               {/* Dragonets */}
               {character.dragonets.length > 0 && (

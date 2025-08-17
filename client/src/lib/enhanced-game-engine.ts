@@ -3,6 +3,7 @@ import { AIDungeonMaster } from "./ai-dungeon-master";
 import { SoulCorruptionManager } from "./enhanced-magic-system";
 import { generateScenario, generateTimeInfo } from "./scenario-generator-final";
 import { MockAIService } from "./mock-ai-service";
+import { RomanceSystem } from "./romance-system";
 
 export class EnhancedGameEngine {
   static processChoice(
@@ -122,68 +123,151 @@ export class EnhancedGameEngine {
   }
 
   static updateRelationships(character: Character, choice: Choice, scenario: Scenario): void {
-    // Relationship changes based on choice consequences
+    // Handle romance-specific choices
+    if (scenario.id.includes('romance_') || choice.id.includes('romance_')) {
+      this.handleRomanceChoice(character, choice, scenario);
+      return;
+    }
+
+    // Handle general relationship consequences
     if (choice.consequences.some(c => c.toLowerCase().includes('friend'))) {
       // Positive social interaction
       const dragonName = this.extractDragonName(choice.consequences.join(' '));
       if (dragonName && character.relationships[dragonName] !== undefined) {
-        const currentRel = character.relationships[dragonName];
-        if (typeof currentRel === 'number') {
-          (character.relationships as any)[dragonName] = Math.min(100, currentRel + 5);
+        const relationship = character.relationships[dragonName];
+        if (typeof relationship === 'object') {
+          relationship.strength = Math.min(100, relationship.strength + 10);
+          relationship.history.push("Had a positive interaction");
         }
       }
     }
 
     if (choice.consequences.some(c => c.toLowerCase().includes('betray') || c.toLowerCase().includes('hurt'))) {
-      // Negative social interaction
+      // Negative social interaction  
       const dragonName = this.extractDragonName(choice.consequences.join(' '));
       if (dragonName && character.relationships[dragonName] !== undefined) {
-        const currentRel = character.relationships[dragonName];
-        if (typeof currentRel === 'number') {
-          (character.relationships as any)[dragonName] = Math.max(-100, currentRel - 10);
+        const relationship = character.relationships[dragonName];
+        if (typeof relationship === 'object') {
+          relationship.strength = Math.max(-100, relationship.strength - 15);
+          relationship.history.push("Had a negative interaction");
         }
       }
     }
 
-    // Check for romance progression
+    // Check for romance progression with existing relationships
     Object.keys(character.relationships).forEach(dragonName => {
       const relationship = character.relationships[dragonName];
-      if (typeof relationship === 'number' && relationship > 80 && !(character as any).hasPartner && Math.random() < 0.1) {
-        // 10% chance of romance when relationship is very high
-        (character as any).hasPartner = true;
-        (character as any).partnerName = dragonName;
-        
-        // Chance for dragonets if partnered
-        if (Math.random() < 0.3) {
-          this.addDragonet(character, dragonName);
+      if (typeof relationship === 'object' && relationship.type === 'romantic') {
+        // Check if ready to become mates
+        if (RomanceSystem.canMate(character, dragonName) && !character.mate && Math.random() < 0.2) {
+          character.mate = dragonName;
+          relationship.type = 'mate';
+          relationship.history.push("Became life mates");
+          
+          // Add life event
+          if (!character.lifeEvents) character.lifeEvents = [];
+          character.lifeEvents.push({
+            turn: scenario ? scenario.id.includes('ai_') ? parseInt(scenario.id.split('_')[2]) || 0 : 0 : 0,
+            category: 'romance',
+            description: `Became mates with ${dragonName}`,
+            impact: 'positive'
+          });
+          
+          // Chance for dragonets
+          if (Math.random() < 0.4) {
+            const partnerTribe = this.getRandomTribe();
+            const offspring = RomanceSystem.generateOffspring(character, dragonName, partnerTribe);
+            if (offspring) {
+              character.lifeEvents.push({
+                turn: scenario ? scenario.id.includes('ai_') ? parseInt(scenario.id.split('_')[2]) || 0 : 0 : 0,
+                category: 'birth',
+                description: `Had a dragonet named ${offspring.name}`,
+                impact: 'positive'
+              });
+            }
+          }
         }
       }
     });
   }
 
-  static addDragonet(character: Character, partnerName: string): void {
-    const dragonetName = this.generateRandomDragonName();
-    const inheritedTribes = character.hybridTribes ? 
-      [character.tribe, ...character.hybridTribes] : [character.tribe];
+  static handleRomanceChoice(character: Character, choice: Choice, scenario: Scenario): void {
+    // Extract partner name from scenario narrative
+    const narrativeText = scenario.narrativeText.join(' ');
+    const partnerName = this.extractPartnerFromRomanceScenario(narrativeText);
     
-    const dragonet = {
-      name: dragonetName,
-      tribe: inheritedTribes[Math.floor(Math.random() * inheritedTribes.length)],
-      hybridTribes: inheritedTribes.length > 1 ? 
-        [inheritedTribes[Math.floor(Math.random() * inheritedTribes.length)]] : undefined,
-      age: 0,
-      isAnimus: character.isAnimus && Math.random() < 0.5, // 50% chance if parent is animus
-      personality: this.generateDragonetPersonality(),
-      traits: this.inheritTraits(character),
-      isAlive: true,
-      inheritedTraits: this.inheritTraits(character),
-      parentage: "biological" as "biological" | "adopted"
-    };
+    if (!partnerName) return;
 
+    // Handle different romance choices
+    if (choice.id === 'romance_accept') {
+      // Accept romantic advances - develop relationship
+      const partnerTribe = this.getRandomTribe();
+      RomanceSystem.developRomance(character, partnerName, partnerTribe);
+      
+      // Add life event
+      if (!character.lifeEvents) character.lifeEvents = [];
+      character.lifeEvents.push({
+        turn: scenario ? scenario.id.includes('ai_') ? parseInt(scenario.id.split('_')[2]) || 0 : 0 : 0,
+        category: 'romance',
+        description: `Started a romantic relationship with ${partnerName}`,
+        impact: 'positive'
+      });
+      
+    } else if (choice.id === 'romance_cautious') {
+      // Cautious approach - develop friendship first
+      character.relationships[partnerName] = {
+        name: partnerName,
+        type: 'friend',
+        strength: Math.floor(Math.random() * 20) + 40, // 40-60 strength
+        history: ["Met through romantic encounter", "Taking things slowly"],
+        isAlive: true
+      };
+      
+    } else if (choice.id === 'romance_reject') {
+      // Polite rejection - neutral relationship
+      character.relationships[partnerName] = {
+        name: partnerName,
+        type: 'neutral',
+        strength: Math.floor(Math.random() * 20) + 20, // 20-40 strength
+        history: ["Met through romantic encounter", "Politely declined romantic advances"],
+        isAlive: true
+      };
+    }
+  }
+
+  static extractPartnerFromRomanceScenario(narrativeText: string): string | null {
+    // Extract partner name from romance scenario text
+    const words = narrativeText.split(' ');
+    for (let i = 0; i < words.length; i++) {
+      if (words[i].toLowerCase() === 'a' && i + 1 < words.length) {
+        const potentialName = words[i + 2]; // Skip 'a [tribe]'
+        if (potentialName && /^[A-Z][a-z]+$/.test(potentialName)) {
+          return potentialName;
+        }
+      }
+    }
+    
+    // Fallback: use common romance system names
+    return RomanceSystem.getRandomPartnerName();
+  }
+
+  static getRandomTribe(): string {
+    const tribes = ["MudWing", "SandWing", "SkyWing", "SeaWing", "IceWing", "RainWing", "NightWing", "SilkWing", "HiveWing", "LeafWing"];
+    return tribes[Math.floor(Math.random() * tribes.length)];
+  }
+
+  static addDragonet(character: Character, partnerName: string): void {
+    // Use the romance system for proper offspring generation
+    const partnerTribe = this.getRandomTribe();
+    const offspring = RomanceSystem.generateOffspring(character, partnerName, partnerTribe);
+    
     if (!character.dragonets) {
       character.dragonets = [];
     }
-    character.dragonets.push(dragonet);
+    
+    if (offspring) {
+      character.dragonets.push(offspring);
+    }
   }
 
   static generateDragonetPersonality(): string {

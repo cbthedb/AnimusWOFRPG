@@ -15,6 +15,8 @@ import { Button } from "@/components/ui/button";
 import { Save, Home, Skull, Eye } from "lucide-react";
 import { useLocalGameState } from "@/hooks/use-local-game-state";
 import { LocalGameStorage } from "@/lib/local-storage";
+import { RomanceSystem } from "@/lib/romance-system";
+import { AIDungeonMaster } from "@/lib/ai-dungeon-master";
 
 export default function Game() {
   const { gameId } = useParams();
@@ -441,6 +443,56 @@ export default function Game() {
     });
     setShowConversationModal(false);
     setConversationData(null);
+  };
+
+  const handleSeekRomance = () => {
+    if (!gameState || !gameId) return;
+
+    const character = gameState.characterData;
+    const gameData = gameState.gameData;
+
+    // Check if character can have romance
+    if (!RomanceSystem.canHaveRomance(character)) {
+      toast({
+        title: "Cannot Seek Romance",
+        description: character.age < 7 ? "You're too young for romance." : "Your corrupted soul prevents romantic connections.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Generate a romantic encounter scenario
+    const romanticEncounter = AIDungeonMaster.generateRomanceEncounter(character, gameData);
+    
+    // Create a new game state with the romance scenario
+    const newGameData = { ...gameData };
+    newGameData.currentScenario = romanticEncounter;
+    newGameData.turn += 1;
+
+    try {
+      const updatedGame = updateGame(gameId, {
+        characterData: character,
+        gameData: newGameData,
+        turn: newGameData.turn,
+        location: newGameData.location,
+      });
+      
+      setGameState({
+        characterData: updatedGame.characterData,
+        gameData: updatedGame.gameData
+      });
+
+      toast({
+        title: "Romance Encounter",
+        description: "You've sought out romantic companionship...",
+      });
+    } catch (error) {
+      toast({
+        title: "Failed to Find Romance",
+        description: "Something went wrong. Try again later.",
+        variant: "destructive",
+      });
+    }
   };
 
   const extractDragonName = (text: string): string | null => {
@@ -937,6 +989,7 @@ export default function Game() {
             inventory={gameData?.inventory || []}
             onShowTribalPowers={() => setShowTribalPowersModal(true)}
             onUseInventoryItem={handleUseInventoryItem}
+            onSeekRomance={handleSeekRomance}
           />
           <GameplayArea
             character={character}

@@ -16,11 +16,12 @@ export class AIDungeonMaster {
       .replace(/force.*with.*magic/gi, "use persuasion");
   }
 
-  // Dynamic scenario generation categories
+  // Dynamic scenario generation categories - increased romance frequency
   private static scenarioTypes = [
     "moral_dilemma", "random_disaster", "tribal_politics", "romance_encounter", 
     "exploration_discovery", "animus_temptation", "war_conflict", "social_interaction",
-    "mystery_event", "magical_phenomenon", "family_drama", "prophecy_vision"
+    "mystery_event", "magical_phenomenon", "family_drama", "prophecy_vision",
+    "romance_encounter", "social_interaction" // Extra romance and social scenarios
   ];
 
   private static randomElements = {
