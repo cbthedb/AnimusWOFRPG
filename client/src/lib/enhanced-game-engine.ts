@@ -180,8 +180,17 @@ export class EnhancedGameEngine {
       sanityLoss: choice.sanityCost
     };
 
-    // Update game data
+    // Update game data with year and season progression
     newGameData.turn += 1;
+    
+    // Advance years by 0.5 per turn (2 turns = 1 year)
+    newGameData.yearsPassed = (newGameData.yearsPassed || 0) + 0.5;
+    
+    // Change seasons every turn
+    const seasons = ['Spring', 'Summer', 'Fall', 'Winter'];
+    const currentSeasonIndex = ((newGameData.turn - 1) % 4);
+    newGameData.currentSeason = seasons[currentSeasonIndex];
+    
     newGameData.currentScenario = nextScenario;
     newGameData.history.push(event);
 
@@ -211,8 +220,17 @@ export class EnhancedGameEngine {
       sanityLoss: 0
     };
 
-    // Update game data
+    // Update game data with year and season progression
     newGameData.turn += 1;
+    
+    // Advance years by 0.5 per turn
+    newGameData.yearsPassed = (newGameData.yearsPassed || 0) + 0.5;
+    
+    // Change seasons every turn
+    const seasons = ['Spring', 'Summer', 'Fall', 'Winter'];
+    const currentSeasonIndex = ((newGameData.turn - 1) % 4);
+    newGameData.currentSeason = seasons[currentSeasonIndex];
+    
     newGameData.history.push(event);
     
     // Generate next scenario

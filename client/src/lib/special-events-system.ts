@@ -22,7 +22,7 @@ export class SpecialEventsSystem {
   private static readonly ARTIFACT_COOLDOWN_TURNS = 10; // 10 turns
   private static readonly MINDREADING_COOLDOWN_TURNS = 10; // 10 turns  
   private static readonly PROPHECY_COOLDOWN_TURNS = 10; // 10 turns
-  private static readonly ARTIFACT_BASE_CHANCE = 0.15; // 15% chance per turn
+  private static readonly ARTIFACT_BASE_CHANCE = 0.05; // 5% chance per turn (rarer)
   private static readonly SPECIAL_POWER_BASE_CHANCE = 0.12; // 12% chance per turn
   private static readonly MAX_ARTIFACTS_PER_GAME = 3;
   

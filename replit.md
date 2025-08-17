@@ -29,6 +29,8 @@ Preferred communication style: Simple, everyday language.
 - **Enhanced Artifact Discovery System** (January 2025): Made animus artifacts discoverable at any location with guaranteed discovery on every 10th turn. Fixed location filtering issues that prevented artifact discovery.
 - **Expanded Scenario Database** (January 2025): Added 200+ new scenarios from attached file including friendship offers, battle tactics, feast invitations, Darkstalker encounters, and immortality requests. Integrated scenarios properly with character ability requirements.
 - **Location-Based Special Events** (January 2025): Added rare location-specific scenarios like NightWing-RainWing village architecture disputes and Ice Kingdom diplomatic crises. Limited to 3 special events every 10 minutes for rarity.
+- **Rarer Artifact System** (January 2025): Reduced artifact discovery chance from 15% to 5% per turn to make artifacts more precious and meaningful. Artifacts now distribute across all game locations with at least one per location.
+- **Year and Season Progression System** (January 2025): Removed "Day X" display and implemented proper time progression where years advance by 0.5 per turn and seasons change every turn (Spring→Summer→Fall→Winter). Time display now shows current season and character's total age.
 
 # System Architecture
 

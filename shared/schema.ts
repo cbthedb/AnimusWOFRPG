@@ -106,6 +106,8 @@ export interface GameData {
   turn: number;
   location: string;
   timeInfo: string;
+  yearsPassed?: number;
+  currentSeason?: string;
   currentScenario: Scenario;
   history: GameEvent[];
   relationships: Record<string, number>;

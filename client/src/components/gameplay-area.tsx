@@ -63,7 +63,7 @@ export default function GameplayArea({
                 {currentLocation?.name || gameData.location.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
               </h3>
               <p className="text-sm text-purple-200">
-                Day {Math.floor(gameData.turn / 3)} • {gameData.timeInfo}
+                {gameData.currentSeason || 'Spring'} • Year {Math.floor((gameData.yearsPassed || 0) + character.age)} • {gameData.timeInfo}
               </p>
             </div>
             <div className="text-right">
