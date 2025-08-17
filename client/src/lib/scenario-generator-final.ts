@@ -1,4 +1,5 @@
 import { Character, GameData, Scenario, Choice } from "@shared/schema";
+import { InventorySystem } from "./inventory-system";
 
 interface ScenarioData {
   id: string;
@@ -456,7 +457,7 @@ const SCENARIO_SPECIFIC_CHOICES: Record<string, Choice[]> = {
   ]
 };
 
-function generateChoicesForScenario(scenario: ScenarioData, character: Character): Choice[] {
+function generateChoicesForScenario(scenario: ScenarioData, character: Character, gameData?: GameData): Choice[] {
   // Special handling for romance scenarios
   if (scenario.id.includes('romantic_') || scenario.id.includes('courtship_') || scenario.id.includes('secret_love') || scenario.id.includes('love_confession') || scenario.id.includes('mate_proposal')) {
     return ROMANCE_CHOICES.map(choice => ({
@@ -471,7 +472,16 @@ function generateChoicesForScenario(scenario: ScenarioData, character: Character
   }
 
   // Generate scenario-specific choices based on content and type
-  return generateContextualChoices(scenario, character);
+  const contextualChoices = generateContextualChoices(scenario, character);
+  
+  // Add inventory-specific choices if gameData is available
+  if (gameData && gameData.inventory.length > 0) {
+    const inventoryChoices = InventorySystem.getInventoryChoices(gameData, character, scenario.type);
+    // Add inventory choices to the end, but limit to 2-3 to avoid overwhelming
+    contextualChoices.push(...inventoryChoices.slice(0, 3));
+  }
+  
+  return contextualChoices;
 }
 
 function generateContextualChoices(scenario: ScenarioData, character: Character): Choice[] {
@@ -704,7 +714,7 @@ export function generateScenario(character: Character, gameData: GameData): Scen
       title: "A Choice Awaits",
       description: "Your decision will shape your path",
       narrativeText: [scenario.text],
-      choices: generateChoicesForScenario(scenario, character),
+      choices: generateChoicesForScenario(scenario, character, gameData),
       type: 'mundane',
       location: gameData.location,
       timeOfDay: "afternoon",
@@ -744,7 +754,7 @@ export function generateScenario(character: Character, gameData: GameData): Scen
       scenario.text,
       generateContextualNarrative(scenario, character, gameData)
     ],
-    choices: generateChoicesForScenario(scenario, character),
+    choices: generateChoicesForScenario(scenario, character, gameData),
     type: gameType,
     location: gameData.location,
     timeOfDay: getRandomTimeOfDay(),

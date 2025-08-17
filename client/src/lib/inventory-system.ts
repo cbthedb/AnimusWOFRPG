@@ -1,4 +1,4 @@
-import { InventoryItem, Character, GameData } from "@shared/schema";
+import { InventoryItem, Character, GameData, Choice } from "@shared/schema";
 
 export class InventorySystem {
   /**
@@ -200,7 +200,7 @@ export class InventorySystem {
         soulCost: 0,
         sanityCost: 2,
         consequences: ["You carefully conceal the scroll using your natural stealth..."],
-        requiredItem: "scroll"
+        requiresItem: "scroll"
       });
 
       if (character.isAnimus) {
@@ -213,7 +213,7 @@ export class InventorySystem {
           consequences: ["Your animus magic wraps around the scroll, rendering it completely invisible..."],
           corruption: true,
           requiresModal: "animus",
-          requiredItem: "scroll"
+          requiresItem: "scroll"
         });
       }
     }
@@ -228,7 +228,7 @@ export class InventorySystem {
         soulCost: 0,
         sanityCost: 0,
         consequences: ["You present your valuable treasure as an offering..."],
-        requiredItem: "treasure"
+        requiresItem: "treasure"
       });
 
       if (character.isAnimus) {
@@ -241,7 +241,7 @@ export class InventorySystem {
           consequences: ["You channel animus magic into your treasure, making it far more powerful..."],
           corruption: true,
           requiresModal: "animus",
-          requiredItem: "treasure"
+          requiresItem: "treasure"
         });
       }
     }
@@ -256,7 +256,7 @@ export class InventorySystem {
         soulCost: 0,
         sanityCost: 3,
         consequences: ["You draw your weapon, its presence changing the dynamic immediately..."],
-        requiredItem: "weapon"
+        requiresItem: "weapon"
       });
 
       if (character.isAnimus) {
@@ -269,7 +269,7 @@ export class InventorySystem {
           consequences: ["Dark power flows into your weapon, making it crackle with deadly energy..."],
           corruption: true,
           requiresModal: "animus",
-          requiredItem: "weapon"
+          requiresItem: "weapon"
         });
       }
     }
@@ -284,7 +284,7 @@ export class InventorySystem {
         soulCost: 0,
         sanityCost: 1,
         consequences: ["You apply your tools in a clever and unexpected manner..."],
-        requiredItem: "tool"
+        requiresItem: "tool"
       });
     }
 
@@ -298,7 +298,7 @@ export class InventorySystem {
         soulCost: 0,
         sanityCost: 2,
         consequences: ["You activate your enchanted object, feeling its power surge through you..."],
-        requiredItem: "enchanted_object"
+        requiresItem: "enchanted_object"
       });
     }
 
@@ -309,14 +309,14 @@ export class InventorySystem {
    * Uses an item in a scenario choice and removes it if consumed
    */
   static useItemInChoice(gameData: GameData, choice: Choice): { gameData: GameData; itemUsed?: InventoryItem } {
-    if (!choice.requiredItem) {
+    if (!choice.requiresItem) {
       return { gameData };
     }
 
     // Find the first item that matches the required type
     const itemIndex = gameData.inventory.findIndex(item => 
-      item.type === choice.requiredItem || 
-      item.name.toLowerCase().includes(choice.requiredItem.toLowerCase())
+      item.type === choice.requiresItem || 
+      item.name.toLowerCase().includes(choice.requiresItem?.toLowerCase() || "")
     );
 
     if (itemIndex === -1) {

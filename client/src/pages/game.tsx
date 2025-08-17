@@ -542,6 +542,73 @@ export default function Game() {
     }
   };
 
+  const handleInventoryAction = (action: string, itemId: string, result: string) => {
+    if (!gameState || !gameId) return;
+
+    const character = gameState.characterData;
+    const gameData = gameState.gameData;
+    let newCharacter = { ...character };
+    let newGameData = { ...gameData };
+
+    // Handle inventory actions
+    if (action === "tear_up" || action === "offer_treasure" || action.includes("sacrifice")) {
+      // Remove the item from inventory
+      newGameData.inventory = newGameData.inventory.filter(item => item.id !== itemId);
+    }
+
+    // Apply soul/sanity costs for magical actions
+    if (action.includes("animus") && character.isAnimus) {
+      newCharacter.soulPercentage = Math.max(0, newCharacter.soulPercentage - 5);
+      newCharacter.soulCorruptionStage = EnhancedGameEngine.getCorruptionLevel(newCharacter.soulPercentage);
+    }
+
+    // Some actions cause sanity stress
+    if (action === "tear_up" || action === "hide_mundane") {
+      newCharacter.sanityPercentage = Math.max(0, newCharacter.sanityPercentage - 2);
+    }
+
+    // Process as a choice to advance storyline
+    const { newCharacter: updatedCharacter, newGameData: finalGameData } = EnhancedGameEngine.processChoice(
+      newCharacter,
+      newGameData,
+      {
+        id: `inventory_${action}`,
+        text: `${action.replace(/_/g, ' ')} item`,
+        description: result,
+        soulCost: 0,
+        sanityCost: 0,
+        consequences: [result]
+      },
+      newGameData.currentScenario
+    );
+
+    try {
+      const updatedGame = updateGame(gameId, {
+        characterData: updatedCharacter,
+        gameData: finalGameData,
+        turn: finalGameData.turn,
+        location: finalGameData.location,
+      });
+      
+      setGameState({
+        characterData: updatedGame.characterData,
+        gameData: updatedGame.gameData
+      });
+
+      toast({
+        title: "Action Completed",
+        description: result.slice(0, 100) + (result.length > 100 ? "..." : ""),
+      });
+
+    } catch (error) {
+      toast({
+        title: "Action Failed",
+        description: "Something went wrong. Try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleSeekRomance = () => {
     if (!gameState || !gameId) return;
 
@@ -1107,6 +1174,7 @@ export default function Game() {
             onCustomAction={() => setShowCustomActionModal(true)}
             onLocationMigration={handleLocationMigration}
             onGiveItem={handleGiveItem}
+            onInventoryAction={handleInventoryAction}
             isProcessing={character.isAIControlled}
           />
         </div>

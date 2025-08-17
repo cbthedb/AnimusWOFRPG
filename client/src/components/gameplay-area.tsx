@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Wand2, Package, SkipForward, Eye, Brain, Sparkles, Zap, MapPin, Gift } from "lucide-react";
 import { LocationMigrationSystem } from "./location-migration-system";
-import InventoryGivingModal from "./inventory-giving-modal";
+import ContextualInventoryModal from "./contextual-inventory-modal";
 import { LocationSystem, Location } from "@/lib/location-system";
 import { useState } from "react";
 
@@ -17,6 +17,7 @@ interface GameplayAreaProps {
   onCustomAction: () => void;
   onLocationMigration?: (destination: Location) => void;
   onGiveItem?: (itemId: string, npcName: string, result: string) => void;
+  onInventoryAction?: (action: string, itemId: string, result: string) => void;
   isProcessing: boolean;
 }
 
@@ -30,6 +31,7 @@ export default function GameplayArea({
   onCustomAction,
   onLocationMigration,
   onGiveItem,
+  onInventoryAction,
   isProcessing,
 }: GameplayAreaProps) {
   const scenario = gameData.currentScenario;
@@ -222,7 +224,7 @@ export default function GameplayArea({
                 Travel
               </Button>
               
-              {/* Give Items */}
+              {/* Inventory Actions */}
               <Button
                 variant="outline"
                 size="sm"
@@ -230,8 +232,8 @@ export default function GameplayArea({
                 className="border-pink-500/50 text-pink-400 hover:bg-pink-500/10"
                 disabled={gameData.inventory.length === 0}
               >
-                <Gift className="w-4 h-4 mr-1" />
-                Give Item
+                <Package className="w-4 h-4 mr-1" />
+                Inventory
               </Button>
             </div>
             </div>
@@ -269,16 +271,22 @@ export default function GameplayArea({
           </div>
         )}
         
-        {/* Inventory Giving Modal */}
+        {/* Contextual Inventory Modal */}
         {showGivingModal && (
-          <InventoryGivingModal
+          <ContextualInventoryModal
             isOpen={showGivingModal}
             onClose={() => setShowGivingModal(false)}
             character={character}
             gameData={gameData}
+            scenarioContext={scenario.type}
             onGiveItem={(itemId, npcName, result) => {
               if (onGiveItem) {
                 onGiveItem(itemId, npcName, result);
+              }
+            }}
+            onInventoryAction={(action, itemId, result) => {
+              if (onInventoryAction) {
+                onInventoryAction(action, itemId, result);
               }
             }}
           />
