@@ -15,6 +15,16 @@ export class EnhancedGameEngine {
     const newCharacter = { ...character };
     const newGameData = { ...gameData };
 
+    // Regeneration system: restore soul/sanity based on positive actions
+    const isPositiveAction = this.isPositiveChoice(choice);
+    const isNegativeAction = this.isNegativeChoice(choice);
+    
+    if (isPositiveAction) {
+      // Good deeds restore small amounts of soul and sanity
+      newCharacter.soulPercentage = Math.min(100, character.soulPercentage + 2);
+      newCharacter.sanityPercentage = Math.min(100, character.sanityPercentage + 3);
+    }
+
     // Apply soul loss and update corruption stage
     if (choice.soulCost > 0) {
       const actualSoulLoss = this.calculateSoulLoss(choice.soulCost);
@@ -26,6 +36,12 @@ export class EnhancedGameEngine {
     if (choice.sanityCost !== 0) {
       const actualSanityChange = this.calculateSanityChange(choice.sanityCost);
       newCharacter.sanityPercentage = Math.max(0, Math.min(100, character.sanityPercentage - actualSanityChange));
+    }
+    
+    // Additional negative consequences for bad actions
+    if (isNegativeAction && !choice.corruption) {
+      newCharacter.soulPercentage = Math.max(0, newCharacter.soulPercentage - 1);
+      newCharacter.sanityPercentage = Math.max(0, newCharacter.sanityPercentage - 1);
     }
 
     // Age progression and season changes

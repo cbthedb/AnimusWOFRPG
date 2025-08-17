@@ -200,7 +200,7 @@ const SCENARIO_SPECIFIC_CHOICES: Record<string, Choice[]> = {
       id: "animus_scroll_request_create",
       text: "Use Animus Magic to create the scroll",
       description: "Grant their wish with powerful magic",
-      soulCost: 25,
+      soulCost: 10,
       sanityCost: 0,
       consequences: ["You create a scroll of immense power, but at great cost to your soul..."],
       corruption: true,
@@ -218,7 +218,7 @@ const SCENARIO_SPECIFIC_CHOICES: Record<string, Choice[]> = {
       id: "animus_scroll_request_compromise",
       text: "Offer a lesser enchantment instead",
       description: "Suggest something safer but still helpful",
-      soulCost: 10,
+      soulCost: 3,
       sanityCost: 0,
       consequences: ["You offer a compromise - helpful magic without the devastating cost."]
     }
@@ -231,7 +231,7 @@ const SCENARIO_SPECIFIC_CHOICES: Record<string, Choice[]> = {
       text: "Use Mind Reading to understand their feelings",
       description: "Delve deeper into their thoughts about you",
       soulCost: 0,
-      sanityCost: 3,
+      sanityCost: 1,
       consequences: ["You explore their mind and discover the depth of their affection..."],
       requiresModal: "mindreading"
     },
@@ -248,7 +248,7 @@ const SCENARIO_SPECIFIC_CHOICES: Record<string, Choice[]> = {
       text: "Pretend you don't know",
       description: "Act as if you never heard their thoughts",
       soulCost: 0,
-      sanityCost: 8,
+      sanityCost: 2,
       consequences: ["You keep their secret, but the burden weighs on your mind..."]
     }
   ],
@@ -260,7 +260,7 @@ const SCENARIO_SPECIFIC_CHOICES: Record<string, Choice[]> = {
       text: "Use Prophecy powers to see more",
       description: "Try to understand the vision better",
       soulCost: 0,
-      sanityCost: 10,
+      sanityCost: 3,
       consequences: ["You peer deeper into the future, seeking clarity about your fate..."],
       requiresModal: "prophecy"
     },
@@ -277,7 +277,7 @@ const SCENARIO_SPECIFIC_CHOICES: Record<string, Choice[]> = {
       text: "Defy the prophecy and change fate",
       description: "Fight against the predicted outcome",
       soulCost: 0,
-      sanityCost: 15,
+      sanityCost: 4,
       consequences: ["You rebel against destiny itself, consequences unknown..."]
     }
   ],
@@ -492,7 +492,7 @@ function generateContextualChoices(scenario: ScenarioData, character: Character)
       text: "Be cautious but polite",
       description: "Keep some distance while being respectful",
       soulCost: 0,
-      sanityCost: 3,
+      sanityCost: 1,
       consequences: ["You maintain polite distance, unsure of their intentions..."]
     });
     choices.push({
@@ -500,7 +500,7 @@ function generateContextualChoices(scenario: ScenarioData, character: Character)
       text: "Politely decline their friendship",
       description: "You prefer to remain alone",
       soulCost: 0,
-      sanityCost: 8,
+      sanityCost: 2,
       consequences: ["You choose solitude over companionship..."]
     });
   } else if (scenario.text.includes("battle") || scenario.text.includes("fight")) {
@@ -509,7 +509,7 @@ function generateContextualChoices(scenario: ScenarioData, character: Character)
       text: "Fight with courage and honor",
       description: "Face the battle head-on",
       soulCost: 0,
-      sanityCost: 5,
+      sanityCost: 1,
       consequences: ["You enter battle with valor, ready to face whatever comes..."]
     });
     choices.push({
@@ -517,7 +517,7 @@ function generateContextualChoices(scenario: ScenarioData, character: Character)
       text: "Make a strategic retreat",
       description: "Live to fight another day",
       soulCost: 0,
-      sanityCost: 10,
+      sanityCost: 2,
       consequences: ["Sometimes retreat is the wisest course of action..."]
     });
     if (character.isAnimus) {
@@ -590,7 +590,7 @@ function generateContextualChoices(scenario: ScenarioData, character: Character)
       id: `${scenario.id}_animus_solution`,
       text: "Use Animus magic to solve this",
       description: "Apply magical power to resolve the situation",
-      soulCost: Math.floor(Math.random() * 25) + 15,
+      soulCost: Math.floor(Math.random() * 6) + 3,
       sanityCost: 0,
       consequences: ["Magic provides a solution, but at the cost of your soul..."],
       corruption: true,
@@ -604,7 +604,7 @@ function generateContextualChoices(scenario: ScenarioData, character: Character)
       text: "Read their thoughts",
       description: "Use your mind reading abilities",
       soulCost: 0,
-      sanityCost: Math.floor(Math.random() * 12) + 8,
+      sanityCost: Math.floor(Math.random() * 4) + 2,
       consequences: ["You peer into their mind, learning their true intentions..."],
       requiresModal: "mindreading"
     });
@@ -616,7 +616,7 @@ function generateContextualChoices(scenario: ScenarioData, character: Character)
       text: "Look into the future",
       description: "Use your prophetic powers for guidance",
       soulCost: 0,
-      sanityCost: Math.floor(Math.random() * 18) + 12,
+      sanityCost: Math.floor(Math.random() * 5) + 3,
       consequences: ["Visions of possible futures fill your mind..."],
       requiresModal: "prophecy"
     });
