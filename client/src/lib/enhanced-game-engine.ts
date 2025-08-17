@@ -53,6 +53,12 @@ export class EnhancedGameEngine {
 
     // Handle relationships based on choice
     this.updateRelationships(newCharacter, choice, scenario);
+    
+    // Add response system - store last choice result for user acknowledgment
+    if (choice.consequences && choice.consequences.length > 0) {
+      newGameData.lastChoiceResult = choice.consequences.join(". ");
+      newGameData.awaitingResponse = true;
+    }
 
     // Check for achievements
     this.checkAchievements(newCharacter, choice, scenario);

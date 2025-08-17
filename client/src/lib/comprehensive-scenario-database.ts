@@ -588,6 +588,143 @@ export const COMPREHENSIVE_SCENARIOS: EnhancedScenarioTemplate[] = [
         requirements: ["character.isAnimus"]
       }
     ]
+  },
+
+  // New Custom Action Required Scenarios
+  {
+    id: "suspicious_ancient_door",
+    title: "The Sealed Chamber",
+    description: "You discover an ancient door with strange markings that pulses with magical energy",
+    narrativeText: [
+      "Deep in the academy's forgotten tunnels, you find a door unlike any other.",
+      "Ancient runes cover its surface, glowing faintly with inner power.",
+      "The air around it hums with magical energy, and you sense something important lies beyond.",
+      "But the door has no handle, no obvious way to open it—only those mysterious symbols."
+    ],
+    choices: [
+      {
+        id: "study_runes",
+        text: "Study the runes carefully",
+        description: "Examine the ancient markings for clues",
+        consequences: ["You learn the runes speak of ancient animus magic"],
+        soulCost: 0,
+        sanityCost: 0
+      },
+      {
+        id: "force_open",
+        text: "Try to force the door open",
+        description: "Use physical force to breach the sealed chamber",
+        consequences: ["The door resists, and magical energy crackles around you"],
+        soulCost: 0,
+        sanityCost: 5
+      }
+    ],
+    locations: ["Jade Mountain Academy"],
+    categories: ["mystery", "magic"],
+    customActionRequired: true,
+    rarity: "rare"
+  },
+
+  {
+    id: "injured_dragon_complex",
+    title: "Life or Death Decision",
+    description: "A critically injured dragon needs immediate help, but saving them might expose your abilities",
+    narrativeText: [
+      "You come across a dragon collapsed in the hallway, breathing shallowly.",
+      "Their injuries are severe—internal bleeding, broken bones, possibly dying.",
+      "Other dragons are panicking, calling for healers, but they might not arrive in time.",
+      "You could save them with your powers, but doing so openly would reveal your secret abilities to everyone."
+    ],
+    choices: [
+      {
+        id: "heal_openly",
+        text: "Heal them with magic, regardless of consequences",
+        description: "Use your animus power to save their life",
+        consequences: ["The dragon lives, but your animus powers are exposed"],
+        soulCost: 3,
+        sanityCost: 0
+      },
+      {
+        id: "conventional_help",
+        text: "Try to help with conventional methods",
+        description: "Apply first aid and basic medical care",
+        consequences: ["You do what you can, but it might not be enough"],
+        soulCost: 0,
+        sanityCost: 10
+      }
+    ],
+    location: ["Any"],
+    categories: ["crisis", "moral"],
+    customActionRequired: true,
+    rarity: "uncommon"
+  },
+
+  {
+    id: "tribal_artifact_dispute",
+    title: "The Contested Relic",
+    description: "Two tribes are on the verge of war over an ancient artifact, and you might be the key to peace",
+    narrativeText: [
+      "The tension in the great hall is palpable as representatives from two rival tribes face off.",
+      "Between them sits an ancient artifact—a crystal orb that supposedly holds great tribal power.",
+      "Both sides claim it belongs to their tribe, both have legitimate historical claims.",
+      "War seems inevitable unless someone can find a solution that satisfies both parties."
+    ],
+    choices: [
+      {
+        id: "suggest_sharing",
+        text: "Suggest they share custody of the artifact",
+        description: "Propose a compromise to prevent war",
+        consequences: ["Both tribes are skeptical but consider the proposal"],
+        soulCost: 0,
+        sanityCost: 5
+      },
+      {
+        id: "research_history",
+        text: "Offer to research the true historical ownership",
+        description: "Investigate to find the rightful owner",
+        consequences: ["You begin investigating the artifact's origins"],
+        soulCost: 0,
+        sanityCost: 0
+      }
+    ],
+    location: ["Any"],
+    categories: ["political", "tribal"],
+    customActionRequired: true,
+    rarity: "rare"
+  },
+
+  {
+    id: "prophecy_intervention",
+    title: "Changing Fate",
+    description: "You witness a prophecy beginning to unfold and must decide whether to intervene",
+    narrativeText: [
+      "The pieces of a dark prophecy you once heard are starting to come together before your eyes.",
+      "A dragon you know is about to make a choice that will lead to exactly what was foretold—tragedy.",
+      "You could warn them, change their path, potentially alter the course of fate itself.",
+      "But prophecies exist for a reason, and changing them might have unforeseen consequences."
+    ],
+    choices: [
+      {
+        id: "warn_them",
+        text: "Warn them about the prophecy",
+        description: "Intervene to change fate itself",
+        consequences: ["You alter fate, but the future becomes uncertain"],
+        soulCost: 0,
+        sanityCost: 15
+      },
+      {
+        id: "let_fate_unfold",
+        text: "Let events unfold as prophesied",
+        description: "Allow destiny to proceed unchanged",
+        consequences: ["The prophecy comes to pass as predicted"],
+        soulCost: 0,
+        sanityCost: 20
+      }
+    ],
+    location: ["Any"],
+    categories: ["prophecy", "moral"],
+    customActionRequired: true,
+    rarity: "very_rare"
   }
 ];
 

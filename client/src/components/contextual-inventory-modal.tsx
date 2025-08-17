@@ -174,7 +174,7 @@ export default function ContextualInventoryModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl max-h-[85vh] bg-black/90 border-purple-500/30 text-white">
+      <DialogContent className="max-w-4xl max-h-[80vh] bg-black/90 border-purple-500/30 text-white overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="font-fantasy text-xl text-purple-300 flex items-center">
             <Package className="w-5 h-5 mr-2" />
@@ -389,17 +389,19 @@ export default function ContextualInventoryModal({
                   </div>
                 </ScrollArea>
                 
-                <Button
-                  onClick={handleGiveItem}
-                  disabled={
-                    !selectedItem ||
-                    (selectedNPC === "" && customNPCName === "") ||
-                    (selectedNPC === "custom" && !customNPCName.trim())
-                  }
-                  className="w-full mt-4 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 disabled:text-gray-400"
-                >
-                  Give Item
-                </Button>
+                <div className="mt-4">
+                  <Button
+                    onClick={handleGiveItem}
+                    disabled={
+                      !selectedItem ||
+                      (selectedNPC === "" && customNPCName === "") ||
+                      (selectedNPC === "custom" && !customNPCName.trim())
+                    }
+                    className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 disabled:text-gray-400"
+                  >
+                    Give Item
+                  </Button>
+                </div>
               </div>
             </div>
           </TabsContent>
@@ -407,8 +409,8 @@ export default function ContextualInventoryModal({
 
         </Tabs>
 
-        <div className="flex justify-end space-x-2 pt-4 border-t border-purple-500/20">
-          <Button variant="outline" onClick={onClose}>
+        <div className="flex justify-end space-x-2 pt-4 mt-4 border-t border-purple-500/20">
+          <Button variant="outline" onClick={onClose} className="px-6">
             Close
           </Button>
         </div>
