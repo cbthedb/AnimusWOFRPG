@@ -678,7 +678,7 @@ function generateContextualChoices(scenario: ScenarioData, character: Character)
   return choices;
 }
 
-export function generateScenario(character: Character, gameData: GameData): Scenario {
+export function generateScenario(character: Character, gameData: Partial<GameData>): Scenario {
   // Filter scenarios based on character abilities
   const availableScenarios = SCENARIO_DATABASE.filter(scenario => {
     if (scenario.requirements) {

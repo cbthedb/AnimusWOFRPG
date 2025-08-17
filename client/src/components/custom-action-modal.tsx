@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { MockAIService } from "@/lib/mock-ai-service";
-import { Sparkles, Send, Package, Zap } from "lucide-react";
+import { IntelligentActionProcessor } from "@/lib/intelligent-action-processor";
+import { Sparkles, Send, Package, Zap, AlertTriangle } from "lucide-react";
 import { useState } from "react";
 
 interface CustomActionModalProps {
@@ -14,7 +14,7 @@ interface CustomActionModalProps {
   inventory: InventoryItem[];
   isOpen: boolean;
   onClose: () => void;
-  onExecuteAction: (action: string, result: string, itemUsed?: InventoryItem) => void;
+  onExecuteAction: (action: string, result: string, itemUsed?: InventoryItem, processedAction?: any) => void;
 }
 
 export default function CustomActionModal({ 
@@ -29,44 +29,45 @@ export default function CustomActionModal({
   const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
   const [actionResult, setActionResult] = useState<string>("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [processedAction, setProcessedAction] = useState<any>(null);
+  const [showWarning, setShowWarning] = useState(false);
 
   const generateActionResult = () => {
     if (!customAction.trim()) return;
     
     setIsGenerating(true);
+    setShowWarning(false);
     
-    // Simulate AI processing
+    // Use intelligent action processor for contextual results
     setTimeout(() => {
-      // Generate AI response based on action and context
-      const context = {
-        turn: gameData.turn,
-        location: gameData.location,
-        action: customAction,
-        tribe: character.tribe,
-        item: selectedItem?.name,
-        itemEnchantments: selectedItem?.enchantments || []
-      };
-      
-      let result = "";
-      
-      if (selectedItem) {
-        // Action with item usage
-        const response = MockAIService.generateRandomEvent(character, gameData);
-        result = `You use ${selectedItem.name} to ${customAction.toLowerCase()}. ${response.content}`;
-      } else {
-        // Pure custom action
-        const response = MockAIService.generateRandomEvent(character, gameData);
-        result = `You attempt to ${customAction.toLowerCase()}. ${response.content}`;
+      try {
+        const processed = IntelligentActionProcessor.processCustomAction(
+          customAction,
+          character,
+          gameData,
+          selectedItem || undefined
+        );
+        
+        setProcessedAction(processed);
+        setActionResult(processed.actionResult);
+        
+        // Show warning for high-consequence actions
+        if (processed.soulCost > 10 || processed.consequences.includes('major_action_consequences')) {
+          setShowWarning(true);
+        }
+        
+        setIsGenerating(false);
+      } catch (error) {
+        console.error("Error processing action:", error);
+        setActionResult(`You attempt to ${customAction.toLowerCase()}, but something goes wrong with your approach. Perhaps try a different strategy.`);
+        setIsGenerating(false);
       }
-      
-      setActionResult(result);
-      setIsGenerating(false);
     }, 1500);
   };
 
   const executeAction = () => {
     if (actionResult) {
-      onExecuteAction(customAction, actionResult, selectedItem || undefined);
+      onExecuteAction(customAction, actionResult, selectedItem || undefined, processedAction);
       reset();
       onClose();
     }
@@ -77,6 +78,8 @@ export default function CustomActionModal({
     setSelectedItem(null);
     setActionResult("");
     setIsGenerating(false);
+    setProcessedAction(null);
+    setShowWarning(false);
   };
 
   return (
@@ -184,20 +187,52 @@ export default function CustomActionModal({
 
           {/* Result Display */}
           {actionResult && (
-            <div className="p-4 bg-gradient-to-r from-yellow-900/30 to-black/30 rounded-lg border border-yellow-500/30">
-              <div className="flex items-center mb-2">
-                <Sparkles className="w-4 h-4 text-yellow-400 mr-2" />
-                <h4 className="font-semibold text-yellow-300">Action Result</h4>
-              </div>
-              <p className="text-sm text-slate-200 leading-relaxed whitespace-pre-line">{actionResult}</p>
+            <div className="space-y-4">
+              {/* Warning for high-consequence actions */}
+              {showWarning && processedAction && (
+                <div className="p-4 bg-red-900/30 border border-red-500/50 rounded-lg">
+                  <div className="flex items-center mb-2">
+                    <AlertTriangle className="w-4 h-4 text-red-400 mr-2" />
+                    <h4 className="font-semibold text-red-300">High-Consequence Action</h4>
+                  </div>
+                  <div className="text-sm text-red-200 space-y-2">
+                    {processedAction.soulCost > 0 && (
+                      <p>Soul Cost: {processedAction.soulCost}%</p>
+                    )}
+                    {processedAction.sanityCost > 0 && (
+                      <p>Sanity Cost: {processedAction.sanityCost}%</p>
+                    )}
+                    {processedAction.itemConsumed && (
+                      <p>This action will destroy the {selectedItem?.name}</p>
+                    )}
+                  </div>
+                </div>
+              )}
               
-              <div className="flex justify-end mt-4">
-                <Button
-                  onClick={executeAction}
-                  className="bg-yellow-600 hover:bg-yellow-700"
-                >
-                  Commit to This Action
-                </Button>
+              <div className="p-4 bg-gradient-to-r from-yellow-900/30 to-black/30 rounded-lg border border-yellow-500/30">
+                <div className="flex items-center mb-2">
+                  <Sparkles className="w-4 h-4 text-yellow-400 mr-2" />
+                  <h4 className="font-semibold text-yellow-300">Action Result</h4>
+                </div>
+                <p className="text-sm text-slate-200 leading-relaxed whitespace-pre-line">{actionResult}</p>
+                
+                {/* Show achievement notification */}
+                {processedAction?.achievementUnlocked && (
+                  <div className="mt-3 p-2 bg-purple-900/30 border border-purple-500/50 rounded">
+                    <p className="text-xs text-purple-300">
+                      🏆 Achievement Unlocked: {processedAction.achievementUnlocked}
+                    </p>
+                  </div>
+                )}
+                
+                <div className="flex justify-end mt-4">
+                  <Button
+                    onClick={executeAction}
+                    className={showWarning ? "bg-red-600 hover:bg-red-700" : "bg-yellow-600 hover:bg-yellow-700"}
+                  >
+                    {showWarning ? "Accept Consequences" : "Commit to This Action"}
+                  </Button>
+                </div>
               </div>
             </div>
           )}

@@ -64,10 +64,10 @@ export class EnhancedGameEngine {
     }
 
     // Handle item consumption if required
-    if (choice.requiresItem && choice.consumesItem) {
+    if (choice.requiresItem && (choice as any).consumesItem) {
       const requiredItem = (newGameData.inventory || []).find(item => 
         item.id === choice.requiresItem || 
-        item.name.toLowerCase().includes(choice.requiresItem.toLowerCase())
+        item.name.toLowerCase().includes(choice.requiresItem!)
       );
       if (requiredItem) {
         const updatedGameData = InventorySystem.removeItem(newGameData, requiredItem.id);
@@ -137,7 +137,7 @@ export class EnhancedGameEngine {
       const locationScenario = LocationBasedScenarios.getRandomLocationScenario(currentLocation.id, character);
       if (locationScenario) {
         // Add random chance for item collection scenarios
-        const enhancedChoices = (locationScenario.choices || []).map((choice: any) => {
+        const enhancedChoices = ((locationScenario as any).choices || []).map((choice: any) => {
           // Add item rewards to some choices
           if (Math.random() < 0.3) {
             const item = InventorySystem.generateCollectibleItem(currentLocation.name, locationScenario.title);

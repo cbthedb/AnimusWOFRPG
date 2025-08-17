@@ -362,46 +362,82 @@ export default function Game() {
     setShowSpecialPowerModal(false);
   };
 
-  const handleCustomAction = (action: string, result: string, itemUsed?: InventoryItem) => {
+  const handleCustomAction = (action: string, result: string, itemUsed?: InventoryItem, processedAction?: any) => {
     if (!gameState || !gameId) return;
 
     const { characterData: character, gameData } = gameState;
     let newCharacter = { ...character };
 
-    // Handle enchanted item usage with storyline progression
-    if (itemUsed && itemUsed.enchantments.length > 0) {
-      // Apply enchantment effects based on the description
-      const enchantment = itemUsed.enchantments[0];
+    // Apply costs from intelligent action processor if available
+    if (processedAction) {
+      if (processedAction.soulCost > 0 && character.isAnimus) {
+        newCharacter.soulPercentage = Math.max(0, character.soulPercentage - processedAction.soulCost);
+        newCharacter.soulCorruptionStage = EnhancedGameEngine.getCorruptionLevel(newCharacter.soulPercentage);
+      }
       
-      // Check for major enchantments that should trigger story events
-      if (enchantment.toLowerCase().includes('darkstalker') || 
-          enchantment.toLowerCase().includes('resurrection') ||
-          enchantment.toLowerCase().includes('immortal') ||
-          enchantment.toLowerCase().includes('time') ||
-          enchantment.toLowerCase().includes('reality')) {
+      if (processedAction.sanityCost > 0) {
+        newCharacter.sanityPercentage = Math.max(0, character.sanityPercentage - processedAction.sanityCost);
+      }
+
+      // Remove item if consumed
+      if (processedAction.itemConsumed && itemUsed) {
+        const updatedGameData = InventorySystem.removeItem(gameData, itemUsed.id);
+        newCharacter = { ...newCharacter };
+        Object.assign(gameData, { inventory: updatedGameData.inventory });
+      }
+
+      // Add achievement if unlocked
+      if (processedAction.achievementUnlocked) {
+        if (!newCharacter.achievements) newCharacter.achievements = [];
+        newCharacter.achievements.push(processedAction.achievementUnlocked);
         
-        // Major enchantments cost soul for animus dragons
-        if (character.isAnimus) {
-          newCharacter.soulPercentage = Math.max(0, newCharacter.soulPercentage - 15);
-          newCharacter.soulCorruptionStage = EnhancedGameEngine.getCorruptionLevel(newCharacter.soulPercentage);
-        }
+        toast({
+          title: "Achievement Unlocked!",
+          description: processedAction.achievementUnlocked,
+          duration: 5000,
+        });
       }
     }
 
-    // Process the action as a choice to advance the storyline
-    const { newCharacter: updatedCharacter, newGameData } = EnhancedGameEngine.processChoice(
-      newCharacter,
-      gameData,
-      {
-        id: `custom_${Date.now()}`,
-        text: action,
-        description: result,
-        soulCost: 0,
-        sanityCost: Math.floor(Math.random() * 3),
-        consequences: [result]
-      },
-      gameData.currentScenario
-    );
+    // Use the intelligent processor's next scenario if available
+    let nextScenario;
+    if (processedAction?.nextScenario) {
+      nextScenario = processedAction.nextScenario;
+    } else {
+      // Fallback to original processing
+      const { newGameData } = EnhancedGameEngine.processChoice(
+        newCharacter,
+        gameData,
+        {
+          id: `custom_${Date.now()}`,
+          text: action,
+          description: result,
+          soulCost: processedAction?.soulCost || 0,
+          sanityCost: processedAction?.sanityCost || 0,
+          consequences: processedAction?.consequences || [result]
+        },
+        gameData.currentScenario
+      );
+      nextScenario = newGameData.currentScenario;
+    }
+
+    // Update game data with new scenario
+    const newGameData = {
+      ...gameData,
+      turn: gameData.turn + 1,
+      currentScenario: nextScenario,
+      history: [
+        ...gameData.history,
+        {
+          turn: gameData.turn,
+          scenario: gameData.currentScenario.id,
+          choice: `custom_action_${Date.now()}`,
+          consequences: processedAction?.consequences || [result],
+          soulLoss: processedAction?.soulCost || 0,
+          sanityLoss: processedAction?.sanityCost || 0
+        }
+      ]
+    };
 
     // Check if action triggers conversation
     if (result.toLowerCase().includes('conversation') || result.toLowerCase().includes('talk') || result.toLowerCase().includes('speak')) {
@@ -412,7 +448,7 @@ export default function Game() {
 
     try {
       const updatedGame = updateGame(gameId, {
-        characterData: updatedCharacter,
+        characterData: newCharacter,
         gameData: newGameData,
         turn: newGameData.turn,
         location: newGameData.location,
