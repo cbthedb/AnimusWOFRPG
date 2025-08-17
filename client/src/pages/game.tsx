@@ -485,20 +485,22 @@ export default function Game() {
   const handleGiveItem = (itemId: string, npcName: string, result: string) => {
     if (!gameState || !gameId) return;
 
+    console.log("handleGiveItem called with:", { itemId, npcName, result });
+
     const character = gameState.characterData;
     const gameData = gameState.gameData;
 
     // Process item giving using inventory system
-    const { character: newCharacter, gameData: newGameData } = InventorySystem.giveItemToNPC(
-      character, gameData, itemId, npcName
-    );
+    const giveResult = InventorySystem.giveItemToNPC(character, gameData, itemId, npcName);
+    
+    console.log("Give result:", giveResult);
     
     try {
       const updatedGame = updateGame(gameId, {
-        characterData: newCharacter,
-        gameData: newGameData,
-        turn: newGameData.turn,
-        location: newGameData.location,
+        characterData: giveResult.character,
+        gameData: giveResult.gameData,
+        turn: giveResult.gameData.turn,
+        location: giveResult.gameData.location,
       });
       
       setGameState({
@@ -507,10 +509,31 @@ export default function Game() {
       });
 
       toast({
-        title: "Item Given",
-        description: result,
+        title: giveResult.storyAdvanced ? "Quest Completed!" : "Item Given",
+        description: giveResult.result,
       });
+
+      // Generate new scenario if story advanced
+      if (giveResult.storyAdvanced) {
+        setTimeout(() => {
+          // Force a new scenario generation
+          const newScenario = EnhancedGameEngine.generateNextScenario(giveResult.character, giveResult.gameData);
+          const updatedGameWithScenario = updateGame(gameId, {
+            characterData: giveResult.character,
+            gameData: { ...giveResult.gameData, currentScenario: newScenario },
+            turn: giveResult.gameData.turn,
+            location: giveResult.gameData.location,
+          });
+          
+          setGameState({
+            characterData: updatedGameWithScenario.characterData,
+            gameData: updatedGameWithScenario.gameData
+          });
+        }, 1000);
+      }
+
     } catch (error) {
+      console.error("Error giving item:", error);
       toast({
         title: "Failed to Give Item",
         description: "Something went wrong. Try again.",

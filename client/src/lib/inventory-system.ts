@@ -52,7 +52,7 @@ export class InventorySystem {
       };
     }
 
-    if (!item.canGiveAway) {
+    if (item.canGiveAway === false) {
       return {
         character,
         gameData,
@@ -179,6 +179,7 @@ export class InventorySystem {
    * Gets items that can be given to NPCs
    */
   static getGiveableItems(gameData: GameData): InventoryItem[] {
+    // Default to true if canGiveAway is undefined (most items can be given)
     return gameData.inventory.filter(item => item.canGiveAway !== false);
   }
 }

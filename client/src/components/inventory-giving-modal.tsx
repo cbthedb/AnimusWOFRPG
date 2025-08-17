@@ -37,14 +37,26 @@ export default function InventoryGivingModal({
   ].filter((name, index, arr) => arr.indexOf(name) === index);
 
   const handleGiveItem = () => {
-    if (!selectedItem) return;
+    if (!selectedItem) {
+      console.log("No item selected");
+      return;
+    }
     
     const npcName = selectedNPC === "custom" ? customNPCName : selectedNPC;
-    if (!npcName.trim()) return;
+    if (!npcName.trim()) {
+      console.log("No NPC selected");
+      return;
+    }
 
+    console.log("Giving item:", selectedItem.name, "to", npcName);
+    
+    // Call the inventory system to process the gift
     const result = InventorySystem.giveItemToNPC(character, gameData, selectedItem.id, npcName);
+    
+    // Call the parent component's handler
     onGiveItem(selectedItem.id, npcName, result.result);
     
+    // Reset state and close modal
     setSelectedItem(null);
     setSelectedNPC("");
     setCustomNPCName("");
@@ -202,36 +214,61 @@ export default function InventoryGivingModal({
           </div>
         </div>
 
-        {/* Selected Item Preview */}
-        {selectedItem && (
-          <div className="border-t border-purple-500/20 pt-4">
-            <h4 className="font-semibold text-purple-300 mb-2">Selected Item:</h4>
-            <div className="bg-purple-900/20 rounded-lg p-3">
-              <div className="flex items-center space-x-2 mb-2">
-                <span className="text-xl">{getTypeIcon(selectedItem.type)}</span>
-                <span className="font-medium">{selectedItem.name}</span>
-                {selectedItem.rarity && (
-                  <Badge className={getRarityColor(selectedItem.rarity)}>
-                    {selectedItem.rarity}
-                  </Badge>
-                )}
-              </div>
-              <p className="text-sm text-slate-300">{selectedItem.description}</p>
-              {selectedItem.enchantments.length > 0 && (
-                <div className="mt-2">
-                  <p className="text-sm text-purple-300">Enchantments:</p>
-                  <div className="flex flex-wrap gap-1 mt-1">
-                    {selectedItem.enchantments.map((enchantment, index) => (
-                      <Badge key={index} className="bg-purple-500/20 text-purple-300">
-                        {enchantment}
+        {/* Selection Summary */}
+        <div className="border-t border-purple-500/20 pt-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {selectedItem && (
+              <div>
+                <h4 className="font-semibold text-purple-300 mb-2">Selected Item:</h4>
+                <div className="bg-purple-900/20 rounded-lg p-3">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <span className="text-xl">{getTypeIcon(selectedItem.type)}</span>
+                    <span className="font-medium">{selectedItem.name}</span>
+                    {selectedItem.rarity && (
+                      <Badge className={getRarityColor(selectedItem.rarity)}>
+                        {selectedItem.rarity}
                       </Badge>
-                    ))}
+                    )}
+                  </div>
+                  <p className="text-sm text-slate-300">{selectedItem.description}</p>
+                  {selectedItem.enchantments.length > 0 && (
+                    <div className="mt-2">
+                      <p className="text-sm text-purple-300">Enchantments:</p>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {selectedItem.enchantments.map((enchantment, index) => (
+                          <Badge key={index} className="bg-purple-500/20 text-purple-300">
+                            {enchantment}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+            
+            {(selectedNPC || customNPCName) && (
+              <div>
+                <h4 className="font-semibold text-purple-300 mb-2">Recipient:</h4>
+                <div className="bg-green-900/20 rounded-lg p-3">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-xl">🐉</span>
+                    <span className="font-medium">
+                      {selectedNPC === "custom" ? customNPCName : selectedNPC}
+                    </span>
+                    {character.relationships[selectedNPC === "custom" ? customNPCName : selectedNPC] && (
+                      <Badge className="bg-green-500/20 text-green-300">
+                        Known
+                      </Badge>
+                    )}
                   </div>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
-        )}
+        </div>
+
+
 
         <div className="flex justify-end space-x-2 pt-4 border-t border-purple-500/20">
           <Button variant="outline" onClick={onClose}>
@@ -241,10 +278,10 @@ export default function InventoryGivingModal({
             onClick={handleGiveItem}
             disabled={
               !selectedItem ||
-              (!selectedNPC && !customNPCName) ||
+              (selectedNPC === "" && customNPCName === "") ||
               (selectedNPC === "custom" && !customNPCName.trim())
             }
-            className="bg-purple-600 hover:bg-purple-700"
+            className="bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 disabled:text-gray-400"
           >
             Give Item
           </Button>
