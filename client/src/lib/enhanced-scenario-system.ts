@@ -566,6 +566,72 @@ const ENHANCED_SCENARIO_DATABASE: EnhancedScenarioData[] = [
     ]
   },
 
+  // SOUL/SANITY RESTORATION Scenarios - Designed to work with regeneration system
+  {
+    id: "helping_injured_dragonet",
+    type: "NORMAL",
+    title: "A Cry for Help",
+    setting: "Academy Courtyard",
+    emotionalTone: "peaceful",
+    narrativeText: [
+      "A young dragonet has fallen from the sky during flight practice, landing hard and crying from both pain and embarrassment. Other students walk past, some snickering at the obvious failure.",
+      "The dragonet's wing is clearly injured, and they're too proud to ask for help directly. Their instructor is nowhere to be seen, and the medical wing is across the academy.",
+      "This small act of kindness could make a real difference in this young dragon's life, and sometimes the smallest gestures restore our faith in ourselves."
+    ]
+  },
+
+  {
+    id: "meditation_and_reflection",
+    type: "NORMAL",
+    title: "Peaceful Contemplation",
+    setting: "Academy Meditation Gardens",
+    emotionalTone: "peaceful",
+    narrativeText: [
+      "The gardens offer a rare moment of tranquility away from the pressures of academy life. Ancient stone benches sit among flowering vines, and the sound of flowing water creates perfect serenity.",
+      "You feel the weight of recent choices and the toll they've taken on your spirit. This sacred space seems to offer the opportunity for true reflection and inner peace.",
+      "Sometimes taking time to center yourself and reconnect with your true nature is the most important choice you can make."
+    ]
+  },
+
+  {
+    id: "defending_the_innocent",
+    type: "NORMAL",
+    title: "Standing for Justice",
+    setting: "Village Market - Public Square",
+    emotionalTone: "enlightening",
+    narrativeText: [
+      "A group of older dragons are bullying a young merchant, threatening to destroy their stall unless they pay 'protection' money. The merchant is clearly terrified and can't afford what they're demanding.",
+      "Other bystanders pretend not to notice, unwilling to get involved. The bullies are clearly counting on this cowardice to continue their behavior.",
+      "This is a moment where taking a stand could make a real difference, and acting with courage and compassion often strengthens the soul rather than weakening it."
+    ]
+  },
+
+  {
+    id: "sharing_wisdom_teaching",
+    type: "LEARNING", 
+    title: "The Gift of Knowledge",
+    setting: "Academy Library - Study Hall",
+    emotionalTone: "enlightening",
+    narrativeText: [
+      "A younger student approaches you, struggling with concepts you've already mastered. They're clearly frustrated and on the verge of giving up entirely.",
+      "Teaching others and sharing knowledge freely is one of the most noble uses of wisdom. This student could truly benefit from your guidance.",
+      "Sometimes helping others learn and grow gives us as much as it gives them, restoring our sense of purpose and connection."
+    ]
+  },
+
+  {
+    id: "forgiveness_and_mercy",
+    type: "NORMAL",
+    title: "The Power of Forgiveness",
+    setting: "Academy Dormitories",
+    emotionalTone: "enlightening", 
+    narrativeText: [
+      "A dragon who has wronged you in the past approaches with genuine remorse, seeking forgiveness for their actions. Their apology seems heartfelt and sincere.",
+      "Holding onto anger and resentment has been weighing on your spirit. This could be an opportunity to let go of past hurts and find peace.",
+      "Forgiveness often heals the one who forgives even more than the one being forgiven, offering a path back to inner harmony."
+    ]
+  },
+
   // FAMILY Scenarios  
   {
     id: "dragonet_magical_awakening",
@@ -744,41 +810,72 @@ function generateEnhancedChoices(scenario: EnhancedScenarioData, character: Char
       break;
 
     default:
-      // Generate generic but meaningful choices for other scenario types
-      choices.push(
-        {
-          id: `${scenario.id}_bold_action`,
-          text: "Take bold action",
-          description: "Act decisively and confidently", 
-          soulCost: 0,
-          sanityCost: 4,
-          consequences: ["You act with confidence and determination..."]
-        },
-        {
-          id: `${scenario.id}_cautious_approach`,
-          text: "Proceed cautiously",
-          description: "Think carefully before acting",
-          soulCost: 0,
-          sanityCost: 2,
-          consequences: ["You take time to consider all angles before making your move..."]
-        },
-        {
-          id: `${scenario.id}_seek_help`,
-          text: "Seek advice from others",
-          description: "Consult with friends or mentors",
-          soulCost: 0,
-          sanityCost: 6,
-          consequences: ["You decide this decision is too important to make alone..."]
-        },
-        {
-          id: `${scenario.id}_avoid_involvement`,
-          text: "Avoid getting involved",
-          description: "Step back and let others handle it",
-          soulCost: 2,
-          sanityCost: 8,
-          consequences: ["You choose not to get involved, letting events unfold without your influence..."]
-        }
-      );
+      // Generate choices based on scenario content and emotional tone
+      if (scenario.emotionalTone === 'peaceful' || scenario.emotionalTone === 'enlightening') {
+        // Scenarios that can restore soul/sanity
+        choices.push(
+          {
+            id: `${scenario.id}_compassionate_action`,
+            text: "Act with compassion and kindness",
+            description: "Choose the path that helps others",
+            soulCost: 0,
+            sanityCost: -2, // Restores sanity
+            consequences: ["Your compassionate choice lifts your spirits and restores inner peace..."]
+          },
+          {
+            id: `${scenario.id}_wise_approach`,
+            text: "Apply wisdom and patience",
+            description: "Take time to make the most thoughtful choice",
+            soulCost: 0,
+            sanityCost: -1, // Restores sanity slightly
+            consequences: ["Your thoughtful approach brings clarity and peace of mind..."]
+          },
+          {
+            id: `${scenario.id}_selfless_help`,
+            text: "Put others' needs before your own",
+            description: "Make a sacrifice to help someone else",
+            soulCost: 0,
+            sanityCost: 3,
+            consequences: ["Your selfless action strengthens your soul even as it challenges you..."]
+          }
+        );
+      } else {
+        // Standard choices for other tones
+        choices.push(
+          {
+            id: `${scenario.id}_bold_action`,
+            text: "Take bold action",
+            description: "Act decisively and confidently", 
+            soulCost: 0,
+            sanityCost: 4,
+            consequences: ["You act with confidence and determination..."]
+          },
+          {
+            id: `${scenario.id}_cautious_approach`,
+            text: "Proceed cautiously",
+            description: "Think carefully before acting",
+            soulCost: 0,
+            sanityCost: 2,
+            consequences: ["You take time to consider all angles before making your move..."]
+          },
+          {
+            id: `${scenario.id}_seek_help`,
+            text: "Seek advice from others",
+            description: "Consult with friends or mentors",
+            soulCost: 0,
+            sanityCost: 6,
+            consequences: ["You decide this decision is too important to make alone..."]
+          },
+          {
+            id: `${scenario.id}_avoid_involvement`,
+            text: "Avoid getting involved",
+            description: "Step back and let others handle it",
+            soulCost: 2,
+            sanityCost: 8,
+            consequences: ["You choose not to get involved, letting events unfold without your influence..."]
+          }
+        );
+      }
       break;
   }
 
@@ -824,7 +921,7 @@ export function generateEnhancedScenario(character: Character, gameData: GameDat
     if (scenario.type === 'FAMILY' && character.dragonets.length === 0) {
       return false;
     }
-    if (scenario.type === 'ROMANCE' && character.age < 5) {
+    if (scenario.type === 'ROMANCE' && (character.age < 3 || character.soulPercentage < 50 || character.sanityPercentage < 50)) {
       return false;
     }
     
