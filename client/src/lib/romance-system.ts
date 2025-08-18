@@ -23,24 +23,55 @@ export class RomanceSystem {
     partnerTribe: string;
     scenario: string;
     isHybrid: boolean;
+    narrativeText: string[];
   } {
     const partnerName = this.getRandomPartnerName();
     const partnerTribe = this.getRandomTribe(character.tribe);
     const isHybrid = Math.random() < 0.3; // 30% chance of hybrid partner
     
     const scenarios = [
-      `You meet ${partnerName}, a charming ${partnerTribe} dragon at Jade Mountain Academy.`,
-      `${partnerName} saves your life during a dangerous expedition, and you feel drawn to them.`,
-      `You and ${partnerName} bond over shared interests and similar experiences.`,
-      `${partnerName} challenges you to a friendly competition, and sparks fly.`,
-      `You encounter ${partnerName} during a diplomatic mission between tribes.`
+      {
+        brief: `You meet ${partnerName}, a charming ${partnerTribe} dragon at Jade Mountain Academy.`,
+        narrativeText: [
+          `During a quiet evening in the academy library, you notice ${partnerName}, an attractive ${partnerTribe} dragon, reading a scroll about ancient history.`,
+          `When they catch you looking, they smile warmly and ask if you'd like to study together. There's something magnetic about their presence that draws you in.`,
+          `As you spend time discussing the complexities of inter-tribal politics, you find yourself captivated not just by their intelligence, but by the way their eyes light up when they're passionate about a topic.`
+        ]
+      },
+      {
+        brief: `${partnerName} saves your life during a dangerous expedition, and you feel drawn to them.`,
+        narrativeText: [
+          `During a treacherous mountain expedition, a rockslide threatens to crush you when ${partnerName}, a brave ${partnerTribe} dragon, swoops in at the last second.`,
+          `As they pull you to safety, your eyes meet and time seems to stop. Their protective strength and quick thinking have not only saved your life, but awakened feelings you didn't expect.`,
+          `"Are you hurt?" they ask with genuine concern, their wing still protectively wrapped around you. The moment feels charged with possibility.`
+        ]
+      },
+      {
+        brief: `You and ${partnerName} bond over shared interests and similar experiences.`,
+        narrativeText: [
+          `You discover ${partnerName}, a thoughtful ${partnerTribe} dragon, shares your love for ancient poetry and philosophy during an academy discussion group.`,
+          `After the formal session ends, you both linger to continue debating the meaning of freedom in modern dragon society. Their perspectives challenge and inspire you in equal measure.`,
+          `Hours pass unnoticed as you walk together through the academy gardens, your conversation flowing as naturally as breathing. You've found a kindred spirit.`
+        ]
+      },
+      {
+        brief: `${partnerName} challenges you to a friendly competition, and sparks fly.`,
+        narrativeText: [
+          `${partnerName}, a competitive ${partnerTribe} dragon with impressive skills, challenges you to a flying race through the academy's aerial course.`,
+          `As you both push your limits, diving through clouds and around mountain peaks, their playful taunts and encouraging shouts create an exhilarating tension between you.`,
+          `When you both land, breathless and laughing, they congratulate you on your performance with a touch to your wing that sends unexpected warmth through your scales.`
+        ]
+      }
     ];
+
+    const selectedScenario = scenarios[Math.floor(Math.random() * scenarios.length)];
 
     return {
       partnerName,
       partnerTribe,
-      scenario: scenarios[Math.floor(Math.random() * scenarios.length)],
-      isHybrid
+      scenario: selectedScenario.brief,
+      isHybrid,
+      narrativeText: selectedScenario.narrativeText
     };
   }
 

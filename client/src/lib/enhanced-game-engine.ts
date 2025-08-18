@@ -86,7 +86,7 @@ export class EnhancedGameEngine {
         newGameData.inventory = collectionResult.newGameData.inventory;
         
         // Add collection message to last choice result
-        newGameData.lastChoiceResult = (newGameData.lastChoiceResult || []).concat([collectionResult.message]);
+        newGameData.lastChoiceResult = collectionResult.message;
       }
     }
     

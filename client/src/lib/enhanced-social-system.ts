@@ -147,11 +147,18 @@ export class EnhancedSocialSystem {
     const participantTribe = this.generateRandomTribe(character.tribe);
     const participantName = this.generateRandomDragonName(participantTribe);
     
-    // Create proper narrative text that shows who the character is interacting with
+    // Create comprehensive narrative text with proper context
+    const contextIntros = [
+      `You notice ${participantName}, a ${participantTribe} dragon with distinctive ${this.getPhysicalDescription(participantTribe)} markings, approaching you in the academy courtyard.`,
+      `While studying in the library, ${participantName}, a friendly-looking ${participantTribe} dragon, settles nearby and strikes up a conversation.`,
+      `During meal time, ${participantName}, a ${participantTribe} dragon from your advanced studies class, joins your table.`,
+      `Walking through the academy halls, you encounter ${participantName}, a ${participantTribe} dragon you've seen around but never spoken to.`
+    ];
+    
     const narrativeText = [
-      `You encounter ${participantName}, a ${participantTribe} dragon, near the academy courtyard.`,
-      baseEvent.description.replace(/A classmate|Another dragon|A dragon/g, participantName),
-      `${participantName} watches your reaction carefully, waiting to see how you'll respond.`
+      contextIntros[Math.floor(Math.random() * contextIntros.length)],
+      baseEvent.description.replace(/A classmate|Another dragon|A dragon|someone/gi, participantName),
+      `${participantName} seems genuine in their approach, and you sense this interaction could significantly impact your relationship with them.`
     ];
     
     return {
@@ -160,6 +167,22 @@ export class EnhancedSocialSystem {
       participantTribe,
       narrativeText
     };
+  }
+
+  private static getPhysicalDescription(tribe: string): string {
+    const descriptions = {
+      MudWing: "earth-toned",
+      SandWing: "golden",
+      SkyWing: "crimson and orange",
+      SeaWing: "blue and green",
+      IceWing: "silvery-white",
+      RainWing: "rainbow-shifting",
+      NightWing: "dark starry",
+      SilkWing: "delicate silk-producing",
+      HiveWing: "amber and black",
+      LeafWing: "forest-green"
+    };
+    return descriptions[tribe as keyof typeof descriptions] || "distinctive";
   }
 
   static processRelationshipChange(

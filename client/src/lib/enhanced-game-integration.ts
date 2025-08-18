@@ -1,37 +1,41 @@
 import { Character, GameData, Scenario, Choice } from "@shared/schema";
 import { EnhancedSocialSystem } from "./enhanced-social-system";
 import { EnhancedDragonetSystem } from "./enhanced-dragonet-system";
+import { RomanceSystem } from "./romance-system";
 
 // Simplified integration system that works with existing game
 export class EnhancedGameIntegration {
   // Enhanced social interactions
   static generateSocialScenario(character: Character, gameData: GameData): Scenario | null {
-    if (Math.random() < 0.3 && EnhancedSocialSystem.canHaveMoreSocialEvents(character)) {
+    if (Math.random() < 0.3) {
       const socialEvent = EnhancedSocialSystem.generateSocialEvent(character);
       
       return {
         id: `social_${socialEvent.id}_${Date.now()}`,
         type: 'SOCIAL',
-        text: `${socialEvent.description} ${socialEvent.participantName} is a ${socialEvent.participantTribe} dragon.`,
+        text: socialEvent.narrativeText.join(' '),
         choices: [
           {
             id: "positive_social",
             text: "Respond positively and engage warmly",
-            consequences: ["social_relationship_improved"],
+            description: `Greet ${socialEvent.participantName} with enthusiasm and openness`,
+            consequences: [`You warmly engage with ${socialEvent.participantName}, building a positive connection`],
             soulCost: 0,
             sanityCost: 0
           },
           {
             id: "neutral_social", 
             text: "Be polite but maintain distance",
-            consequences: ["neutral_interaction"],
+            description: "Show courtesy while keeping things professional",
+            consequences: [`You interact politely with ${socialEvent.participantName} but remain somewhat distant`],
             soulCost: 0,
             sanityCost: 0
           },
           {
             id: "negative_social",
             text: "Be dismissive or rude",
-            consequences: ["social_relationship_damaged"],
+            description: `Show disinterest or hostility toward ${socialEvent.participantName}`,
+            consequences: [`Your rude behavior damages your relationship with ${socialEvent.participantName}`],
             soulCost: 0,
             sanityCost: -1
           }
@@ -62,21 +66,24 @@ export class EnhancedGameIntegration {
           {
             id: "supportive_parent",
             text: "Be supportive and understanding",
-            consequences: ["family_bond_strengthened"],
+            description: `Encourage ${randomDragonet.name} with love and patience`,
+            consequences: [`You offer loving support to ${randomDragonet.name}, strengthening your family bond`],
             soulCost: 0,
             sanityCost: 0
           },
           {
             id: "protective_parent",
             text: "Be protective and cautious",
-            consequences: ["parental_protection"],
+            description: `Keep ${randomDragonet.name} safe while being firm about boundaries`,
+            consequences: [`You prioritize ${randomDragonet.name}'s safety with protective guidance`],
             soulCost: 0,
             sanityCost: 0
           },
           {
             id: "wise_guidance",
             text: "Offer wise guidance and life lessons",
-            consequences: ["wisdom_shared"],
+            description: `Share your wisdom and experience with ${randomDragonet.name}`,
+            consequences: [`You pass on valuable life lessons to ${randomDragonet.name}, helping them grow wiser`],
             soulCost: 0,
             sanityCost: 0
           }
@@ -93,34 +100,35 @@ export class EnhancedGameIntegration {
       const hasPartner = character.mate || Object.values(character.relationships).some(r => r.type === 'romantic');
       
       if (!hasPartner) {
-        // Meeting potential romantic interest
-        const tribes = ["MudWing", "SandWing", "SkyWing", "SeaWing", "IceWing", "RainWing", "NightWing", "SilkWing", "HiveWing", "LeafWing"];
-        const partnerTribe = tribes[Math.floor(Math.random() * tribes.length)];
-        const partnerName = `${['Dawn', 'Ember', 'Storm', 'River', 'Star', 'Moon', 'Fire', 'Ocean'][Math.floor(Math.random() * 8)]}`;
+        // Generate a romantic encounter with proper narrative
+        const romanticEncounter = RomanceSystem.generateRomanticEncounter(character);
         
         return {
           id: `romance_meeting_${Date.now()}`,
           type: 'ROMANCE',
-          text: `You meet ${partnerName}, an attractive ${partnerTribe} dragon, during a peaceful evening at the academy. There's an immediate connection between you.`,
+          text: romanticEncounter.narrativeText.join(' '),
           choices: [
             {
               id: "pursue_romance",
-              text: `Show interest in getting to know ${partnerName} better`,
-              consequences: ["romantic_interest_developed"],
+              text: `Show romantic interest in ${romanticEncounter.partnerName}`,
+              description: `Express your attraction and desire to get to know ${romanticEncounter.partnerName} better`,
+              consequences: [`You pursue a romantic connection with ${romanticEncounter.partnerName}, the charming ${romanticEncounter.partnerTribe} dragon`],
               soulCost: 0,
               sanityCost: 1
             },
             {
               id: "friendship_first",
-              text: "Start as friends and see what develops naturally",
-              consequences: ["friendship_foundation"],
+              text: "Suggest starting as friends",
+              description: "Build a foundation of friendship before considering romance",
+              consequences: [`You choose to develop a friendship with ${romanticEncounter.partnerName} first, letting romance develop naturally`],
               soulCost: 0,
               sanityCost: 0
             },
             {
               id: "avoid_romance",
-              text: "Keep things casual and avoid romantic complications",
-              consequences: ["romance_avoided"],
+              text: "Keep things casual",
+              description: "Maintain a friendly but non-romantic relationship",
+              consequences: [`You decide to keep your relationship with ${romanticEncounter.partnerName} purely platonic`],
               soulCost: 0,
               sanityCost: -1
             }
@@ -161,6 +169,70 @@ export class EnhancedGameIntegration {
       }
     }
     return null;
+  }
+
+  // Process social event outcomes with proper messaging
+  static processSocialEvent(character: Character, choice: Choice, socialEvent: any): void {
+    if (!socialEvent) return;
+    
+    // Update relationship based on choice
+    let relationshipChange = 0;
+    let newRelationshipType: 'friend' | 'neutral' | 'rival' | 'enemy' = 'neutral';
+    
+    switch (choice.id) {
+      case "positive_social":
+        relationshipChange = socialEvent.relationshipChange || 15;
+        newRelationshipType = 'friend';
+        break;
+      case "neutral_social":
+        relationshipChange = 5;
+        newRelationshipType = 'neutral';
+        break;
+      case "negative_social":
+        relationshipChange = -(Math.abs(socialEvent.relationshipChange) || 10);
+        newRelationshipType = 'rival';
+        break;
+    }
+    
+    // Apply relationship change
+    EnhancedSocialSystem.processRelationshipChange(
+      character,
+      socialEvent.participantName,
+      socialEvent.participantTribe,
+      relationshipChange,
+      socialEvent.type
+    );
+  }
+
+  // Process romance event outcomes
+  static processRomanceEvent(character: Character, choice: Choice, romanticEncounter: any): void {
+    if (!romanticEncounter) return;
+    
+    switch (choice.id) {
+      case "pursue_romance":
+        RomanceSystem.developRomance(character, romanticEncounter.partnerName, romanticEncounter.partnerTribe);
+        break;
+      case "friendship_first":
+        // Add as friend relationship
+        character.relationships[romanticEncounter.partnerName] = {
+          name: romanticEncounter.partnerName,
+          type: "friend",
+          strength: 40,
+          history: ["Started as friends"],
+          isAlive: true
+        };
+        break;
+      case "avoid_romance":
+        // Add as neutral relationship
+        character.relationships[romanticEncounter.partnerName] = {
+          name: romanticEncounter.partnerName,
+          type: "neutral",
+          strength: 25,
+          history: ["Kept relationship casual"],
+          isAlive: true
+        };
+        break;
+    }
   }
 
   // Enhanced artifact discovery

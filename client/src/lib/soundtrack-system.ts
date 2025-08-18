@@ -273,17 +273,28 @@ export class SoundtrackSystem {
       this.playTrack('soul_below_20', true);
       shouldUpdateMusic = true;
     }
-    
     // Soul dropped below 40%
-    if (oldSoul > 40 && newSoul <= 40) {
+    else if (oldSoul > 40 && newSoul <= 40) {
       this.playTrack('soul_below_40', true);
       shouldUpdateMusic = true;
     }
     
-    // Soul recovered above thresholds
-    if (oldSoul <= 40 && newSoul > 40) {
+    // Soul recovered above thresholds - play appropriate track based on current soul level
+    if (oldSoul <= 20 && newSoul > 20 && newSoul <= 40) {
+      this.playTrack('soul_below_40', true);
+      shouldUpdateMusic = true;
+    }
+    else if (oldSoul <= 40 && newSoul > 40) {
       this.updateBasedOnGameState(character, gameData);
       shouldUpdateMusic = true;
+    }
+    
+    // If no threshold crossed, ensure proper track is playing
+    if (!shouldUpdateMusic) {
+      const contextualTrack = this.getContextualTrack(character, gameData);
+      if (this.currentTrack !== contextualTrack) {
+        this.playTrack(contextualTrack, true);
+      }
     }
     
     return false; // No AI control
