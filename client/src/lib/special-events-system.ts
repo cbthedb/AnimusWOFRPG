@@ -19,10 +19,10 @@ export interface SpecialEventState {
 }
 
 export class SpecialEventsSystem {
-  private static readonly ARTIFACT_COOLDOWN_TURNS = 5; // 5 turns between artifacts
+  private static readonly ARTIFACT_COOLDOWN_TURNS = 2; // 2 turns between artifacts for testing
   private static readonly MINDREADING_COOLDOWN_TURNS = 10; // 10 turns  
   private static readonly PROPHECY_COOLDOWN_TURNS = 10; // 10 turns
-  private static readonly ARTIFACT_BASE_CHANCE = 0.15; // 15% chance per turn (normal setting)
+  private static readonly ARTIFACT_BASE_CHANCE = 0.8; // 80% chance per turn for testing collection system
   private static readonly SPECIAL_POWER_BASE_CHANCE = 0.12; // 12% chance per turn
   private static readonly MAX_ARTIFACTS_PER_GAME = 10; // Match the increased limit
   
