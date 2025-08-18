@@ -79,14 +79,20 @@ export class EnhancedGameEngine {
     // Handle artifact collection if this is an artifact choice
     if (choice.id.startsWith('collect_') && choice.id.includes('_')) {
       const artifactId = choice.id.replace('collect_', '');
-      const artifact = AnimusArtifactSystem.getArtifactById(artifactId);
-      if (artifact) {
-        const collectionResult = AnimusArtifactSystem.collectArtifact(artifact, newCharacter, newGameData);
-        newCharacter.soulPercentage = collectionResult.newCharacter.soulPercentage;
-        newGameData.inventory = collectionResult.newGameData.inventory;
+      const pendingArtifact = (gameData as any).pendingArtifact;
+      
+      if (pendingArtifact && pendingArtifact.id === artifactId) {
+        const collectionResult = AnimusArtifactSystem.collectArtifact(pendingArtifact, newCharacter, newGameData);
+        Object.assign(newCharacter, collectionResult.newCharacter);
+        Object.assign(newGameData, collectionResult.newGameData);
         
         // Add collection message to last choice result
         newGameData.lastChoiceResult = collectionResult.message;
+        
+        // Clear pending artifact
+        delete (newGameData as any).pendingArtifact;
+        
+        console.log(`Artifact ${pendingArtifact.name} successfully collected and added to inventory`);
       }
     }
     

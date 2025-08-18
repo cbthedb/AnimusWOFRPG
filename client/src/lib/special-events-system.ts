@@ -19,10 +19,10 @@ export interface SpecialEventState {
 }
 
 export class SpecialEventsSystem {
-  private static readonly ARTIFACT_COOLDOWN_TURNS = 10; // 10 turns
+  private static readonly ARTIFACT_COOLDOWN_TURNS = 5; // 5 turns between artifacts
   private static readonly MINDREADING_COOLDOWN_TURNS = 10; // 10 turns  
   private static readonly PROPHECY_COOLDOWN_TURNS = 10; // 10 turns
-  private static readonly ARTIFACT_BASE_CHANCE = 0.05; // 5% chance per turn (rarer)
+  private static readonly ARTIFACT_BASE_CHANCE = 0.15; // 15% chance per turn (more common but still special)
   private static readonly SPECIAL_POWER_BASE_CHANCE = 0.12; // 12% chance per turn
   private static readonly MAX_ARTIFACTS_PER_GAME = 10; // Match the increased limit
   
@@ -129,11 +129,9 @@ export class SpecialEventsSystem {
   }
   
   private static canTriggerArtifactEvent(currentTurn: number): boolean {
-    // Allow artifact events every 10 turns AND ensure first artifact can be found early
-    if (currentTurn % 10 === 0 || (currentTurn <= 10 && this.eventState.artifactsDiscovered === 0)) {
-      return (currentTurn - this.eventState.lastArtifactEventTurn) >= this.ARTIFACT_COOLDOWN_TURNS;
-    }
-    return false;
+    // Random chance every turn after cooldown period
+    const hasPassedCooldown = (currentTurn - this.eventState.lastArtifactEventTurn) >= this.ARTIFACT_COOLDOWN_TURNS;
+    return hasPassedCooldown;
   }
   
   private static canTriggerMindreadingEvent(character: Character, currentTurn: number): boolean {
@@ -174,17 +172,16 @@ export class SpecialEventsSystem {
       chance *= 1.5;
     }
     
-    // For every 10th turn, guarantee artifact discovery if eligible
-    const isEvery10Turns = turn % 10 === 0;
-    const shouldGenerate = isEvery10Turns ? true : Math.random() < chance;
+    // Random chance based on calculated probability
+    const shouldGenerate = Math.random() < chance;
       
-    console.log(`Artifact generation - Turn: ${turn}, Location: ${currentLocation.name}, Base chance: ${chance}, Should generate: ${shouldGenerate}`);
+    console.log(`Artifact generation - Turn: ${turn}, Location: ${currentLocation.name}, Chance: ${(chance * 100).toFixed(1)}%, Should generate: ${shouldGenerate}`);
     
     if (shouldGenerate) {
       const artifact = AnimusArtifactSystem.generateArtifactDiscovery(character, gameData);
       if (!artifact) return null;
     
-      // Create scenario for artifact discovery
+      // Create scenario for artifact discovery with collection choices
       const scenario: Scenario = {
         id: `artifact_discovery_${artifact.id}`,
         title: `Discovery: ${artifact.name}`,
@@ -194,24 +191,43 @@ export class SpecialEventsSystem {
           artifact.discoveryScenario,
           `The artifact radiates ${artifact.cursed ? 'dark' : 'ancient'} magical energy. What do you do?`
         ],
-        choices: artifact.usageOptions.map((option, index) => ({
-          id: option.id,
-          text: option.text,
-          description: `${option.outcome.substring(0, 100)}...`,
-          soulCost: option.soulCost,
-          sanityCost: option.sanityCost,
-          consequences: option.consequences,
-          corruption: option.corruption,
-          requiresModal: 'artifact'
-        })),
+        choices: [
+          {
+            id: `collect_${artifact.id}`,
+            text: `Collect the ${artifact.name}`,
+            description: "Take the artifact and add it to your inventory",
+            soulCost: 0,
+            sanityCost: 2,
+            consequences: [`You carefully collect the ${artifact.name}`],
+            corruption: false
+          },
+          {
+            id: `examine_${artifact.id}`,
+            text: "Examine it closely but don't touch",
+            description: "Study the artifact without collecting it",
+            soulCost: 0,
+            sanityCost: 1,
+            consequences: ["You study the artifact carefully but choose not to take it"],
+            corruption: false
+          },
+          {
+            id: `ignore_${artifact.id}`,
+            text: "Leave it alone",
+            description: "Walk away from the dangerous artifact",
+            soulCost: 0,
+            sanityCost: 0,
+            consequences: ["You decide the artifact is too dangerous and leave it behind"],
+            corruption: false
+          }
+        ],
         type: 'magical',
         location: currentLocation.name,
         timeOfDay: 'afternoon',
         weather: 'mysterious'
       };
       
-      // Add artifact to inventory for the scenario
-      gameData.inventory.push(artifact);
+      // Store artifact data for potential collection
+      (gameData as any).pendingArtifact = artifact;
       
       return {
         id: `artifact_${artifact.id}`,
