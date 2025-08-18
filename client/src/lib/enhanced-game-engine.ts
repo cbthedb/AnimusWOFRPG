@@ -88,16 +88,31 @@ export class EnhancedGameEngine {
       console.log(`Inventory before collection:`, newGameData.inventory?.length || 0, 'items');
       
       if (pendingArtifact && pendingArtifact.id === artifactId) {
-        const collectionResult = AnimusArtifactSystem.collectArtifact(pendingArtifact, newCharacter, newGameData);
+        console.log(`Matching artifact found for collection!`);
         
-        // Directly assign the new inventory instead of using Object.assign
-        newGameData.inventory = collectionResult.newGameData.inventory;
+        // Initialize inventory if it doesn't exist
+        if (!newGameData.inventory) {
+          newGameData.inventory = [];
+        }
+        
+        // Add artifact directly to inventory
+        const artifactItem = {
+          id: pendingArtifact.id,
+          name: pendingArtifact.name,
+          description: pendingArtifact.description,
+          type: 'magical_artifact' as const,
+          enchantments: pendingArtifact.enchantments || [],
+          isActive: false,
+          canGiveAway: pendingArtifact.canGiveAway || false
+        };
+        
+        newGameData.inventory.push(artifactItem);
         
         // Increment artifacts discovered counter only when successfully collected
         SpecialEventsSystem.incrementArtifactsDiscovered();
         
         // Add collection message to last choice result
-        newGameData.lastChoiceResult = collectionResult.message;
+        newGameData.lastChoiceResult = `You have collected the ${pendingArtifact.name}! It has been added to your inventory.`;
         
         // Clear pending artifact
         delete (newGameData as any).pendingArtifact;
@@ -107,6 +122,7 @@ export class EnhancedGameEngine {
         console.log(`New inventory contents:`, newGameData.inventory?.map(i => i.name) || []);
       } else {
         console.log(`Collection failed - no matching pending artifact found`);
+        console.log(`Expected artifact ID: ${artifactId}, Pending artifact:`, pendingArtifact);
       }
     }
     
