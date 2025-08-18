@@ -48,10 +48,22 @@ export const LOCATIONS: Location[] = [
     region: "Western Desert", 
     primaryTribes: ["SandWing"],
     climate: "Hot desert",
-    description: "Endless golden dunes and oasis towns, with the magnificent Scorpion Den as its largest settlement.",
+    description: "Endless golden dunes and oasis towns, ruled from the Stronghold palace.",
     specialFeatures: ["Oasis settlements", "Treasure hoards", "Desert survival", "Trade routes"],
     dangerLevel: 3,
     travelCost: 4
+  },
+  {
+    id: "scorpion_den",
+    name: "Scorpion Den",
+    continent: "Pyrrhia",
+    region: "Western Desert",
+    primaryTribes: ["SandWing"],
+    climate: "Hot desert settlement",
+    description: "A bustling outlaw town in the heart of the desert, where dragons of all tribes gather to trade, gamble, and make deals away from royal oversight.",
+    specialFeatures: ["Outlaw sanctuary", "Black market trading", "Multi-tribal mixing", "Gambling dens", "Information brokers"],
+    dangerLevel: 4,
+    travelCost: 3
   },
   {
     id: "sky_kingdom",

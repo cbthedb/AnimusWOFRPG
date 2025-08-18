@@ -42,7 +42,7 @@ export class GameEngine {
 
     // Generate next scenario
     newGameData.currentScenario = generateScenario(newCharacter, newGameData);
-    newGameData.timeInfo = generateTimeInfo();
+    newGameData.timeInfo = generateTimeInfo(newCharacter);
     
     // Possibly change location
     if (Math.random() < 0.3) {
