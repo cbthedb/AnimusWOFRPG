@@ -35,6 +35,19 @@ export default function GameplayArea({
   isProcessing,
 }: GameplayAreaProps) {
   const scenario = gameData.currentScenario;
+  
+  // Safety check - if no scenario, don't render anything
+  if (!scenario) {
+    return (
+      <div className="lg:col-span-2">
+        <Card className="bg-black/40 backdrop-blur-sm border-purple-500/30 h-full flex flex-col">
+          <div className="p-6 text-center">
+            <p className="text-purple-300">Loading scenario...</p>
+          </div>
+        </Card>
+      </div>
+    );
+  }
   const [showMigrationSystem, setShowMigrationSystem] = useState(false);
   const [showGivingModal, setShowGivingModal] = useState(false);
   const currentLocation = LocationSystem.getCurrentLocation(gameData);
@@ -60,7 +73,7 @@ export default function GameplayArea({
           <div className="flex items-center justify-between">
             <div>
               <h3 className="font-fantasy text-xl font-semibold text-purple-300">
-                {currentLocation?.name || gameData.location.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                {currentLocation?.name || (gameData.location || 'Unknown Location').split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
               </h3>
               <p className="text-sm text-purple-200">
                 {gameData.currentSeason || 'Spring'} • Year {Math.floor((gameData.yearsPassed || 0) + character.age)} • {gameData.timeInfo}
@@ -94,7 +107,7 @@ export default function GameplayArea({
               </div>
             )}
 
-            {!gameData.awaitingResponse && scenario.narrativeText.map((paragraph, index) => (
+            {!gameData.awaitingResponse && (scenario.narrativeText || [scenario.description || ""]).map((paragraph, index) => (
               <p
                 key={index}
                 className="mb-4"
@@ -109,7 +122,7 @@ export default function GameplayArea({
             {!gameData.awaitingResponse && scenario.type === 'magical' && (
               <div className="bg-black/50 border-l-4 border-purple-400 p-4 rounded-r-lg mb-6">
                 <p className="font-semibold text-purple-300 mb-2">Current Scenario:</p>
-                <p>{scenario.description}</p>
+                <p>{scenario.description || "A magical event unfolds..."}</p>
               </div>
             )}
 
@@ -151,7 +164,7 @@ export default function GameplayArea({
               )}
 
               <div className="space-y-3">
-                {scenario.choices.map((choice, index) => (
+                {(scenario.choices || []).map((choice, index) => (
                   <Button
                     key={choice.id}
                     variant="ghost"
@@ -202,7 +215,7 @@ export default function GameplayArea({
               )}
               
               {/* Special Powers - Prophecy, Mind Reading, Future Sight */}
-              {character.tribalPowers.some(power => power.toLowerCase().includes('prophecy') || power.toLowerCase().includes('future')) && (
+              {(character.tribalPowers || []).some(power => power.toLowerCase().includes('prophecy') || power.toLowerCase().includes('future')) && (
                 <Button
                   variant="outline"
                   size="sm"
@@ -214,7 +227,7 @@ export default function GameplayArea({
                 </Button>
               )}
               
-              {character.tribalPowers.some(power => power.toLowerCase().includes('mind')) && (
+              {(character.tribalPowers || []).some(power => power.toLowerCase().includes('mind')) && (
                 <Button
                   variant="outline"
                   size="sm"
@@ -226,7 +239,7 @@ export default function GameplayArea({
                 </Button>
               )}
               
-              {character.specialPowers.some(power => power.toLowerCase().includes('foresight') || power.toLowerCase().includes('future')) && (
+              {(character.specialPowers || []).some(power => power.toLowerCase().includes('foresight') || power.toLowerCase().includes('future')) && (
                 <Button
                   variant="outline"
                   size="sm"

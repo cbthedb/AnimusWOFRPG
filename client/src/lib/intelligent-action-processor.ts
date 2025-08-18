@@ -350,8 +350,8 @@ ${this.generateExplorationConsequence(discovery, character, gameData)}`;
   }
   
   private static generateStealthResult(analysis: ActionAnalysis, character: Character, gameData: GameData): string {
-    const hasStealthPowers = character.tribalPowers.includes('Color-changing scales') || 
-                           character.tribalPowers.includes('Night camouflage');
+    const hasStealthPowers = (character.tribalPowers || []).includes('Color-changing scales') || 
+                           (character.tribalPowers || []).includes('Night camouflage');
     
     if (hasStealthPowers) {
       return `You ${analysis.rawAction.toLowerCase()}.
@@ -419,7 +419,7 @@ ${this.generateSocialConsequence(character, gameData)}`;
     let loreContext = '';
     if (character.isAnimus && analysis.magicalNature) {
       loreContext = `\n\nAs an animus dragon, you feel the familiar yet dangerous pull of unlimited power. Every use of magic leaves its mark on your soul.`;
-    } else if (character.tribalPowers.includes('Mind Reading') && scenarioType === 'social') {
+    } else if ((character.tribalPowers || []).includes('Mind Reading') && scenarioType === 'social') {
       loreContext = `\n\nYour mind reading abilities pick up the emotional responses of those around you, giving you insight into their true feelings about your actions.`;
     }
     
@@ -678,4 +678,4 @@ interface ItemUsageContext {
   itemRelevant: boolean;
 }
 
-type ActionType = 'magical' | 'combat' | 'item_usage' | 'exploration' | 'stealth' | 'diplomatic' | 'social';
+// ActionType already defined at the top of file
