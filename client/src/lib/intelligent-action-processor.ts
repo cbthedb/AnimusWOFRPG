@@ -2,6 +2,25 @@ import { Character, GameData, InventoryItem, Scenario, Choice } from "@shared/sc
 import { generateEnhancedScenario } from "./enhanced-scenario-system";
 import { generateScenario } from "./scenario-generator-final";
 
+type ActionType = 'social' | 'magical' | 'combat' | 'item_usage' | 'exploration' | 'stealth' | 'diplomatic';
+
+interface ItemUsageContext {
+  triggersEnchantment: boolean;
+  enchantmentComplexity: 'simple' | 'moderate' | 'complex';
+  expectedEffect: string;
+  itemRelevant: boolean;
+}
+
+interface ActionAnalysis {
+  actionType: ActionType;
+  magicalNature: boolean;
+  destructive: boolean;
+  complexity: 'simple' | 'moderate' | 'complex';
+  consumesItem: boolean;
+  itemContext?: ItemUsageContext;
+  rawAction: string;
+}
+
 export interface ProcessedCustomAction {
   actionResult: string;
   nextScenario: Scenario;
@@ -393,7 +412,7 @@ ${this.generateSocialConsequence(character, gameData)}`;
     };
     
     // Add scenario-specific context if available
-    const additionalContext = scenarioSpecificAdditions[scenarioType] || 
+    const additionalContext = scenarioSpecificAdditions[scenarioType as keyof typeof scenarioSpecificAdditions] || 
       `\n\nThe consequences of your action ripple outward, affecting the world around you in ways both seen and unseen.`;
     
     // Add Wings of Fire lore context based on character's situation
