@@ -38,15 +38,16 @@ Preferred communication style: Simple, everyday language.
 - **Integrated Enhanced Game Systems** (January 2025): Seamlessly integrated all new social, family, and artifact systems into the existing game engine with proper consequence processing, relationship management, and story progression. Enhanced scenarios now contribute meaningfully to character development and world building.
 - **Fixed Random Animus Object Spawning** (January 2025): Disabled automatic artifact discovery in the special events system. Animus objects now only appear in specific discovery scenarios where players actively choose to search or investigate, eliminating unwanted random spawning.
 - **Enhanced Soundtrack System** (January 2025): Fixed audio overlapping issues by implementing audio lock mechanisms, proper track cleanup, and debounced transitions. Improved soul threshold music switching and AI control track handling for smoother audio experience.
-- **FIXED: Complete Animus Artifact System Overhaul** (December 2024): Resolved all critical issues preventing artifact discovery:
-  - Fixed invalid location mappings (Deep Ocean → Sea Kingdom, Ancient Ruins → Old Night Kingdom, etc.)  
-  - Corrected maximum artifact limit from 10 to proper 3 per playthrough limit
-  - Resolved TypeScript LSP errors in enhanced game engine
-  - Added 25+ unique artifacts distributed across ALL game locations with proper coverage
-  - **FINAL FIX**: Fixed artifact scenario display bug where scenarios were generated but not shown to players
-  - Fixed special event choice processing to properly handle artifact collection into inventory
-  - Implemented special events system reset for new games to ensure fresh artifact discovery
-  - Restored original discovery rates (5% chance, 2 turn cooldown, every 10th turn)
+- **MAJOR FIX: Animus Artifact System Overhaul** (January 2025): Completely rebuilt the artifact system to resolve all discovery and collection issues:
+  - **Fixed artifact discovery scenarios**: Scenarios now properly display with correct collection choices instead of generic options
+  - **Fixed inventory integration**: Artifacts now properly appear in player inventory after collection
+  - **Enhanced discovery probability**: Guaranteed artifact discovery every 10 turns, higher base chance for all players
+  - **Added comprehensive artifact usage**: Complete usage modal with magical powers, moral dilemmas, and consequences
+  - **Improved debugging**: Added extensive logging to track artifact generation, collection, and inventory flow
+  - **Fixed scenario persistence**: Artifact scenarios no longer get replaced by generic scenarios after generation
+  - **Added inventory action processing**: Proper handling of artifact usage through inventory with soul/sanity effects
+  - **Enhanced special events system**: Better integration between artifact generation and game engine
+  - Fixed invalid location mappings, TypeScript errors, and maximum artifact limits from previous attempts
 
 # System Architecture
 

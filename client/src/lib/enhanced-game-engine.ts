@@ -244,7 +244,16 @@ export class EnhancedGameEngine {
       const specialEvent = SpecialEventsSystem.checkForSpecialEvent(newCharacter, { ...newGameData, turn: nextTurn });
       if (specialEvent) {
         console.log(`Special event triggered at turn ${nextTurn}:`, specialEvent.type);
+        console.log(`Special event scenario ID: ${specialEvent.scenario.id}`);
+        console.log(`Special event scenario choices:`, specialEvent.scenario.choices.map(c => c.id));
         nextScenario = specialEvent.scenario;
+        
+        // For artifact discoveries, make sure to preserve the artifact data
+        if (specialEvent.type === 'artifact_discovery' && (gameData as any).pendingArtifact) {
+          console.log(`Preserving pending artifact for scenario: ${(gameData as any).pendingArtifact.name}`);
+          (newGameData as any).pendingArtifact = (gameData as any).pendingArtifact;
+        }
+        
         // Save updated event state
         SpecialEventsSystem.saveEventState(newGameData);
       } else {
@@ -295,6 +304,10 @@ export class EnhancedGameEngine {
     
     newGameData.currentScenario = nextScenario;
     newGameData.history.push(event);
+    
+    // Debug log the final scenario being set
+    console.log(`Final scenario being set - ID: ${nextScenario.id}, Title: ${nextScenario.title}`);
+    console.log(`Final scenario choices:`, nextScenario.choices?.map(c => ({ id: c.id, text: c.text })) || []);
 
     // Check if AI should take control
     if (SoulCorruptionManager.shouldAITakeControl(newCharacter)) {
