@@ -118,9 +118,12 @@ export interface GameData {
   politicalEvents: PoliticalEvent[];
   warStatus: WarStatus;
   explorationLog: ExplorationEvent[];
-  continent?: "Pyrrhia" | "Pantala"; // Track which continent player is on
-  lastChoiceResult?: string; // Store the outcome text to display
-  awaitingResponse?: boolean; // Whether waiting for user to continue
+  continent?: "Pyrrhia" | "Pantala";
+  lastChoiceResult?: string;
+  awaitingResponse?: boolean;
+  gameOver?: boolean;
+  achievements?: string[];
+  customSpells?: CustomSpell[];
 }
 
 export interface InventoryItem {
@@ -214,22 +217,4 @@ export interface ExplorationEvent {
   consequences: string[];
 }
 
-export interface GameData {
-  turn: number;
-  timeInfo: string;
-  currentScenario: Scenario;
-  yearsPassed: number;
-  currentSeason: "Spring" | "Summer" | "Fall" | "Winter";
-  history: GameEvent[];
-  location: string;
-  politicalEvents: PoliticalEvent[];
-  warStatus?: WarStatus;
-  explorationLog: ExplorationEvent[];
-  inventory: InventoryItem[];
-  relationships: Record<string, number>;
-  achievements: string[];
-  customSpells: CustomSpell[];
-  lastChoiceResult?: string;
-  awaitingResponse?: boolean;
-  gameOver?: boolean;
-}
+

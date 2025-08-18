@@ -1,5 +1,6 @@
 import { Character, GameData, Scenario, Choice, CustomSpell } from '@shared/schema';
 import { EnhancedGameEngine } from './enhanced-game-engine';
+import { SoundtrackSystem } from './soundtrack-system';
 
 export interface AIAction {
   type: 'magic' | 'custom_action' | 'tribal_power' | 'special_power';
@@ -16,8 +17,8 @@ export class EnhancedAIController {
    * Generate and execute an AI action based on the current game state
    */
   static async executeAITurn(character: Character, gameData: GameData, gameUI: any): Promise<void> {
-    // Don't execute if not AI controlled or if soul isn't completely gone
-    if (!character.isAIControlled || character.soulPercentage > 0) {
+    // Check if AI control is active via soundtrack system (0% soul corruption period)
+    if (!SoundtrackSystem.isAIControlActive()) {
       return;
     }
 
@@ -58,8 +59,8 @@ export class EnhancedAIController {
       return null;
     }
 
-    // Only generate AI actions when soul is completely gone AND character is AI controlled
-    if (!character.isAIControlled || character.soulPercentage > 0) {
+    // Only generate AI actions during soundtrack-controlled AI period
+    if (!SoundtrackSystem.isAIControlActive()) {
       return null;
     }
 

@@ -19,6 +19,10 @@ import { RomanceSystem } from "@/lib/romance-system";
 import { AIDungeonMaster } from "@/lib/ai-dungeon-master";
 import { Location } from "@/lib/location-system";
 import { InventorySystem } from "@/lib/inventory-system";
+import { SoundtrackSystem } from "@/lib/soundtrack-system";
+import { SoundtrackControls } from "@/components/soundtrack-controls";
+import { AIControlOverlay } from "@/components/ai-control-overlay";
+import { GameOverScreen } from "@/components/game-over-screen";
 
 export default function Game() {
   const { gameId } = useParams();
@@ -39,6 +43,8 @@ export default function Game() {
   const [isLoading, setIsLoading] = useState(true);
   const [corruptionWhisper, setCorruptionWhisper] = useState<string | null>(null);
   const [showCorruptionPopup, setShowCorruptionPopup] = useState(false);
+  const [showSoundtrackControls, setShowSoundtrackControls] = useState(false);
+  const [isAIControlActive, setIsAIControlActive] = useState(false);
 
   const { updateGame } = useLocalGameState();
 
@@ -66,10 +72,33 @@ export default function Game() {
           characterData: loadedGame.characterData,
           gameData: loadedGame.gameData
         });
+        
+        // Initialize soundtrack system
+        SoundtrackSystem.init();
+        SoundtrackSystem.updateBackgroundMusic(loadedGame.characterData, loadedGame.gameData);
       }
       setIsLoading(false);
     }
   }, [gameId]);
+
+  // Check for AI control status periodically
+  useEffect(() => {
+    const checkAIControl = () => {
+      const aiActive = SoundtrackSystem.isAIControlActive();
+      setIsAIControlActive(aiActive);
+      
+      // Check for game over condition
+      if (gameState?.gameData.gameOver || gameState?.characterData.gameOver) {
+        setGameOverState({
+          isGameOver: true,
+          reason: gameState.characterData.gameOverReason || "unknown"
+        });
+      }
+    };
+
+    const interval = setInterval(checkAIControl, 1000);
+    return () => clearInterval(interval);
+  }, [gameState]);
 
   // Cleanup interval on unmount
   useEffect(() => {
@@ -117,8 +146,24 @@ export default function Game() {
   const handleCastSpell = (spell: CustomSpell) => {
     if (!gameState || !gameId || gameOverState?.isGameOver) return;
 
+    // Play button sound for any action
+    SoundtrackSystem.playButtonSound();
+
     const character = gameState.characterData;
     const gameData = gameState.gameData;
+
+    // Check for animus magic usage at 0% soul - trigger game over
+    if (character.soulPercentage <= 0) {
+      const gameOver = SoundtrackSystem.handleAnimusMagicAtZero();
+      if (gameOver) {
+        setGameState(prev => prev ? {
+          ...prev,
+          characterData: { ...prev.characterData, gameOver: true, gameOverReason: "Used animus magic with 0% soul" },
+          gameData: { ...prev.gameData, gameOver: true }
+        } : null);
+        return;
+      }
+    }
 
     // Check if character has enough soul
     if (character.soulPercentage < spell.estimatedSoulCost) {
@@ -168,6 +213,14 @@ export default function Game() {
         gameData: updatedGame.gameData
       });
 
+      // Check if soul hit 0% for first time - trigger AI control period
+      if (newCharacter.soulPercentage <= 0 && character.soulPercentage > 0) {
+        SoundtrackSystem.triggerSoul0Control();
+      }
+
+      // Update background music based on new soul level
+      SoundtrackSystem.updateBackgroundMusic(updatedGame.characterData, updatedGame.gameData);
+
       toast({
         title: "Spell Cast Successfully!",
         description: `You enchanted ${spell.targetObject}. Soul cost: ${spell.estimatedSoulCost}%`,
@@ -186,11 +239,27 @@ export default function Game() {
   const handleChoice = (choice: Choice) => {
     if (!gameState || !gameId || gameOverState?.isGameOver) return;
 
+    // Play button sound for any click
+    SoundtrackSystem.playButtonSound();
+
     const character = gameState.characterData;
     const gameData = gameState.gameData;
 
-    // Check if AI should intervene
-    const aiChoice = EnhancedGameEngine.getAIChoice(character, gameData.currentScenario);
+    // Check for animus magic usage at 0% soul - trigger game over
+    if (choice.id.includes('animus') && character.soulPercentage <= 0) {
+      const gameOver = SoundtrackSystem.handleAnimusMagicAtZero();
+      if (gameOver) {
+        setGameState(prev => prev ? {
+          ...prev,
+          characterData: { ...prev.characterData, gameOver: true, gameOverReason: "Used animus magic with 0% soul" },
+          gameData: { ...prev.gameData, gameOver: true }
+        } : null);
+        return;
+      }
+    }
+
+    // Check if AI should intervene (but not during AI control period)
+    const aiChoice = !isAIControlActive ? EnhancedGameEngine.getAIChoice(character, gameData.currentScenario) : null;
     const actualChoice = aiChoice || choice;
 
     if (aiChoice) {
@@ -208,6 +277,11 @@ export default function Game() {
       gameData.currentScenario
     );
 
+    // Check if soul hit 0% for first time - trigger AI control period
+    if (newCharacter.soulPercentage <= 0 && character.soulPercentage > 0) {
+      SoundtrackSystem.triggerSoul0Control();
+    }
+
     try {
       const updatedGame = updateGame(gameId, {
         characterData: newCharacter,
@@ -220,6 +294,9 @@ export default function Game() {
         characterData: updatedGame.characterData,
         gameData: updatedGame.gameData
       });
+
+      // Update background music based on new soul level
+      SoundtrackSystem.updateBackgroundMusic(updatedGame.characterData, updatedGame.gameData);
 
       toast({
         title: "Choice Made",
@@ -1129,6 +1206,15 @@ export default function Game() {
               <Button
                 variant="ghost"
                 size="sm"
+                onClick={() => setShowSoundtrackControls(!showSoundtrackControls)}
+                className="text-purple-300 hover:bg-purple-500/20"
+                data-testid="button-soundtrack-toggle"
+              >
+                🎵
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={handleSaveGame}
                 className="text-purple-300 hover:bg-purple-500/20"
                 data-testid="button-save-game"
@@ -1257,6 +1343,25 @@ export default function Game() {
           isOpen={showConversationModal}
           onClose={() => setShowConversationModal(false)}
           onConversationEnd={handleConversationEnd}
+        />
+      )}
+
+      {/* Soundtrack Controls */}
+      {showSoundtrackControls && <SoundtrackControls />}
+
+      {/* AI Control Overlay */}
+      {isAIControlActive && (
+        <AIControlOverlay 
+          timeRemaining={SoundtrackSystem.isAIControlActive() ? "Active" : "Inactive"}
+          aiActions={["Observing corruption spread...", "Making dark choices...", "Soul beyond redemption..."]}
+        />
+      )}
+
+      {/* Game Over Screen */}
+      {gameOverState?.isGameOver && gameState?.characterData.gameOver && (
+        <GameOverScreen 
+          reason={gameOverState.reason || "unknown"}
+          onRestart={() => window.location.href = "/"}
         />
       )}
 
