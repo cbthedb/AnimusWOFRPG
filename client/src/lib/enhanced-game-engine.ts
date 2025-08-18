@@ -10,6 +10,7 @@ import { LocationBasedScenarios } from "./location-based-scenarios";
 import { InventorySystem } from "./inventory-system";
 import { SpecialEventsSystem } from "./special-events-system";
 import { ExpandedScenarioSystem } from './expanded-scenarios';
+import { EnhancedGameIntegration } from "./enhanced-game-integration";
 
 export class EnhancedGameEngine {
   static processChoice(
@@ -124,6 +125,15 @@ export class EnhancedGameEngine {
       if (requiredItem) {
         const updatedGameData = InventorySystem.removeItem(newGameData, requiredItem.id);
         newGameData.inventory = updatedGameData.inventory;
+      }
+    }
+
+    // Process enhanced consequences from our new systems
+    if (choice.consequences && choice.consequences.length > 0) {
+      try {
+        EnhancedGameIntegration.processEnhancedConsequences(newCharacter, newGameData, choice.consequences, scenario);
+      } catch (error) {
+        console.warn("Enhanced consequence processing failed:", error);
       }
     }
 
@@ -275,6 +285,12 @@ export class EnhancedGameEngine {
       }
     }
     
+    // Try enhanced social/family/romance scenarios first
+    const enhancedScenario = EnhancedGameIntegration.generateEnhancedScenario(character, gameData);
+    if (enhancedScenario) {
+      return enhancedScenario;
+    }
+
     // Fall back to enhanced scenario generation
     return generateEnhancedScenario(character, gameData);
   }

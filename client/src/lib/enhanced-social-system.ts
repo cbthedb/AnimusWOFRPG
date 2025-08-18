@@ -185,24 +185,23 @@ export class EnhancedSocialSystem {
     
     if (eventType === 'betrayal' || strength < 20) return 'enemy';
     if (eventType === 'rivalry' || strength < 40) return 'rival';
-    if (strength >= 80) return 'close_friend';
     if (strength >= 60) return 'friend';
-    return 'acquaintance';
+    return 'neutral';
   }
 
   static getRelationshipSummary(character: Character): {
     friends: number;
     enemies: number;
     rivals: number;
-    closeFreinds: number;
     romantic: number;
+    neutral: number;
   } {
     const summary = {
       friends: 0,
       enemies: 0,
       rivals: 0,
-      closeFreinds: 0,
-      romantic: 0
+      romantic: 0,
+      neutral: 0
     };
 
     Object.values(character.relationships).forEach(relationship => {
@@ -211,9 +210,6 @@ export class EnhancedSocialSystem {
       switch (relationship.type) {
         case 'friend':
           summary.friends++;
-          break;
-        case 'close_friend':
-          summary.closeFreinds++;
           break;
         case 'enemy':
           summary.enemies++;
@@ -224,6 +220,9 @@ export class EnhancedSocialSystem {
         case 'romantic':
         case 'mate':
           summary.romantic++;
+          break;
+        case 'neutral':
+          summary.neutral++;
           break;
       }
     });

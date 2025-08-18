@@ -16,7 +16,7 @@ export const ANIMUS_ARTIFACTS: AnimusArtifact[] = [
   {
     id: "teachers_scroll",
     name: "Ever-Writing Scroll",
-    type: "artifact",
+    type: "magical_artifact",
     discoveryLocation: "jade_mountain_academy",
     description: "A scroll that writes down everything spoken in its presence, created by an ancient NightWing animus.",
     rarity: "rare",
@@ -29,7 +29,7 @@ export const ANIMUS_ARTIFACTS: AnimusArtifact[] = [
   {
     id: "founders_compass",
     name: "Founder's Compass",
-    type: "artifact", 
+    type: "magical_artifact", 
     discoveryLocation: "jade_mountain_academy",
     description: "A golden compass that always points toward peace and understanding between tribes.",
     rarity: "legendary",
@@ -44,7 +44,7 @@ export const ANIMUS_ARTIFACTS: AnimusArtifact[] = [
   {
     id: "healing_mud_pot",
     name: "Eternal Healing Pot",
-    type: "artifact",
+    type: "magical_artifact",
     discoveryLocation: "mud_kingdom", 
     description: "A clay pot that generates infinite healing mud, able to cure any injury or illness.",
     rarity: "rare",
@@ -57,7 +57,7 @@ export const ANIMUS_ARTIFACTS: AnimusArtifact[] = [
   {
     id: "sibling_bond_amulet",
     name: "Sibling Bond Amulet",
-    type: "artifact",
+    type: "magical_artifact",
     discoveryLocation: "mud_kingdom",
     description: "An amulet that lets MudWings share their fireproof abilities with their siblings permanently.",
     rarity: "uncommon", 
@@ -72,7 +72,7 @@ export const ANIMUS_ARTIFACTS: AnimusArtifact[] = [
   {
     id: "desert_oasis_stone",
     name: "Oasis Stone",
-    type: "artifact",
+    type: "magical_artifact",
     discoveryLocation: "sand_kingdom",
     description: "A blue stone that can create a permanent oasis anywhere in the desert, bringing life to barren lands.",
     rarity: "rare",
@@ -87,7 +87,7 @@ export const ANIMUS_ARTIFACTS: AnimusArtifact[] = [
   {
     id: "luck_changing_dice",
     name: "Fortune's Dice",
-    type: "artifact",
+    type: "magical_artifact",
     discoveryLocation: "scorpion_den",
     description: "Enchanted dice that can change luck itself - making the roller incredibly fortunate or cursed.",
     rarity: "uncommon",
@@ -100,7 +100,7 @@ export const ANIMUS_ARTIFACTS: AnimusArtifact[] = [
   {
     id: "truth_revealing_coin",
     name: "Coin of Truth",
-    type: "artifact",
+    type: "magical_artifact",
     discoveryLocation: "scorpion_den",
     description: "A golden coin that compels absolute honesty from anyone who touches it.",
     rarity: "rare",
@@ -115,7 +115,7 @@ export const ANIMUS_ARTIFACTS: AnimusArtifact[] = [
   {
     id: "wind_rider_crown",
     name: "Crown of Wind Mastery", 
-    type: "artifact",
+    type: "magical_artifact",
     discoveryLocation: "sky_kingdom",
     description: "A crown that grants perfect control over wind currents and weather patterns.",
     rarity: "legendary",
@@ -128,7 +128,7 @@ export const ANIMUS_ARTIFACTS: AnimusArtifact[] = [
   {
     id: "mountain_throne",
     name: "Unshakeable Throne",
-    type: "artifact", 
+    type: "magical_artifact", 
     discoveryLocation: "sky_kingdom",
     description: "A throne that makes its occupant completely immune to physical harm and mental manipulation.",
     rarity: "legendary",
@@ -143,7 +143,7 @@ export const ANIMUS_ARTIFACTS: AnimusArtifact[] = [
   {
     id: "coral_palace_pearl",
     name: "Pearl of Deep Wisdom",
-    type: "artifact",
+    type: "magical_artifact",
     discoveryLocation: "sea_kingdom",
     description: "A massive pearl that contains all the knowledge of the ancient SeaWings.",
     rarity: "legendary",
@@ -156,7 +156,7 @@ export const ANIMUS_ARTIFACTS: AnimusArtifact[] = [
   {
     id: "tide_controlling_conch",
     name: "Conch of the Tides",
-    type: "artifact",
+    type: "magical_artifact",
     discoveryLocation: "sea_kingdom", 
     description: "A magical conch shell that can control ocean tides and underwater currents.",
     rarity: "rare",
@@ -171,7 +171,7 @@ export const ANIMUS_ARTIFACTS: AnimusArtifact[] = [
   {
     id: "eternal_winter_scepter",
     name: "Scepter of Eternal Winter",
-    type: "artifact",
+    type: "magical_artifact",
     discoveryLocation: "ice_kingdom",
     description: "A crystal scepter that can bring permanent winter to any location.",
     rarity: "legendary",
@@ -184,7 +184,7 @@ export const ANIMUS_ARTIFACTS: AnimusArtifact[] = [
   {
     id: "ranking_circle_crown",
     name: "Crown of Perfect Rank",
-    type: "artifact",
+    type: "magical_artifact",
     discoveryLocation: "ice_kingdom",
     description: "A crown that automatically adjusts the wearer's ranking circle to be higher than any IceWing they encounter.",
     rarity: "uncommon",
@@ -199,7 +199,7 @@ export const ANIMUS_ARTIFACTS: AnimusArtifact[] = [
   {
     id: "camouflage_vine",
     name: "Vine of Perfect Concealment",
-    type: "artifact",
+    type: "magical_artifact",
     discoveryLocation: "rainforest_kingdom",
     description: "A magical vine that grants perfect invisibility to any dragon who wears it.",
     rarity: "rare",
@@ -212,7 +212,7 @@ export const ANIMUS_ARTIFACTS: AnimusArtifact[] = [
   {
     id: "fruit_of_knowledge",
     name: "All-Knowing Fruit",
-    type: "artifact",
+    type: "magical_artifact",
     discoveryLocation: "rainforest_kingdom",
     description: "A magical fruit that grants knowledge of any question asked, but each bite costs memories.",
     rarity: "legendary",
@@ -227,7 +227,7 @@ export const ANIMUS_ARTIFACTS: AnimusArtifact[] = [
   {
     id: "prophecy_obsidian",
     name: "Obsidian of Future Sight",
-    type: "artifact",
+    type: "magical_artifact",
     discoveryLocation: "night_kingdom_old",
     description: "A shard of volcanic glass that shows visions of possible futures, but each vision ages the user.",
     rarity: "legendary",
@@ -240,7 +240,7 @@ export const ANIMUS_ARTIFACTS: AnimusArtifact[] = [
   {
     id: "mind_reading_crystal",
     name: "Crystal of Infinite Thoughts", 
-    type: "artifact",
+    type: "magical_artifact",
     discoveryLocation: "night_kingdom_old",
     description: "A dark crystal that allows reading the minds of every dragon within miles, but risks mental overload.",
     rarity: "rare",
@@ -255,7 +255,7 @@ export const ANIMUS_ARTIFACTS: AnimusArtifact[] = [
   {
     id: "harmony_medallion",
     name: "Medallion of Tribal Harmony",
-    type: "artifact",
+    type: "magical_artifact",
     discoveryLocation: "rainforest_night_village",
     description: "A medallion that allows the wearer to use abilities from both NightWing and RainWing tribes.",
     rarity: "uncommon",
@@ -270,7 +270,7 @@ export const ANIMUS_ARTIFACTS: AnimusArtifact[] = [
   {
     id: "mind_control_crown",
     name: "Crown of Absolute Control",
-    type: "artifact",
+    type: "magical_artifact",
     discoveryLocation: "jewel_hive",
     description: "Queen Wasp's backup crown that can control the minds of any HiveWing or SilkWing instantly.",
     rarity: "legendary", 
@@ -283,7 +283,7 @@ export const ANIMUS_ARTIFACTS: AnimusArtifact[] = [
   {
     id: "resistance_map",
     name: "Map of Hidden Paths",
-    type: "artifact", 
+    type: "magical_artifact", 
     discoveryLocation: "jewel_hive",
     description: "A map that reveals all secret passages and resistance hideouts in every hive.",
     rarity: "rare",
@@ -298,7 +298,7 @@ export const ANIMUS_ARTIFACTS: AnimusArtifact[] = [
   {
     id: "silk_mastery_spindle",
     name: "Spindle of Perfect Silk",
-    type: "artifact",
+    type: "magical_artifact",
     discoveryLocation: "cicada_hive",
     description: "A golden spindle that allows any dragon to create flamesilk, but burns away their natural abilities.",
     rarity: "rare",
@@ -313,7 +313,7 @@ export const ANIMUS_ARTIFACTS: AnimusArtifact[] = [
   {
     id: "war_generals_blade",
     name: "Blade of Endless Victory",
-    type: "artifact",
+    type: "magical_artifact",
     discoveryLocation: "yellowjacket_hive", 
     description: "A sword that ensures victory in every battle, but each victory demands a greater sacrifice.",
     rarity: "legendary",
@@ -328,7 +328,7 @@ export const ANIMUS_ARTIFACTS: AnimusArtifact[] = [
   {
     id: "nature_speakers_staff",
     name: "Staff of Nature's Voice",
-    type: "artifact",
+    type: "magical_artifact",
     discoveryLocation: "poison_jungle",
     description: "A living wooden staff that gives the user ultimate leafspeak abilities over all plant life.",
     rarity: "legendary",
@@ -341,7 +341,7 @@ export const ANIMUS_ARTIFACTS: AnimusArtifact[] = [
   {
     id: "poison_immunity_flower",
     name: "Flower of Pure Immunity",
-    type: "artifact",
+    type: "magical_artifact",
     discoveryLocation: "poison_jungle",
     description: "A crystallized flower that makes the holder immune to all poisons, venoms, and toxins forever.",
     rarity: "rare",
@@ -356,7 +356,7 @@ export const ANIMUS_ARTIFACTS: AnimusArtifact[] = [
   {
     id: "winter_survival_cloak",
     name: "Cloak of Eternal Warmth",
-    type: "artifact",
+    type: "magical_artifact",
     discoveryLocation: "vinegaroon_hive",
     description: "A cloak that provides perfect warmth and can melt ice instantly, but slowly drains life force.",
     rarity: "uncommon",

@@ -71,7 +71,7 @@ export class EnhancedDragonetSystem {
     // Add romantic event
     const romanticEvent: RomanticEvent = {
       partnerName: character.mate!,
-      eventType: "offspring",
+      eventType: "mating",
       turnOccurred: character.age,
       outcome: `${dragonetName} was born`,
       hasOffspring: true
