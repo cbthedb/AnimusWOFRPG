@@ -111,8 +111,8 @@ export class EnhancedGameEngine {
         // Increment artifacts discovered counter only when successfully collected
         SpecialEventsSystem.incrementArtifactsDiscovered();
         
-        // Add collection message to last choice result
-        newGameData.lastChoiceResult = `You have collected the ${pendingArtifact.name}! It has been added to your inventory.`;
+        // Add collection message to last choice result with usage hint
+        newGameData.lastChoiceResult = `You have collected the ${pendingArtifact.name}! It has been added to your inventory. You can use it later through your inventory to unlock its magical powers.`;
         
         // Clear pending artifact
         delete (newGameData as any).pendingArtifact;
@@ -553,6 +553,59 @@ export class EnhancedGameEngine {
       const currentIndex = seasons.indexOf(character.currentSeason || 'Spring');
       character.currentSeason = seasons[(currentIndex + 1) % 4] as "Spring" | "Summer" | "Fall" | "Winter";
     }
+  }
+
+  static processInventoryAction(
+    character: Character,
+    gameData: GameData,
+    action: string,
+    itemId: string,
+    result: string
+  ): { newCharacter: Character; newGameData: GameData; event: GameEvent } {
+    console.log(`Processing inventory action: ${action} on item: ${itemId}`);
+    
+    const newGameData = { ...gameData };
+    let newCharacter = { ...character };
+
+    // Handle artifact usage with its specific mechanics
+    if (action === 'use_artifact') {
+      const artifact = AnimusArtifactSystem.getArtifactById(itemId);
+      if (artifact && result.startsWith('Using option: ')) {
+        // Extract option ID from result string
+        const optionMatch = result.match(/Using option: (\w+)/);
+        if (optionMatch) {
+          const optionId = optionMatch[1];
+          const usageResult = AnimusArtifactSystem.useArtifact(artifact, optionId, character, gameData);
+          newCharacter = usageResult.newCharacter;
+          Object.assign(newGameData, usageResult.newGameData);
+          newGameData.lastChoiceResult = `${usageResult.outcome}\n\nConsequences: ${usageResult.consequences.join(', ')}`;
+        }
+      }
+    } else {
+      // Find and remove the item from inventory if needed
+      if (action === 'tear_up' || action === 'give') {
+        newGameData.inventory = (newGameData.inventory || []).filter(item => item.id !== itemId);
+      }
+
+      // Store the action result for display
+      newGameData.lastChoiceResult = result;
+    }
+
+    // Create a basic game event for the inventory action
+    const event: GameEvent = {
+      turn: gameData.turn,
+      scenario: 'inventory_action',
+      choice: action,
+      consequences: [result],
+      soulLoss: 0,
+      sanityLoss: 0
+    };
+
+    return {
+      newCharacter,
+      newGameData,
+      event
+    };
   }
 
   static updateRelationships(character: Character, choice: Choice, scenario: Scenario): void {

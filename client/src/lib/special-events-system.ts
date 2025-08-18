@@ -159,9 +159,9 @@ export class SpecialEventsSystem {
   }
   
   private static canTriggerArtifactEvent(currentTurn: number): boolean {
-    // Random chance every turn after cooldown period
-    const hasPassedCooldown = (currentTurn - this.eventState.lastArtifactEventTurn) >= this.ARTIFACT_COOLDOWN_TURNS;
-    return hasPassedCooldown;
+    // Reduced cooldown and allow artifacts more frequently
+    const hasPassedCooldown = (currentTurn - this.eventState.lastArtifactEventTurn) >= Math.max(3, this.ARTIFACT_COOLDOWN_TURNS / 2);
+    return hasPassedCooldown || currentTurn % 10 === 0; // Always allow on multiples of 10
   }
   
   private static canTriggerMindreadingEvent(character: Character, currentTurn: number): boolean {
@@ -189,21 +189,29 @@ export class SpecialEventsSystem {
     if (!currentLocation) return null;
     
     // Base chance modified by location exploration and character traits
-    let chance = this.ARTIFACT_BASE_CHANCE;
+    let chance = this.ARTIFACT_BASE_CHANCE * 3; // Significantly increase base chance
     
     // Higher chance for first time in location
-    const visitedBefore = gameData.explorationLog.some(log => log.location === currentLocation.name);
+    const visitedBefore = gameData.explorationLog && gameData.explorationLog.some(log => log.location === currentLocation.name);
     if (!visitedBefore) {
       chance *= 2;
     }
     
     // Higher chance for curious characters
-    if (character.traits.includes('Curious')) {
+    if (character.traits && character.traits.includes('Curious')) {
       chance *= 1.5;
     }
     
-    // Random chance based on calculated probability
-    const shouldGenerate = Math.random() < chance;
+    // Higher chance for animus dragons
+    if (character.isAnimus) {
+      chance *= 2;
+    }
+    
+    // Guarantee discovery every 10th turn (if under limit)
+    const isEvery10Turns = turn % 10 === 0;
+    
+    // Random chance based on calculated probability or guarantee
+    const shouldGenerate = isEvery10Turns || Math.random() < Math.min(0.9, chance);
       
     console.log(`Artifact generation - Turn: ${turn}, Location: ${currentLocation.name}, Chance: ${(chance * 100).toFixed(1)}%, Should generate: ${shouldGenerate}`);
     console.log(`Current artifacts discovered: ${this.eventState.artifactsDiscovered}/${this.MAX_ARTIFACTS_PER_GAME}`);
@@ -260,6 +268,11 @@ export class SpecialEventsSystem {
       // Store artifact data for potential collection
       (gameData as any).pendingArtifact = artifact;
       console.log(`Stored pending artifact: ${artifact.name} with ID: ${artifact.id}`);
+      
+      // Create a better scenario that includes the artifact's usage options as future choices
+      const usagePreview = artifact.usageOptions.slice(0, 2).map(opt => 
+        `• ${opt.text}: ${opt.outcome.substring(0, 80)}...`
+      ).join('\n');
       
       return {
         id: `artifact_${artifact.id}`,

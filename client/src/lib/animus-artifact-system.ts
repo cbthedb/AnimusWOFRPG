@@ -822,17 +822,22 @@ export class AnimusArtifactSystem {
   private static discoveredArtifacts: Set<string> = new Set();
   private static readonly MAX_ARTIFACTS_PER_GAME = 3; // Maximum 3 artifacts per playthrough
   
-  static getAvailableArtifactsForLocation(location: string): AnimusArtifact[] {
+  static getAvailableArtifactsForLocation(location: string, gameData: GameData): AnimusArtifact[] {
+    // Get artifacts already in inventory to avoid duplicates
+    const inventoryArtifactIds = (gameData.inventory || [])
+      .filter(item => item.type === 'magical_artifact')
+      .map(item => item.id);
+
     // Allow artifacts to be found at any location, but prefer their discovery location
     const exactLocationArtifacts = ANIMUS_ARTIFACTS.filter(artifact => 
       artifact.discoveryLocation === location && 
-      !this.discoveredArtifacts.has(artifact.id)
+      !inventoryArtifactIds.includes(artifact.id)
     );
     
     // If no exact location matches, allow any undiscovered artifact to be found
     if (exactLocationArtifacts.length === 0) {
       const anyLocationArtifacts = ANIMUS_ARTIFACTS.filter(artifact => 
-        !this.discoveredArtifacts.has(artifact.id)
+        !inventoryArtifactIds.includes(artifact.id)
       );
       console.log(`No artifacts for ${location}, using any available: ${anyLocationArtifacts.length} artifacts`);
       return anyLocationArtifacts;
@@ -861,12 +866,10 @@ export class AnimusArtifactSystem {
     }
 
     // Get artifacts not already in inventory
+    const availableArtifacts = this.getAvailableArtifactsForLocation(currentLocation.name, gameData);
     const inventoryArtifactIds = (gameData.inventory || [])
       .filter(item => item.type === 'magical_artifact')
       .map(item => item.id);
-      
-    const availableArtifacts = this.getAvailableArtifactsForLocation(currentLocation.name)
-      .filter(artifact => !inventoryArtifactIds.includes(artifact.id));
       
     console.log(`Available artifacts at ${currentLocation.name}: ${availableArtifacts.length}`);
     console.log(`Already collected: ${inventoryArtifactIds}`);
@@ -876,9 +879,14 @@ export class AnimusArtifactSystem {
       return null;
     }
 
-    // Pick the first available artifact
-    const artifact = availableArtifacts[0];
+    // Pick a random available artifact for better variety
+    const randomIndex = Math.floor(Math.random() * availableArtifacts.length);
+    const artifact = availableArtifacts[randomIndex];
     console.log(`Generated artifact: ${artifact.name}`);
+    
+    // Add to discovered set for tracking
+    this.discoveredArtifacts.add(artifact.id);
+    
     return { ...artifact, isDiscovered: true };
   }
   

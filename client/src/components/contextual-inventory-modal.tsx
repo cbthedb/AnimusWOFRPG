@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Package, Gift, Sparkles, Trash2, Eye, EyeOff, Wand2 } from "lucide-react";
 import { InventorySystem } from "@/lib/inventory-system";
+import { ArtifactUsageModal } from "./artifact-usage-modal";
+import { AnimusArtifactSystem } from "@/lib/animus-artifact-system";
 
 interface ContextualInventoryModalProps {
   isOpen: boolean;
@@ -32,6 +34,8 @@ export default function ContextualInventoryModal({
   const [selectedNPC, setSelectedNPC] = useState<string>("");
   const [customNPCName, setCustomNPCName] = useState("");
   const [actionResult, setActionResult] = useState<string>("");
+  const [showArtifactUsage, setShowArtifactUsage] = useState(false);
+  const [artifactToUse, setArtifactToUse] = useState<InventoryItem | null>(null);
 
   const giveableItems = InventorySystem.getGiveableItems(gameData);
   
@@ -41,6 +45,14 @@ export default function ContextualInventoryModal({
     "Suspicious Dragon", "Injured Dragon", "Young Dragonet", "Elder Dragon",
     "Animus Dragon", "Prophecy Dragon", "Academy Student", "Tribal Guard"
   ].filter((name, index, arr) => arr.indexOf(name) === index);
+
+  const handleUseArtifact = (artifactId: string, result: string) => {
+    if (!artifactToUse) return;
+    
+    onInventoryAction("use_artifact", artifactId, result);
+    setShowArtifactUsage(false);
+    setArtifactToUse(null);
+  };
 
   const handleGiveItem = () => {
     if (!selectedItem) return;
@@ -59,6 +71,12 @@ export default function ContextualInventoryModal({
 
   const handleInventoryAction = (action: string) => {
     if (!selectedItem) return;
+
+    if (action === "use_artifact") {
+      setArtifactToUse(selectedItem);
+      setShowArtifactUsage(true);
+      return;
+    }
 
     let result = "";
     
@@ -123,6 +141,11 @@ export default function ContextualInventoryModal({
       actions.push("activate");
     }
     
+    // Magical artifacts can be used with their special options
+    if (item.type === "magical_artifact") {
+      actions.push("use_artifact");
+    }
+    
     return actions;
   };
 
@@ -134,6 +157,7 @@ export default function ContextualInventoryModal({
       case "hide_animus": return <Wand2 className="w-4 h-4" />;
       case "examine": return <Eye className="w-4 h-4" />;
       case "activate": return <Sparkles className="w-4 h-4" />;
+      case "use_artifact": return <Wand2 className="w-4 h-4" />;
       default: return <Package className="w-4 h-4" />;
     }
   };
@@ -146,6 +170,7 @@ export default function ContextualInventoryModal({
       case "hide_animus": return "Hide with Magic";
       case "examine": return "Examine Closely";
       case "activate": return "Activate";
+      case "use_artifact": return "Use Powers";
       default: return action;
     }
   };
@@ -415,6 +440,19 @@ export default function ContextualInventoryModal({
           </Button>
         </div>
       </DialogContent>
+      
+      {artifactToUse && (
+        <ArtifactUsageModal
+          isOpen={showArtifactUsage}
+          onClose={() => {
+            setShowArtifactUsage(false);
+            setArtifactToUse(null);
+          }}
+          artifact={artifactToUse}
+          character={character}
+          onUseArtifact={handleUseArtifact}
+        />
+      )}
     </Dialog>
   );
 }
