@@ -25,7 +25,7 @@ export const MINDREADING_SCENARIOS: SpecialPowerScenario[] = [
     type: "mindreading",
     title: "Amplified Battle Thoughts",
     prompt: "In the middle of a fierce battle, your mindreading suddenly amplifies beyond your control. You can hear the thoughts of every dragon within miles - allies screaming in pain, enemies plotting kills, the dying calling for loved ones.",
-    requirements: (c) => c.tribalPowers.some(p => p.toLowerCase().includes('mind')) || c.specialPowers.some(p => p.toLowerCase().includes('mind')),
+    requirements: (c) => (c.tribalPowers || []).some(p => p.toLowerCase().includes('mind')) || (c.specialPowers || []).some(p => p.toLowerCase().includes('mind')),
     options: [
       {
         id: "push_through",
@@ -61,7 +61,7 @@ export const MINDREADING_SCENARIOS: SpecialPowerScenario[] = [
     type: "mindreading", 
     title: "Sibling's Mental Betrayal",
     prompt: "You discover that your own sibling has been secretly reading your mind for years, learning all your secrets, fears, and plans. They've used this knowledge to always stay one step ahead of you in everything.",
-    requirements: (c) => c.tribalPowers.some(p => p.toLowerCase().includes('mind')) || c.specialPowers.some(p => p.toLowerCase().includes('mind')),
+    requirements: (c) => (c.tribalPowers || []).some(p => p.toLowerCase().includes('mind')) || (c.specialPowers || []).some(p => p.toLowerCase().includes('mind')),
     options: [
       {
         id: "confront_angrily",
@@ -97,7 +97,7 @@ export const MINDREADING_SCENARIOS: SpecialPowerScenario[] = [
     type: "mindreading",
     title: "The Locked Mind",
     prompt: "A dragon approaches you claiming their mind has been 'locked' by an animus spell. They desperately want you to try reading their thoughts to break the enchantment, but you sense something malevolent trapped inside.",
-    requirements: (c) => c.tribalPowers.some(p => p.toLowerCase().includes('mind')) || c.specialPowers.some(p => p.toLowerCase().includes('mind')),
+    requirements: (c) => (c.tribalPowers || []).some(p => p.toLowerCase().includes('mind')) || (c.specialPowers || []).some(p => p.toLowerCase().includes('mind')),
     options: [
       {
         id: "break_mental_lock",
@@ -133,7 +133,7 @@ export const MINDREADING_SCENARIOS: SpecialPowerScenario[] = [
     type: "mindreading",
     title: "Diplomatic Assassination",
     prompt: "During a peaceful diplomatic meeting, you read the minds of the visiting delegates and realize they're all planning to assassinate your Queen during the feast tonight. However, one of them is having second thoughts about the plan.",
-    requirements: (c) => c.tribalPowers.some(p => p.toLowerCase().includes('mind')) || c.specialPowers.some(p => p.toLowerCase().includes('mind')),
+    requirements: (c) => (c.tribalPowers || []).some(p => p.toLowerCase().includes('mind')) || (c.specialPowers || []).some(p => p.toLowerCase().includes('mind')),
     options: [
       {
         id: "alert_guards",
@@ -169,7 +169,7 @@ export const MINDREADING_SCENARIOS: SpecialPowerScenario[] = [
     type: "mindreading",
     title: "The Mind-Reading Dragonet",
     prompt: "You accidentally read the mind of a dragonet and discover they have incredibly powerful but uncontrolled mind reading abilities. They're reading everyone's thoughts constantly and are slowly going insane from the mental noise.",
-    requirements: (c) => c.tribalPowers.some(p => p.toLowerCase().includes('mind')) || c.specialPowers.some(p => p.toLowerCase().includes('mind')),
+    requirements: (c) => (c.tribalPowers || []).some(p => p.toLowerCase().includes('mind')) || (c.specialPowers || []).some(p => p.toLowerCase().includes('mind')),
     options: [
       {
         id: "teach_control",

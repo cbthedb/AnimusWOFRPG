@@ -608,7 +608,7 @@ function generateContextualChoices(scenario: ScenarioData, character: Character)
     });
   }
 
-  if (scenario.type === 'MINDREADING' && (character.tribalPowers.includes('Mind Reading') || character.specialPowers.includes('Enhanced Mind Reading'))) {
+  if (scenario.type === 'MINDREADING' && ((character.tribalPowers || []).includes('Mind Reading') || (character.specialPowers || []).includes('Enhanced Mind Reading'))) {
     choices.push({
       id: `${scenario.id}_read_minds`,
       text: "Read their thoughts",
@@ -620,7 +620,7 @@ function generateContextualChoices(scenario: ScenarioData, character: Character)
     });
   }
 
-  if (scenario.type === 'PROPHECY' && (character.tribalPowers.includes('Prophecy (rare)') || character.specialPowers.includes('Foresight') || character.specialPowers.includes('Enhanced Prophecy'))) {
+  if (scenario.type === 'PROPHECY' && ((character.tribalPowers || []).includes('Prophecy (rare)') || (character.specialPowers || []).includes('Foresight') || (character.specialPowers || []).includes('Enhanced Prophecy'))) {
     choices.push({
       id: `${scenario.id}_see_future`,
       text: "Look into the future",

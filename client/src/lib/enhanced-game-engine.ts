@@ -677,10 +677,10 @@ export class EnhancedGameEngine {
     const corruptChoices = choices.filter(c => 
       c.corruption || 
       c.soulCost > 5 ||
-      c.text.toLowerCase().includes('attack') ||
-      c.text.toLowerCase().includes('hurt') ||
-      c.text.toLowerCase().includes('betray') ||
-      c.text.toLowerCase().includes('cruel')
+      c.text?.toLowerCase()?.includes('attack') ||
+      c.text?.toLowerCase()?.includes('hurt') ||
+      c.text?.toLowerCase()?.includes('betray') ||
+      c.text?.toLowerCase()?.includes('cruel')
     );
 
     if (corruptChoices.length > 0) {
@@ -727,13 +727,13 @@ export class EnhancedGameEngine {
 
   static isPositiveChoice(choice: Choice): boolean {
     const positiveKeywords = ['help', 'heal', 'save', 'protect', 'befriend', 'share', 'aid', 'comfort', 'mercy', 'forgive', 'peaceful', 'kind'];
-    const text = choice.text.toLowerCase() + ' ' + choice.description.toLowerCase();
+    const text = (choice.text || '').toLowerCase() + ' ' + (choice.description || '').toLowerCase();
     return positiveKeywords.some(keyword => text.includes(keyword)) || choice.sanityCost < 0;
   }
 
   static isNegativeChoice(choice: Choice): boolean {
     const negativeKeywords = ['attack', 'hurt', 'betray', 'steal', 'kill', 'harm', 'cruel', 'abandon', 'ignore', 'threaten', 'manipulate'];
-    const text = choice.text.toLowerCase() + ' ' + choice.description.toLowerCase();
+    const text = (choice.text || '').toLowerCase() + ' ' + (choice.description || '').toLowerCase();
     return negativeKeywords.some(keyword => text.includes(keyword)) || choice.corruption === true;
   }
 }

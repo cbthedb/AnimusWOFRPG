@@ -88,7 +88,7 @@ export default function CustomActionModal({
     if (!currentScenario) return [];
     
     const actions = [];
-    const description = (currentScenario.description || currentScenario.text || "").toLowerCase();
+    const description = (currentScenario.description || "").toLowerCase();
 
     // Common scenario-specific actions based on scenario content
     if (description.includes('dragon') && description.includes('approach')) {
