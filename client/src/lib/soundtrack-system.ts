@@ -258,7 +258,18 @@ export class SoundtrackSystem {
       return 'soul_below_40';
     }
     
-    // Default to basic OST
+    // Only return basic OST if we're not currently playing a soul track
+    // This prevents interrupting soul tracks when they should stay dominant
+    const currentTrack = this.currentTrack;
+    if (currentTrack === 'soul_below_20' || currentTrack === 'soul_below_40' || currentTrack === 'soul_0_ai_control') {
+      return currentTrack; // Keep playing the current soul track
+    }
+    
+    // Default to basic OST for healthy soul - maintain current basic track if playing
+    if (currentTrack === 'basic_ost' || currentTrack === 'basic_ost_2') {
+      return currentTrack; // Keep current basic track to prevent unnecessary switches
+    }
+    
     return Math.random() > 0.5 ? 'basic_ost' : 'basic_ost_2';
   }
 
@@ -266,7 +277,7 @@ export class SoundtrackSystem {
     const soulPercentage = character.soulPercentage || 100;
     console.log(`Updating soundtrack for soul: ${soulPercentage}%`);
     
-    // Determine what track should be playing
+    // Determine what track should be playing based on soul percentage
     let targetTrack = '';
     
     if (soulPercentage === 0) {
@@ -276,11 +287,15 @@ export class SoundtrackSystem {
     } else if (soulPercentage <= 40) {
       targetTrack = 'soul_below_40';
     } else {
-      // Basic music for healthy soul
+      // Only switch to basic music if we're not already playing a soul track
+      // This prevents interrupting soul tracks unnecessarily
+      if (this.currentTrack === 'soul_below_20' || this.currentTrack === 'soul_below_40' || this.currentTrack === 'soul_0_ai_control') {
+        return; // Don't change track - soul tracks take priority
+      }
       targetTrack = Math.random() > 0.5 ? 'basic_ost' : 'basic_ost_2';
     }
     
-    // Only change if different from current track
+    // Only change if different from current track and it's a necessary change
     if (this.currentTrack !== targetTrack) {
       console.log(`Switching from ${this.currentTrack} to ${targetTrack}`);
       
@@ -370,11 +385,14 @@ export class SoundtrackSystem {
       shouldUpdateMusic = true;
     }
     
-    // If no threshold crossed, ensure proper track is playing
+    // If no threshold crossed, only update to contextual track if NOT playing a soul track
     if (!shouldUpdateMusic) {
-      const contextualTrack = this.getContextualTrack(character, gameData);
-      if (this.currentTrack !== contextualTrack) {
-        this.playTrack(contextualTrack, true);
+      // Don't interrupt soul tracks unless a new threshold is crossed
+      if (this.currentTrack !== 'soul_below_20' && this.currentTrack !== 'soul_below_40' && this.currentTrack !== 'soul_0_ai_control') {
+        const contextualTrack = this.getContextualTrack(character, gameData);
+        if (this.currentTrack !== contextualTrack) {
+          this.playTrack(contextualTrack, true);
+        }
       }
     }
     
