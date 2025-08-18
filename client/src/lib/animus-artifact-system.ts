@@ -247,7 +247,7 @@ export const ANIMUS_ARTIFACTS: AnimusArtifact[] = [
 
 export class AnimusArtifactSystem {
   private static discoveredArtifacts: Set<string> = new Set();
-  private static readonly MAX_ARTIFACTS_PER_GAME = 3;
+  private static readonly MAX_ARTIFACTS_PER_GAME = 10; // Increased from 3 to allow more artifact collection
   
   static getAvailableArtifactsForLocation(location: string): AnimusArtifact[] {
     // Allow artifacts to be found at any location, but prefer their discovery location

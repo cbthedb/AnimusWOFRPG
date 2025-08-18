@@ -9,6 +9,7 @@ import TribalPowersModal from "@/components/tribal-powers-modal";
 import SpecialPowerModal from "@/components/special-power-modal";
 import CustomActionModal from "@/components/custom-action-modal";
 import ConversationModal from "@/components/conversation-modal";
+import GameOverScreen from "@/components/game-over-screen";
 import { MockAIService } from "@/lib/mock-ai-service";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -91,12 +92,12 @@ export default function Game() {
               setAiInterval(null);
             }
             setAiActionInProgress(null);
-            setAiControlMessage("WARNING: If you lose any more soul, you will die!");
+            setAiControlMessage("⚠️ CRITICAL WARNING: If you lose any more soul, you will DIE PERMANENTLY!");
             
-            // Clear warning after 3 seconds
+            // Clear warning after 10 seconds (longer duration for important warning)
             setTimeout(() => {
               setAiControlMessage(null);
-            }, 3000);
+            }, 10000);
           }
         );
         
@@ -1189,17 +1190,19 @@ export default function Game() {
 
       {/* Corruption Warning */}
       {aiControlMessage && (
-        <div className="bg-red-900/90 border-b border-red-500 p-4">
+        <div className="bg-red-900/95 border-b-4 border-red-500 p-6 animate-pulse">
           <div className="container mx-auto">
             <div className="flex items-center">
-              <span className="text-2xl mr-3">⚠️</span>
-              <div>
-                <h4 className="font-semibold text-red-300 mb-1">Soul Corruption Warning</h4>
-                <p className="text-sm text-red-200">{aiControlMessage}</p>
+              <span className="text-4xl mr-4 animate-bounce">⚠️</span>
+              <div className="flex-1">
+                <h4 className="font-bold text-red-200 mb-2 text-xl">🚨 CRITICAL SOUL WARNING 🚨</h4>
+                <p className="text-lg text-red-100 font-semibold bg-red-800/50 p-3 rounded-lg border-2 border-red-400">
+                  {aiControlMessage}
+                </p>
                 {aiActionInProgress && (
-                  <div className="mt-2 flex items-center gap-2">
-                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-red-300 border-t-transparent"></div>
-                    <p className="text-xs text-red-300 italic">{aiActionInProgress}</p>
+                  <div className="mt-3 flex items-center gap-3 bg-red-800/30 p-2 rounded">
+                    <div className="animate-spin rounded-full h-5 w-5 border-3 border-red-300 border-t-transparent"></div>
+                    <p className="text-sm text-red-200 italic font-medium">{aiActionInProgress}</p>
                   </div>
                 )}
               </div>
@@ -1298,67 +1301,14 @@ export default function Game() {
         />
       )}
 
-      {/* Enhanced Game Over Modal */}
-      {gameOverState?.isGameOver && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-purple-900/90 border border-purple-500 rounded-lg p-8 max-w-md mx-4 text-center">
-            {gameOverState.allowContinue ? (
-              <>
-                <h2 className="text-2xl font-bold text-red-400 mb-4 flex items-center justify-center">
-                  <Skull className="w-6 h-6 mr-2" />
-                  Soul Corrupted
-                </h2>
-                <p className="text-red-200 mb-6">
-                  Your soul has been completely consumed by darkness. The animus magic has taken control of your mind and body.
-                </p>
-                <div className="space-y-3">
-                  <Button 
-                    onClick={continueAsCorrupted}
-                    className="w-full bg-red-600 hover:bg-red-700"
-                  >
-                    <Eye className="w-4 h-4 mr-2" />
-                    Watch AI Control Your Corrupted Dragon
-                  </Button>
-                  <Button 
-                    onClick={() => window.location.href = '/'} 
-                    variant="outline"
-                    className="w-full"
-                  >
-                    Return Home
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    onClick={() => window.location.reload()}
-                    className="w-full"
-                  >
-                    Restart Game
-                  </Button>
-                </div>
-              </>
-            ) : (
-              <>
-                <h2 className="text-2xl font-bold text-red-400 mb-4">Game Over</h2>
-                <p className="text-purple-200 mb-6">{gameOverState.reason}</p>
-                <div className="space-y-3">
-                  <Button 
-                    onClick={() => window.location.href = '/'} 
-                    className="w-full bg-purple-600 hover:bg-purple-700"
-                  >
-                    Return Home
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    onClick={() => window.location.reload()}
-                    className="w-full"
-                  >
-                    Restart Game
-                  </Button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      )}
+      <GameOverScreen
+        isVisible={gameOverState?.isGameOver || false}
+        reason={gameOverState?.reason || ""}
+        allowContinue={gameOverState?.allowContinue}
+        onNewGame={() => window.location.reload()}
+        onMainMenu={() => window.location.href = '/'}
+        onContinueCorrupted={continueAsCorrupted}
+      />
       
       {/* Version Number */}
       <div className="fixed bottom-4 right-4 text-xs text-purple-400/60 font-mono">

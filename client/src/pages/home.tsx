@@ -6,7 +6,7 @@ import { generateCharacter } from "@/lib/character-generator";
 import { generateScenario, generateTimeInfo } from "@/lib/scenario-generator-final";
 import { Character, GameData, InsertGameState } from "@shared/schema";
 import CharacterCreator from "@/components/character-creator";
-import { User, Sparkles, GamepadIcon, Save } from "lucide-react";
+import { User, Sparkles, GamepadIcon, Save, Music, Info } from "lucide-react";
 import { useLocalGameState } from "@/hooks/use-local-game-state";
 
 export default function Home() {
@@ -14,6 +14,7 @@ export default function Home() {
   const [isCreating, setIsCreating] = useState(false);
   const [showCharacterCreator, setShowCharacterCreator] = useState(false);
   const [showLoadMenu, setShowLoadMenu] = useState(false);
+  const [showCredits, setShowCredits] = useState(false);
   const { createGame, getAllGames, loadGame } = useLocalGameState();
 
   const handleNewGame = () => {
@@ -91,10 +92,42 @@ export default function Home() {
 
   if (isCreating) {
     return (
-      <div className="min-h-screen bg-dragon-gradient flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin text-6xl mb-4">🐉</div>
-          <p className="text-slate-300 font-narrative text-lg">Creating your dragon adventure...</p>
+      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-black flex items-center justify-center relative overflow-hidden">
+        {/* Animated background elements */}
+        <div className="absolute inset-0">
+          <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-purple-400 rounded-full animate-pulse opacity-60"></div>
+          <div className="absolute top-3/4 right-1/4 w-1 h-1 bg-blue-400 rounded-full animate-pulse opacity-40 animation-delay-1000"></div>
+          <div className="absolute top-1/2 left-3/4 w-3 h-3 bg-indigo-400 rounded-full animate-pulse opacity-50 animation-delay-2000"></div>
+          <div className="absolute bottom-1/4 left-1/2 w-2 h-2 bg-violet-400 rounded-full animate-pulse opacity-70 animation-delay-3000"></div>
+        </div>
+        
+        {/* Main loading content */}
+        <div className="text-center z-10 relative">
+          <div className="relative mb-8">
+            {/* Outer rotating ring */}
+            <div className="w-32 h-32 border-4 border-purple-500/30 rounded-full animate-spin-slow absolute"></div>
+            {/* Inner rotating ring */}
+            <div className="w-24 h-24 border-4 border-blue-400/50 rounded-full animate-spin absolute top-4 left-4"></div>
+            {/* Dragon icon in center */}
+            <div className="w-32 h-32 flex items-center justify-center">
+              <div className="text-6xl animate-pulse">🐉</div>
+            </div>
+          </div>
+          
+          <div className="space-y-4">
+            <h2 className="text-3xl font-fantasy text-purple-300 animate-fade-in">Weaving Your Destiny</h2>
+            <p className="text-slate-300 font-narrative text-lg animate-fade-in animation-delay-500">
+              Generating your dragon's soul...
+            </p>
+            <p className="text-slate-400 font-narrative text-sm animate-fade-in animation-delay-1000">
+              Determining tribal heritage and magical affinities...
+            </p>
+            
+            {/* Loading bar */}
+            <div className="w-64 h-2 bg-purple-900/50 rounded-full mx-auto mt-6 overflow-hidden">
+              <div className="h-full bg-gradient-to-r from-purple-500 to-blue-500 rounded-full animate-loading-bar"></div>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -178,6 +211,17 @@ export default function Home() {
                 Load Saved Game ({savedGames.length})
               </Button>
             )}
+            
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="w-full text-purple-400 hover:bg-purple-500/10 text-sm"
+              onClick={() => setShowCredits(true)}
+              disabled={isCreating}
+            >
+              <Music className="w-4 h-4 mr-2" />
+              Soundtrack Credits
+            </Button>
           </div>
 
           <div className="text-center text-xs text-purple-400 pt-4 border-t border-purple-700">
@@ -225,6 +269,67 @@ export default function Home() {
                   className="flex-1"
                 >
                   Cancel
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Credits Modal */}
+      {showCredits && (
+        <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <Card className="w-full max-w-lg bg-black/95 border-purple-500/50">
+            <CardHeader>
+              <CardTitle className="text-purple-300 flex items-center">
+                <Music className="w-5 h-5 mr-2" />
+                Soundtrack Credits
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6 text-purple-200">
+                <div className="text-center">
+                  <h3 className="text-lg font-semibold text-purple-300 mb-2">🎵 Music Credits</h3>
+                  <p className="text-sm text-purple-400">
+                    This game features original soundtracks and compositions from talented artists
+                  </p>
+                </div>
+                
+                <div className="space-y-4">
+                  <div className="bg-purple-900/30 p-4 rounded-lg border border-purple-500/30">
+                    <h4 className="font-semibold text-purple-300 mb-2">Primary Soundtrack</h4>
+                    <p className="text-sm">
+                      <span className="text-purple-400">Forsaken Dev Team</span>
+                    </p>
+                    <p className="text-xs text-purple-500 mt-1">
+                      Academy themes, corruption tracks, and ambient soundscapes
+                    </p>
+                  </div>
+                  
+                  <div className="bg-purple-900/30 p-4 rounded-lg border border-purple-500/30">
+                    <h4 className="font-semibold text-purple-300 mb-2">Additional Compositions</h4>
+                    <p className="text-sm">
+                      <span className="text-purple-400">Limbus Company</span>
+                    </p>
+                    <p className="text-xs text-purple-500 mt-1">
+                      Special event tracks and atmospheric music
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="text-center text-xs text-purple-400 pt-4 border-t border-purple-700">
+                  <p>All music used with permission and respect to the original creators</p>
+                  <p className="mt-1">🐉 Wings of Fire RPG • Enhanced Edition</p>
+                </div>
+              </div>
+              
+              <div className="flex gap-2 mt-6">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowCredits(false)}
+                  className="flex-1"
+                >
+                  Close
                 </Button>
               </div>
             </CardContent>
