@@ -636,6 +636,7 @@ export class AnimusArtifactSystem {
     newGameData: GameData;
     message: string;
   } {
+    console.log(`COLLECTING ARTIFACT: ${artifact.name} with ID: ${artifact.id}`);
     const newCharacter = { ...character };
     const newGameData = { ...gameData };
 
