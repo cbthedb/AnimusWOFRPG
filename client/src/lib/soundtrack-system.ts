@@ -19,6 +19,9 @@ export class SoundtrackSystem {
   private static aiControlTimer: NodeJS.Timeout | null = null;
   private static onAIControlStart?: () => void;
   private static onAIControlEnd?: () => void;
+  private static trackSwitchTimer: NodeJS.Timeout | null = null;
+  private static isTransitioning: boolean = false;
+  private static audioLock: boolean = false;
 
   private static readonly TRACKS: SoundtrackTrack[] = [
     // Basic background OSTs (passive)
@@ -114,6 +117,12 @@ export class SoundtrackSystem {
   }
 
   static playTrack(trackId: string, force: boolean = false): void {
+    // Prevent multiple simultaneous audio operations
+    if (this.audioLock && !force) {
+      console.log('Audio operation in progress, skipping track request');
+      return;
+    }
+    
     if (this.isMuted && !force) return;
     if (this.currentTrack === trackId && !force) return;
 
@@ -123,62 +132,84 @@ export class SoundtrackSystem {
       return;
     }
 
-    // Stop current track properly to prevent audio conflicts
-    if (this.currentAudio) {
-      this.currentAudio.pause();
-      this.currentAudio.currentTime = 0;
-      this.currentAudio = null;
-    }
+    // Set audio lock
+    this.audioLock = true;
+    console.log(`🎵 Starting track transition to: ${track.name}`);
 
-    try {
-      // Create new audio element
-      this.currentAudio = new Audio(track.url);
-      this.currentAudio.volume = this.volume * track.volume;
-      this.currentAudio.loop = track.loop;
-      
-      // Set up error handling
-      this.currentAudio.onerror = (error) => {
-        console.warn(`Audio error for ${track.name}:`, error);
-        console.warn(`Failed URL: ${track.url}`);
-      };
-      
-      // Set up load event
-      this.currentAudio.onloadstart = () => {
-        console.log(`Loading audio: ${track.name} from ${track.url}`);
-      };
-      
-      this.currentAudio.oncanplay = () => {
-        console.log(`Audio ready: ${track.name}`);
-      };
-      
-      // Handle AI control track specially
-      if (track.type === 'ai_control') {
-        this.handleAIControlTrack(track);
+    // CRITICAL: Stop all existing audio completely before starting new track
+    this.stopCurrentTrack();
+    
+    // Add delay to ensure previous audio is fully stopped
+    setTimeout(() => {
+      try {
+        // Create new audio element
+        this.currentAudio = new Audio(track.url);
+        this.currentAudio.volume = this.volume * track.volume;
+        this.currentAudio.loop = track.loop;
+        
+        // Set up error handling
+        this.currentAudio.onerror = (error) => {
+          console.warn(`Audio error for ${track.name}:`, error);
+          console.warn(`Failed URL: ${track.url}`);
+          // Reset state on error
+          this.currentTrack = null;
+          this.currentAudio = null;
+          this.audioLock = false;
+        };
+        
+        // Set up load event
+        this.currentAudio.onloadstart = () => {
+          console.log(`Loading audio: ${track.name} from ${track.url}`);
+        };
+        
+        this.currentAudio.oncanplay = () => {
+          console.log(`Audio ready: ${track.name}`);
+        };
+        
+        // Handle track ending
+        this.currentAudio.onended = () => {
+          console.log(`Track ended: ${track.name}`);
+          if (!track.loop) {
+            this.currentTrack = null;
+            this.currentAudio = null;
+          }
+          this.audioLock = false;
+        };
+        
+        // Handle AI control track specially
+        if (track.type === 'ai_control') {
+          this.handleAIControlTrack(track);
+        }
+        
+        // Play the track with better error handling
+        const playPromise = this.currentAudio.play();
+        if (playPromise) {
+          playPromise
+            .then(() => {
+              console.log(`🎵 Successfully playing: ${track.name}`);
+              this.currentTrack = trackId;
+              this.audioLock = false; // Release lock on success
+            })
+            .catch(error => {
+              console.error(`Failed to play ${track.name}:`, error);
+              console.error(`URL: ${track.url}`);
+              this.currentTrack = null;
+              this.currentAudio = null;
+              this.audioLock = false; // Release lock on failure
+              
+              // Don't cascade failures - just log and reset
+              console.log("Track failed to play, audio system reset");
+            });
+        }
+        
+      } catch (error) {
+        console.error("Could not create audio track:", error);
+        console.error(`Track: ${track.name}, URL: ${track.url}`);
+        this.currentTrack = null;
+        this.currentAudio = null;
+        this.audioLock = false;
       }
-      
-      // Play the track with better error handling
-      const playPromise = this.currentAudio.play();
-      if (playPromise) {
-        playPromise
-          .then(() => {
-            console.log(`🎵 Successfully playing: ${track.name}`);
-            this.currentTrack = trackId;
-          })
-          .catch(error => {
-            console.error(`Failed to play ${track.name}:`, error);
-            console.error(`URL: ${track.url}`);
-            // Try to fall back to basic music if soul track fails
-            if (track.type === 'soul_trigger' || track.type === 'ai_control') {
-              console.log("Soul track failed, falling back to basic music");
-              setTimeout(() => this.playBasicMusic(), 500);
-            }
-          });
-      }
-      
-    } catch (error) {
-      console.error("Could not create audio track:", error);
-      console.error(`Track: ${track.name}, URL: ${track.url}`);
-    }
+    }, 300); // Longer delay to ensure clean audio transitions
   }
 
   private static handleAIControlTrack(track: SoundtrackTrack): void {
@@ -211,14 +242,25 @@ export class SoundtrackSystem {
 
   static stopCurrentTrack(): void {
     if (this.currentAudio) {
+      console.log(`Stopping current track: ${this.currentTrack}`);
       this.currentAudio.pause();
       this.currentAudio.currentTime = 0;
+      // Remove all event listeners to prevent memory leaks
+      this.currentAudio.onloadstart = null;
+      this.currentAudio.oncanplay = null;
+      this.currentAudio.onerror = null;
+      this.currentAudio.onended = null;
       this.currentAudio = null;
     }
     
     if (this.aiControlTimer) {
       clearTimeout(this.aiControlTimer);
       this.aiControlTimer = null;
+    }
+    
+    if (this.trackSwitchTimer) {
+      clearTimeout(this.trackSwitchTimer);
+      this.trackSwitchTimer = null;
     }
     
     this.currentTrack = null;
@@ -279,6 +321,12 @@ export class SoundtrackSystem {
   }
 
   static updateBasedOnGameState(character: Character, gameData: GameData): void {
+    // Prevent rapid track switching with debouncing
+    if (this.isTransitioning) {
+      console.log('Track transition in progress, skipping update');
+      return;
+    }
+
     const soulPercentage = character.soulPercentage || 100;
     console.log(`Updating soundtrack for soul: ${soulPercentage}%`);
     
@@ -301,6 +349,14 @@ export class SoundtrackSystem {
     if (this.currentTrack !== targetTrack) {
       console.log(`Switching from ${this.currentTrack} to ${targetTrack}`);
       
+      // Set transitioning flag
+      this.isTransitioning = true;
+      
+      // Clear any existing track switch timer
+      if (this.trackSwitchTimer) {
+        clearTimeout(this.trackSwitchTimer);
+      }
+      
       // Clear any AI control timer if switching away from AI control
       if (this.aiControlTimer && targetTrack !== 'soul_0_ai_control') {
         clearTimeout(this.aiControlTimer);
@@ -313,15 +369,21 @@ export class SoundtrackSystem {
       // Stop current track immediately
       this.stopCurrentTrack();
       
-      // Play new track with a small delay to ensure clean transition
-      setTimeout(() => {
+      // Play new track with a delay to ensure clean transition
+      this.trackSwitchTimer = setTimeout(() => {
         this.playTrack(targetTrack, true);
         
         // Handle AI control special case - only for 0% soul
         if (targetTrack === 'soul_0_ai_control') {
           this.handleAIControlTrack(this.TRACKS.find(t => t.id === targetTrack)!);
         }
-      }, 300);
+        
+        // Reset transitioning flag after a longer delay
+        setTimeout(() => {
+          this.isTransitioning = false;
+        }, 1000);
+        
+      }, 500);
     }
   }
 
@@ -341,7 +403,15 @@ export class SoundtrackSystem {
   }
 
   static playGameOverTrack(): void {
-    this.playTrack('animus_death', true);
+    console.log('Playing game over track: animus death');
+    // Force stop all other audio and play game over
+    this.isTransitioning = true;
+    this.stopCurrentTrack();
+    
+    setTimeout(() => {
+      this.playTrack('animus_death', true);
+      this.isTransitioning = false;
+    }, 300);
   }
 
   static checkSoulThresholds(oldSoul: number, newSoul: number, character: Character, gameData: GameData): boolean {

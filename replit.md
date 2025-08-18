@@ -36,6 +36,8 @@ Preferred communication style: Simple, everyday language.
 - **Comprehensive Animus Artifact Distribution** (January 2025): Created 25+ unique animus artifacts distributed across ALL game locations including the newly added Scorpion Den. Each artifact features moral dilemmas, soul corruption risks, and location-specific discovery requirements with enhanced rarity balancing.
 - **Enhanced Scenario Diversity System** (January 2025): Developed 13+ scenario template categories (Social, Academic, Adventure, Mystery, Cultural, Nature, Political, Personal Growth, Romance, Family, Achievement, Crisis, Discovery) with anti-repetition tracking and contextual variable generation to eliminate repetitive scenarios.
 - **Integrated Enhanced Game Systems** (January 2025): Seamlessly integrated all new social, family, and artifact systems into the existing game engine with proper consequence processing, relationship management, and story progression. Enhanced scenarios now contribute meaningfully to character development and world building.
+- **Fixed Random Animus Object Spawning** (January 2025): Disabled automatic artifact discovery in the special events system. Animus objects now only appear in specific discovery scenarios where players actively choose to search or investigate, eliminating unwanted random spawning.
+- **Enhanced Soundtrack System** (January 2025): Fixed audio overlapping issues by implementing audio lock mechanisms, proper track cleanup, and debounced transitions. Improved soul threshold music switching and AI control track handling for smoother audio experience.
 
 # System Architecture
 
