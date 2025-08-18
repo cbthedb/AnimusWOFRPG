@@ -68,8 +68,11 @@ export class SpecialEventsSystem {
     // Collect eligible event types
     const eligibleEvents = [];
     
-    // Always check artifact discovery for all characters every 10 turns
-    if (currentTurn % 10 === 0 && this.eventState.artifactsDiscovered < this.MAX_ARTIFACTS_PER_GAME) {
+    // Check artifact discovery with proper counting from inventory
+    const currentArtifacts = (gameData.inventory || []).filter(item => item.type === 'magical_artifact').length;
+    console.log(`Current artifacts in inventory: ${currentArtifacts}/${this.MAX_ARTIFACTS_PER_GAME}`);
+    
+    if (currentArtifacts < this.MAX_ARTIFACTS_PER_GAME && (currentTurn % 10 === 0 || Math.random() < this.ARTIFACT_BASE_CHANCE)) {
       eligibleEvents.push('artifact');
     }
     

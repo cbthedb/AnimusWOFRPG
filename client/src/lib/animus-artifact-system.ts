@@ -270,10 +270,14 @@ export class AnimusArtifactSystem {
   }
   
   static generateArtifactDiscovery(character: Character, gameData: GameData): AnimusArtifact | null {
-    console.log(`Trying to generate artifact discovery. Discovered: ${this.discoveredArtifacts.size}/${this.MAX_ARTIFACTS_PER_GAME}`);
+    console.log("Attempting to generate artifact discovery...");
     
-    if (this.discoveredArtifacts.size >= this.MAX_ARTIFACTS_PER_GAME) {
-      console.log("Max artifacts already discovered");
+    // Check current inventory for artifacts instead of internal tracking
+    const currentArtifacts = (gameData.inventory || []).filter(item => item.type === 'magical_artifact').length;
+    console.log(`Current artifacts in inventory: ${currentArtifacts}/${this.MAX_ARTIFACTS_PER_GAME}`);
+    
+    if (currentArtifacts >= this.MAX_ARTIFACTS_PER_GAME) {
+      console.log("Max artifacts already collected - no more discoveries");
       return null;
     }
 
@@ -283,17 +287,24 @@ export class AnimusArtifactSystem {
       return null;
     }
 
-    const availableArtifacts = this.getAvailableArtifactsForLocation(currentLocation.name);
+    // Get artifacts not already in inventory
+    const inventoryArtifactIds = (gameData.inventory || [])
+      .filter(item => item.type === 'magical_artifact')
+      .map(item => item.id);
+      
+    const availableArtifacts = this.getAvailableArtifactsForLocation(currentLocation.name)
+      .filter(artifact => !inventoryArtifactIds.includes(artifact.id));
+      
     console.log(`Available artifacts at ${currentLocation.name}: ${availableArtifacts.length}`);
+    console.log(`Already collected: ${inventoryArtifactIds}`);
     
     if (availableArtifacts.length === 0) {
-      console.log("No available artifacts for location");
+      console.log("No new artifacts available for location");
       return null;
     }
 
-    // Just pick the first available artifact for guaranteed discovery
+    // Pick the first available artifact
     const artifact = availableArtifacts[0];
-    this.discoveredArtifacts.add(artifact.id);
     console.log(`Generated artifact: ${artifact.name}`);
     return { ...artifact, isDiscovered: true };
   }

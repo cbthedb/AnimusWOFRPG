@@ -130,9 +130,6 @@ export class SoundtrackSystem {
       this.currentAudio = null;
     }
 
-    // Stop current audio
-    this.stopCurrentTrack();
-
     try {
       // Create new audio element
       this.currentAudio = new Audio(track.url);
