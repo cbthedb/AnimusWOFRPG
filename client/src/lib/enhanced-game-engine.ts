@@ -295,7 +295,7 @@ export class EnhancedGameEngine {
             dragonName,
             scenario.location || 'Unknown',
             15,
-            'cooperation'
+            'friendship'
           );
         }
       }
@@ -327,9 +327,11 @@ export class EnhancedGameEngine {
           const dragonetName = nameMatch[1];
           const dragonet = character.dragonets.find(d => d.name === dragonetName);
           if (dragonet) {
-            dragonet.personalityTraits = dragonet.personalityTraits || [];
-            if (!dragonet.personalityTraits.includes('Well-loved')) {
-              dragonet.personalityTraits.push('Well-loved');
+            // Update personality to reflect positive family bond
+            if (!dragonet.personality.includes('Well-loved')) {
+              dragonet.personality = dragonet.personality ? 
+                `${dragonet.personality}, Well-loved` : 
+                'Well-loved';
             }
           }
         }
