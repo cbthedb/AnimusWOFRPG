@@ -639,6 +639,12 @@ export class AnimusArtifactSystem {
     const newCharacter = { ...character };
     const newGameData = { ...gameData };
 
+    // Ensure inventory exists and is an array
+    if (!newGameData.inventory || !Array.isArray(newGameData.inventory)) {
+      console.log("Initializing inventory array");
+      newGameData.inventory = [];
+    }
+
     // Add artifact to inventory
     const inventoryItem = {
       id: artifact.id,
@@ -650,7 +656,10 @@ export class AnimusArtifactSystem {
       canGiveAway: artifact.canGiveAway
     };
 
+    console.log(`Adding artifact to inventory:`, inventoryItem);
+    console.log(`Inventory before push:`, newGameData.inventory);
     newGameData.inventory.push(inventoryItem);
+    console.log(`Inventory after push:`, newGameData.inventory);
 
     const message = `You have collected the ${artifact.name}! It has been added to your inventory.`;
     

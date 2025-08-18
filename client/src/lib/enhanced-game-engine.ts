@@ -81,10 +81,15 @@ export class EnhancedGameEngine {
       const artifactId = choice.id.replace('collect_', '');
       const pendingArtifact = (gameData as any).pendingArtifact;
       
+      console.log(`Attempting to collect artifact. Choice ID: ${choice.id}, Artifact ID: ${artifactId}`);
+      console.log(`Pending artifact:`, pendingArtifact);
+      console.log(`Inventory before collection:`, newGameData.inventory?.length || 0, 'items');
+      
       if (pendingArtifact && pendingArtifact.id === artifactId) {
         const collectionResult = AnimusArtifactSystem.collectArtifact(pendingArtifact, newCharacter, newGameData);
-        Object.assign(newCharacter, collectionResult.newCharacter);
-        Object.assign(newGameData, collectionResult.newGameData);
+        
+        // Directly assign the new inventory instead of using Object.assign
+        newGameData.inventory = collectionResult.newGameData.inventory;
         
         // Add collection message to last choice result
         newGameData.lastChoiceResult = collectionResult.message;
@@ -92,7 +97,11 @@ export class EnhancedGameEngine {
         // Clear pending artifact
         delete (newGameData as any).pendingArtifact;
         
-        console.log(`Artifact ${pendingArtifact.name} successfully collected and added to inventory`);
+        console.log(`Artifact ${pendingArtifact.name} successfully collected!`);
+        console.log(`Inventory after collection:`, newGameData.inventory?.length || 0, 'items');
+        console.log(`New inventory contents:`, newGameData.inventory?.map(i => i.name) || []);
+      } else {
+        console.log(`Collection failed - no matching pending artifact found`);
       }
     }
     
