@@ -24,7 +24,7 @@ export class SpecialEventsSystem {
   private static readonly PROPHECY_COOLDOWN_TURNS = 10; // 10 turns
   private static readonly ARTIFACT_BASE_CHANCE = 0.05; // 5% chance per turn (rarer)
   private static readonly SPECIAL_POWER_BASE_CHANCE = 0.12; // 12% chance per turn
-  private static readonly MAX_ARTIFACTS_PER_GAME = 3;
+  private static readonly MAX_ARTIFACTS_PER_GAME = 10; // Match the increased limit
   
   private static eventState: SpecialEventState = {
     lastArtifactEventTurn: 0,
@@ -68,14 +68,11 @@ export class SpecialEventsSystem {
     // Collect eligible event types
     const eligibleEvents = [];
     
-    // Check artifact discovery - only in specific scenarios, not random
-    // Artifacts should ONLY be discovered through dedicated artifact discovery scenarios
-    // Remove random artifact spawning - artifacts will only appear in scenarios specifically designed for them
-    // This ensures artifacts only appear when the player chooses to explore or investigate specific areas
-    console.log('Artifact discovery disabled for random events - artifacts only appear in specific scenarios');
-    
-    // Note: To add artifacts, create specific discovery scenarios in the scenario system
-    // that give players the choice to search for or investigate mysterious objects
+    // Re-enable artifact discovery for all players at all locations
+    if (this.canTriggerArtifactEvent(currentTurn) && this.eventState.artifactsDiscovered < this.MAX_ARTIFACTS_PER_GAME) {
+      eligibleEvents.push('artifact');
+      console.log('Artifact discovery enabled - added to eligible events');
+    }
     
     // Only check mindreading if character has the ability
     if (hasMindreading && this.canTriggerMindreadingEvent(character, currentTurn)) {
@@ -132,8 +129,8 @@ export class SpecialEventsSystem {
   }
   
   private static canTriggerArtifactEvent(currentTurn: number): boolean {
-    // Special events trigger every 10 turns, but we should reset cooldowns every 10 turns to ensure they can trigger
-    if (currentTurn % 10 === 0) {
+    // Allow artifact events every 10 turns AND ensure first artifact can be found early
+    if (currentTurn % 10 === 0 || (currentTurn <= 10 && this.eventState.artifactsDiscovered === 0)) {
       return (currentTurn - this.eventState.lastArtifactEventTurn) >= this.ARTIFACT_COOLDOWN_TURNS;
     }
     return false;

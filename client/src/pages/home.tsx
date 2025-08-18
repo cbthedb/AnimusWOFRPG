@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,12 +10,21 @@ import { User, Sparkles, GamepadIcon, Save, Music, Info } from "lucide-react";
 import { useLocalGameState } from "@/hooks/use-local-game-state";
 
 export default function Home() {
+  const [isLoading, setIsLoading] = useState(true);
   const [, setLocation] = useLocation();
   const [isCreating, setIsCreating] = useState(false);
   const [showCharacterCreator, setShowCharacterCreator] = useState(false);
   const [showLoadMenu, setShowLoadMenu] = useState(false);
   const [showCredits, setShowCredits] = useState(false);
   const { createGame, getAllGames, loadGame } = useLocalGameState();
+
+  // Show loading screen for 3 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleNewGame = () => {
     setIsCreating(true);
@@ -80,6 +89,59 @@ export default function Home() {
   };
 
   const savedGames = getAllGames();
+
+  // Loading screen before main menu
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-black flex items-center justify-center overflow-hidden relative">
+        {/* Animated background particles */}
+        <div className="absolute inset-0">
+          {[...Array(20)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute bg-purple-400/20 rounded-full animate-pulse"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                width: `${Math.random() * 4 + 1}px`,
+                height: `${Math.random() * 4 + 1}px`,
+                animationDelay: `${Math.random() * 2}s`,
+                animationDuration: `${Math.random() * 3 + 2}s`
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Main loading content */}
+        <div className="text-center z-10 relative">
+          {/* Spinning rings */}
+          <div className="relative w-32 h-32 mx-auto mb-8">
+            <div className="absolute inset-0 border-4 border-purple-500/30 rounded-full animate-spin" style={{ animationDuration: '3s' }}></div>
+            <div className="absolute inset-2 border-4 border-blue-400/40 rounded-full animate-spin" style={{ animationDuration: '2s', animationDirection: 'reverse' }}></div>
+            <div className="absolute inset-4 border-4 border-cyan-300/50 rounded-full animate-spin" style={{ animationDuration: '1.5s' }}></div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-4xl animate-pulse">🐉</div>
+            </div>
+          </div>
+          
+          <h1 className="font-fantasy text-4xl font-bold text-purple-300 mb-4 animate-pulse">
+            Animus: Wings of Fire RPG
+          </h1>
+          <p className="text-purple-400 text-lg mb-2 animate-bounce">
+            Loading your adventure...
+          </p>
+          <p className="text-purple-500 text-sm">
+            Preparing the dragon world
+          </p>
+          
+          {/* Loading bar */}
+          <div className="w-64 h-2 bg-purple-900/50 rounded-full mx-auto mt-6 overflow-hidden">
+            <div className="h-full bg-gradient-to-r from-purple-500 to-cyan-400 rounded-full animate-pulse" style={{ width: '100%', animation: 'slideIn 3s ease-out forwards' }}></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (showCharacterCreator) {
     return (
