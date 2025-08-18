@@ -215,8 +215,8 @@ export class EnhancedGameEngine {
     // Initialize special events system with current game data
     SpecialEventsSystem.initializeEventState(newGameData);
     
-    // Check for special events every 10 turns (turn 10, 20, 30, etc.)
-    if (nextTurn % 10 === 0) {
+    // Check for special events every turn (for testing artifacts)
+    if (true) {
       console.log(`Turn ${nextTurn}: Checking for special events...`);
       const specialEvent = SpecialEventsSystem.checkForSpecialEvent(newCharacter, { ...newGameData, turn: nextTurn });
       if (specialEvent) {

@@ -19,10 +19,10 @@ export interface SpecialEventState {
 }
 
 export class SpecialEventsSystem {
-  private static readonly ARTIFACT_COOLDOWN_TURNS = 1; // 1 turn between artifacts (very fast for testing)
+  private static readonly ARTIFACT_COOLDOWN_TURNS = 0; // 0 turns between artifacts (immediate for testing)
   private static readonly MINDREADING_COOLDOWN_TURNS = 10; // 10 turns  
   private static readonly PROPHECY_COOLDOWN_TURNS = 10; // 10 turns
-  private static readonly ARTIFACT_BASE_CHANCE = 0.75; // 75% chance per turn (high for testing)
+  private static readonly ARTIFACT_BASE_CHANCE = 1.0; // 100% chance per turn (guaranteed for testing)
   private static readonly SPECIAL_POWER_BASE_CHANCE = 0.12; // 12% chance per turn
   private static readonly MAX_ARTIFACTS_PER_GAME = 3; // Maximum 3 artifacts per playthrough
   
@@ -206,6 +206,7 @@ export class SpecialEventsSystem {
     const shouldGenerate = Math.random() < chance;
       
     console.log(`Artifact generation - Turn: ${turn}, Location: ${currentLocation.name}, Chance: ${(chance * 100).toFixed(1)}%, Should generate: ${shouldGenerate}`);
+    console.log(`Current artifacts discovered: ${this.eventState.artifactsDiscovered}/${this.MAX_ARTIFACTS_PER_GAME}`);
     
     if (shouldGenerate) {
       const artifact = AnimusArtifactSystem.generateArtifactDiscovery(character, gameData);
@@ -375,10 +376,57 @@ export class SpecialEventsSystem {
     
     switch (event.type) {
       case 'artifact_discovery':
-        const artifactId = event.id.replace('artifact_', '');
+        // Extract artifact ID from event ID (format: artifact_discovery_<id>)
+        const artifactId = event.id.replace('artifact_discovery_', '');
         const artifact = AnimusArtifactSystem.getArtifactById(artifactId);
-        if (artifact) {
-          return AnimusArtifactSystem.useArtifact(artifact, choiceId, character, gameData);
+        if (artifact && choiceId.startsWith('collect_')) {
+          // Collect the artifact - add to inventory
+          const newCharacter = { ...character };
+          const newGameData = { ...gameData };
+          
+          // Add artifact to inventory
+          if (!newGameData.inventory) newGameData.inventory = [];
+          newGameData.inventory.push({
+            id: artifact.id,
+            name: artifact.name,
+            type: 'magical_artifact',
+            description: artifact.description,
+            enchantments: [artifact.cursed ? 'Cursed' : 'Blessed'],
+            rarity: 'legendary',
+            isActive: true,
+            canGiveAway: false
+          });
+          
+          // Update event state
+          this.eventState.artifactsDiscovered += 1;
+          this.eventState.lastArtifactEventTurn = gameData.turn;
+          
+          // Apply soul corruption if cursed
+          if (artifact.cursed) {
+            newCharacter.soulPercentage = Math.max(0, character.soulPercentage - 15);
+          }
+          
+          newCharacter.sanityPercentage = Math.max(0, character.sanityPercentage - choice.sanityCost);
+          
+          return {
+            newCharacter,
+            newGameData,
+            outcome: `You have successfully collected the ${artifact.name}! It has been added to your inventory.`,
+            consequences: [`You carefully collect the ${artifact.name}`, `The artifact's power resonates with your being`]
+          };
+        } else if (artifact) {
+          // Handle other choices (examine, ignore)
+          const newCharacter = { ...character };
+          const newGameData = { ...gameData };
+          
+          newCharacter.sanityPercentage = Math.max(0, character.sanityPercentage - choice.sanityCost);
+          
+          return {
+            newCharacter,
+            newGameData,
+            outcome: choice.description,
+            consequences: choice.consequences
+          };
         }
         break;
         
