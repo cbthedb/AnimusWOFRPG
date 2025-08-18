@@ -4,54 +4,95 @@ export interface SoundtrackTrack {
   id: string;
   name: string;
   url: string;
-  mood: "peaceful" | "dramatic" | "mysterious" | "combat" | "romantic" | "magical" | "dark";
+  type: "basic" | "button" | "soul_trigger" | "ai_control" | "game_over";
+  soulThreshold?: number;
   volume: number;
   loop: boolean;
+  duration?: number;
 }
 
 export class SoundtrackSystem {
   private static currentAudio: HTMLAudioElement | null = null;
   private static currentTrack: string | null = null;
   private static isMuted: boolean = false;
-  private static volume: number = 0.3;
+  private static volume: number = 0.7;
+  private static aiControlTimer: NodeJS.Timeout | null = null;
+  private static onAIControlStart?: () => void;
+  private static onAIControlEnd?: () => void;
 
-  // Simple ambient tracks using data URIs for basic tones
   private static readonly TRACKS: SoundtrackTrack[] = [
+    // Basic background OSTs (passive)
     {
-      id: "peaceful_academy",
-      name: "Academy Life",
-      url: "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwUOgR0H",
-      mood: "peaceful",
-      volume: 0.2,
+      id: "basic_ost",
+      name: "Basic Academy Ambience",
+      url: "/ost/basicost_1755480743859.mp3",
+      type: "basic",
+      volume: 0.4,
       loop: true
     },
     {
-      id: "dramatic_choice",
-      name: "Critical Decision",
-      url: "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwUOgR0H",
-      mood: "dramatic",
+      id: "basic_ost_2",
+      name: "Alternative Academy Theme",
+      url: "/ost/basicost2_1755480743857.mp3",
+      type: "basic",
       volume: 0.4,
+      loop: true
+    },
+    
+    // Button click sound
+    {
+      id: "button_sound",
+      name: "Button Click",
+      url: "/ost/buttonsound_1755480743860.mp3",
+      type: "button",
+      volume: 0.6,
       loop: false
     },
+    
+    // Soul threshold triggers
     {
-      id: "magical_animus",
-      name: "Animus Magic",
-      url: "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwUOgR0H",
-      mood: "magical",
-      volume: 0.3,
+      id: "soul_below_40",
+      name: "Soul Corruption Warning",
+      url: "/ost/ifsoulbelow40%loopsong_1755480743860.mp3",
+      type: "soul_trigger",
+      soulThreshold: 40,
+      volume: 0.5,
       loop: true
     },
     {
-      id: "dark_corruption",
-      name: "Soul Corruption",
-      url: "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwUOgR0H",
-      mood: "dark",
-      volume: 0.25,
+      id: "soul_below_20",
+      name: "Critical Soul Loss",
+      url: "/ost/ifsoulbelow20%playandloop_1755480787933.mp3",
+      type: "soul_trigger",
+      soulThreshold: 20,
+      volume: 0.6,
       loop: true
+    },
+    
+    // AI Control (when soul hits 0%)
+    {
+      id: "soul_0_ai_control",
+      name: "AI Takes Control",
+      url: "/ost/ifsoul0%play_1755480787934.mp3",
+      type: "ai_control",
+      soulThreshold: 0,
+      volume: 0.8,
+      loop: false,
+      duration: 133000 // 2 minutes 13 seconds in milliseconds
+    },
+    
+    // Game Over (if animus magic used again after warning)
+    {
+      id: "animus_death",
+      name: "Final Corruption",
+      url: "/ost/ifuseanimusmagicagainplay_1755480879926.mp3",
+      type: "game_over",
+      volume: 0.7,
+      loop: false
     }
   ];
 
-  static initialize(): void {
+  static initialize(onAIControlStart?: () => void, onAIControlEnd?: () => void): void {
     // Set default volume from localStorage if available
     const savedVolume = localStorage.getItem('wof_game_volume');
     const savedMuted = localStorage.getItem('wof_game_muted');
@@ -64,92 +105,89 @@ export class SoundtrackSystem {
       this.isMuted = savedMuted === 'true';
     }
 
-    // Start with peaceful academy music
-    this.playTrack('peaceful_academy');
+    // Set AI control callbacks
+    this.onAIControlStart = onAIControlStart;
+    this.onAIControlEnd = onAIControlEnd;
+
+    // Start with basic academy music
+    this.playTrack('basic_ost');
   }
 
-  static playTrack(trackId: string): void {
-    if (this.isMuted || this.currentTrack === trackId) return;
+  static playTrack(trackId: string, force: boolean = false): void {
+    if (this.isMuted && !force) return;
+    if (this.currentTrack === trackId && !force) return;
 
     const track = this.TRACKS.find(t => t.id === trackId);
-    if (!track) return;
-
-    // Stop current audio
-    if (this.currentAudio) {
-      this.currentAudio.pause();
-      this.currentAudio = null;
+    if (!track) {
+      console.warn(`Track not found: ${trackId}`);
+      return;
     }
 
+    // Stop current audio
+    this.stopCurrentTrack();
+
     try {
-      // Create simple tone using Web Audio API for ambient background
-      this.createAmbientTone(track);
-      this.currentTrack = trackId;
+      // Create new audio element
+      this.currentAudio = new Audio(track.url);
+      this.currentAudio.volume = this.volume * track.volume;
+      this.currentAudio.loop = track.loop;
       
+      // Handle AI control track specially
+      if (track.type === 'ai_control') {
+        this.handleAIControlTrack(track);
+      }
+      
+      // Play the track
+      const playPromise = this.currentAudio.play();
+      if (playPromise) {
+        playPromise.catch(error => {
+          console.warn("Could not play audio track:", error);
+        });
+      }
+      
+      this.currentTrack = trackId;
       console.log(`🎵 Now playing: ${track.name}`);
+      
     } catch (error) {
       console.warn("Could not play audio track:", error);
     }
   }
 
-  private static createAmbientTone(track: SoundtrackTrack): void {
-    try {
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-      const oscillator = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
-
-      // Set frequency based on mood
-      const frequencies = {
-        peaceful: 220,
-        dramatic: 110,
-        magical: 330,
-        dark: 55,
-        mysterious: 165,
-        combat: 82,
-        romantic: 440
-      };
-
-      oscillator.frequency.setValueAtTime(frequencies[track.mood], audioContext.currentTime);
-      oscillator.type = track.mood === 'dark' ? 'sawtooth' : 'sine';
-      
-      // Set volume
-      gainNode.gain.setValueAtTime(this.volume * track.volume, audioContext.currentTime);
-      
-      // Connect nodes
-      oscillator.connect(gainNode);
-      gainNode.connect(audioContext.destination);
-      
-      // Start playing
-      oscillator.start();
-      
-      // Store reference for cleanup
-      (this as any).currentOscillator = oscillator;
-      (this as any).currentGainNode = gainNode;
-      (this as any).currentAudioContext = audioContext;
-      
-      if (track.loop) {
-        // For looping tracks, fade in and out subtly
-        const duration = 30000; // 30 seconds
-        setTimeout(() => {
-          if (!this.isMuted) {
-            this.createAmbientTone(track); // Restart for loop effect
-          }
-        }, duration);
+  private static handleAIControlTrack(track: SoundtrackTrack): void {
+    // Trigger AI control mode
+    if (this.onAIControlStart) {
+      this.onAIControlStart();
+    }
+    
+    // Set timer for AI control duration (2 minutes 13 seconds)
+    if (this.aiControlTimer) {
+      clearTimeout(this.aiControlTimer);
+    }
+    
+    this.aiControlTimer = setTimeout(() => {
+      // Show warning and end AI control
+      if (this.onAIControlEnd) {
+        this.onAIControlEnd();
       }
       
-    } catch (error) {
-      console.warn("Web Audio API not supported, playing silent track");
-    }
+      // Switch back to appropriate background music
+      this.playTrack('soul_below_20', true);
+      
+    }, track.duration || 133000);
   }
 
   static stopCurrentTrack(): void {
-    if ((this as any).currentOscillator) {
-      try {
-        (this as any).currentOscillator.stop();
-        (this as any).currentAudioContext.close();
-      } catch (error) {
-        // Audio context might already be closed
-      }
+    if (this.currentAudio) {
+      this.currentAudio.pause();
+      this.currentAudio.currentTime = 0;
+      this.currentAudio = null;
     }
+    
+    if (this.aiControlTimer) {
+      clearTimeout(this.aiControlTimer);
+      this.aiControlTimer = null;
+    }
+    
     this.currentTrack = null;
   }
 
@@ -160,8 +198,8 @@ export class SoundtrackSystem {
     if (muted) {
       this.stopCurrentTrack();
     } else {
-      // Resume with peaceful track
-      this.playTrack('peaceful_academy');
+      // Resume with basic track
+      this.playTrack('basic_ost');
     }
   }
 
@@ -170,35 +208,85 @@ export class SoundtrackSystem {
     localStorage.setItem('wof_game_volume', this.volume.toString());
     
     // Update current track volume
-    if ((this as any).currentGainNode) {
-      try {
-        (this as any).currentGainNode.gain.setValueAtTime(this.volume * 0.3, (this as any).currentAudioContext.currentTime);
-      } catch (error) {
-        // Gain node might be disposed
+    if (this.currentAudio) {
+      const currentTrack = this.TRACKS.find(t => t.id === this.currentTrack);
+      if (currentTrack) {
+        this.currentAudio.volume = this.volume * currentTrack.volume;
       }
     }
   }
 
-  static getContextualTrack(character: Character, gameData: GameData, scenarioType?: string): string {
-    // Choose track based on game state
-    if (character.soulPercentage < 30) {
-      return 'dark_corruption';
+  static getContextualTrack(character: Character, gameData: GameData): string {
+    // Soul-based track selection (highest priority)
+    if (character.soulPercentage === 0) {
+      return 'soul_0_ai_control';
     }
     
-    if (scenarioType === 'magical' || gameData.currentScenario?.type === 'magical') {
-      return 'magical_animus';
+    if (character.soulPercentage <= 20) {
+      return 'soul_below_20';
     }
     
-    if (character.sanityPercentage < 50 || scenarioType === 'extraordinary') {
-      return 'dramatic_choice';
+    if (character.soulPercentage <= 40) {
+      return 'soul_below_40';
     }
     
-    return 'peaceful_academy';
+    // Default to basic OST
+    return Math.random() > 0.5 ? 'basic_ost' : 'basic_ost_2';
   }
 
   static updateBasedOnGameState(character: Character, gameData: GameData): void {
-    const contextualTrack = this.getContextualTrack(character, gameData, gameData.currentScenario?.type);
+    const contextualTrack = this.getContextualTrack(character, gameData);
     this.playTrack(contextualTrack);
+  }
+
+  static playButtonSound(): void {
+    if (this.isMuted) return;
+    
+    // Play button sound without interrupting background music
+    try {
+      const buttonAudio = new Audio("/ost/buttonsound_1755480743860.mp3");
+      buttonAudio.volume = this.volume * 0.6;
+      buttonAudio.play().catch(error => {
+        console.warn("Could not play button sound:", error);
+      });
+    } catch (error) {
+      console.warn("Could not create button audio:", error);
+    }
+  }
+
+  static playGameOverTrack(): void {
+    this.playTrack('animus_death', true);
+  }
+
+  static checkSoulThresholds(oldSoul: number, newSoul: number, character: Character, gameData: GameData): boolean {
+    // Check if any soul thresholds were crossed
+    let shouldUpdateMusic = false;
+    
+    // Soul hit 0% - trigger AI control
+    if (oldSoul > 0 && newSoul === 0) {
+      this.playTrack('soul_0_ai_control', true);
+      return true; // AI control started
+    }
+    
+    // Soul dropped below 20%
+    if (oldSoul > 20 && newSoul <= 20) {
+      this.playTrack('soul_below_20', true);
+      shouldUpdateMusic = true;
+    }
+    
+    // Soul dropped below 40%
+    if (oldSoul > 40 && newSoul <= 40) {
+      this.playTrack('soul_below_40', true);
+      shouldUpdateMusic = true;
+    }
+    
+    // Soul recovered above thresholds
+    if (oldSoul <= 40 && newSoul > 40) {
+      this.updateBasedOnGameState(character, gameData);
+      shouldUpdateMusic = true;
+    }
+    
+    return false; // No AI control
   }
 
   static isMutedState(): boolean {
@@ -207,5 +295,9 @@ export class SoundtrackSystem {
 
   static getCurrentVolume(): number {
     return this.volume;
+  }
+
+  static isAIControlActive(): boolean {
+    return this.currentTrack === 'soul_0_ai_control' && this.aiControlTimer !== null;
   }
 }

@@ -11,6 +11,10 @@ import { InventorySystem } from "./inventory-system";
 import { SpecialEventsSystem } from "./special-events-system";
 import { ExpandedScenarioSystem } from './expanded-scenarios';
 import { EnhancedGameIntegration } from "./enhanced-game-integration";
+import { SoundtrackSystem } from "./soundtrack-system";
+import { AttributeProgressionSystem } from "./attribute-progression-system";
+import { AnimusArtifactSystem } from "./animus-artifact-system";
+import { EnhancedSocialSystem } from "./enhanced-social-system";
 
 export class EnhancedGameEngine {
   static processChoice(
@@ -33,11 +37,20 @@ export class EnhancedGameEngine {
     }
 
     // Apply soul loss and update corruption stage
+    const oldSoulPercentage = character.soulPercentage;
     if (choice.soulCost > 0) {
       const actualSoulLoss = this.calculateSoulLoss(choice.soulCost);
       newCharacter.soulPercentage = Math.max(0, character.soulPercentage - actualSoulLoss);
       newCharacter.soulCorruptionStage = SoulCorruptionManager.getSoulCorruptionStage(newCharacter.soulPercentage);
     }
+
+    // Check soul thresholds for soundtrack changes and AI control
+    const aiControlTriggered = SoundtrackSystem.checkSoulThresholds(
+      oldSoulPercentage, 
+      newCharacter.soulPercentage, 
+      newCharacter, 
+      newGameData
+    );
 
     // Apply sanity changes
     if (choice.sanityCost !== 0) {
@@ -51,11 +64,31 @@ export class EnhancedGameEngine {
       newCharacter.sanityPercentage = Math.max(0, newCharacter.sanityPercentage - 1);
     }
 
+    // Process attribute gains
+    const attributeGains = AttributeProgressionSystem.processAttributeGains(newCharacter, choice, scenario);
+    if (attributeGains) {
+      AttributeProgressionSystem.applyAttributeGains(newCharacter, attributeGains);
+    }
+
     // Age progression - 1 year per turn
     this.progressTime(newCharacter, newGameData, 1);
 
     // Handle relationships based on choice
     this.updateRelationships(newCharacter, choice, scenario);
+
+    // Handle artifact collection if this is an artifact choice
+    if (choice.id.startsWith('collect_') && choice.id.includes('_')) {
+      const artifactId = choice.id.replace('collect_', '');
+      const artifact = AnimusArtifactSystem.getArtifactById(artifactId);
+      if (artifact) {
+        const collectionResult = AnimusArtifactSystem.collectArtifact(artifact, newCharacter, newGameData);
+        newCharacter.soulPercentage = collectionResult.newCharacter.soulPercentage;
+        newGameData.inventory = collectionResult.newGameData.inventory;
+        
+        // Add collection message to last choice result
+        newGameData.lastChoiceResult = (newGameData.lastChoiceResult || []).concat([collectionResult.message]);
+      }
+    }
     
     // Handle continue button - clear outcome display and generate next scenario
     if (choice.id === 'continue' && gameData.awaitingResponse) {

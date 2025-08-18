@@ -71,7 +71,7 @@ export class AttributeProgressionSystem {
     ];
     
     return strengthKeywords.some(keyword => text.includes(keyword)) || 
-           scenario.type === 'extraordinary' && text.includes('force');
+           (scenario.type === 'extraordinary' && text.includes('force'));
   }
 
   private static isCharismaChoice(choice: Choice, scenario: Scenario): boolean {
@@ -81,8 +81,7 @@ export class AttributeProgressionSystem {
       'charm', 'social', 'friend', 'alliance', 'speak', 'conversation', 'debate'
     ];
     
-    return charismaKeywords.some(keyword => text.includes(keyword)) ||
-           choice.relationshipChange > 0;
+    return charismaKeywords.some(keyword => text.includes(keyword));
   }
 
   private static isWisdomChoice(choice: Choice, scenario: Scenario): boolean {
@@ -94,7 +93,7 @@ export class AttributeProgressionSystem {
     
     return wisdomKeywords.some(keyword => text.includes(keyword)) ||
            (choice.sanityCost > 5 && !choice.corruption) ||
-           choice.soulCost < 0; // Soul restoration choices
+           (choice.soulCost < 0); // Soul restoration choices
   }
 
   private static isIntelligenceChoice(choice: Choice, scenario: Scenario): boolean {
@@ -105,7 +104,7 @@ export class AttributeProgressionSystem {
     ];
     
     return intelligenceKeywords.some(keyword => text.includes(keyword)) ||
-           scenario.type === 'mundane' && text.includes('academic');
+           (scenario.type === 'mundane' && text.includes('academic'));
   }
 
   private static getStrengthGainReason(choice: Choice): string {

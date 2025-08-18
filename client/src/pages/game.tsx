@@ -19,6 +19,7 @@ import { RomanceSystem } from "@/lib/romance-system";
 import { AIDungeonMaster } from "@/lib/ai-dungeon-master";
 import { Location } from "@/lib/location-system";
 import { InventorySystem } from "@/lib/inventory-system";
+import { SoundtrackSystem } from "@/lib/soundtrack-system";
 
 export default function Game() {
   const { gameId } = useParams();
@@ -66,6 +67,43 @@ export default function Game() {
           characterData: loadedGame.characterData,
           gameData: loadedGame.gameData
         });
+        
+        // Initialize soundtrack system with AI control callbacks
+        SoundtrackSystem.initialize(
+          () => {
+            // AI Control Start
+            setAiControlMessage("Your soul is completely corrupted. The AI now controls your actions...");
+            setAiActionInProgress("AI is making decisions for you");
+            
+            // Start AI action interval
+            const interval = setInterval(() => {
+              if (gameState?.characterData) {
+                // AI performs random actions for 2:13
+                setAiActionInProgress(`AI chooses: ${['Destroy something', 'Corrupt others', 'Use dark magic', 'Spread chaos'][Math.floor(Math.random() * 4)]}`);
+              }
+            }, 5000);
+            setAiInterval(interval);
+          },
+          () => {
+            // AI Control End - Show warning
+            if (aiInterval) {
+              clearInterval(aiInterval);
+              setAiInterval(null);
+            }
+            setAiActionInProgress(null);
+            setAiControlMessage("WARNING: If you lose any more soul, you will die!");
+            
+            // Clear warning after 3 seconds
+            setTimeout(() => {
+              setAiControlMessage(null);
+            }, 3000);
+          }
+        );
+        
+        // Update soundtrack based on initial game state
+        if (loadedGame.characterData) {
+          SoundtrackSystem.updateBasedOnGameState(loadedGame.characterData, loadedGame.gameData);
+        }
       }
       setIsLoading(false);
     }
