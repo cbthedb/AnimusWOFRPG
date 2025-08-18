@@ -190,6 +190,23 @@ export class EnhancedGameEngine {
       const updatedGameData = InventorySystem.addItem(newGameData, choice.rewardItem);
       newGameData.inventory = updatedGameData.inventory;
     }
+    
+    // Handle artifact collection for generic artifact choices
+    if (choice.id === 'claim_artifact' || choice.id === 'take_artifact' || choice.id === 'collect_artifact') {
+      // Add a generic artifact to inventory
+      if (!newGameData.inventory) newGameData.inventory = [];
+      newGameData.inventory.push({
+        id: `artifact_${Date.now()}`,
+        name: 'Ancient Scroll',
+        type: 'magical_artifact',
+        description: 'An ancient magical scroll with mysterious powers',
+        enchantments: ['Ancient Knowledge'],
+        rarity: 'legendary',
+        isActive: true,
+        canGiveAway: false
+      });
+      console.log('Added artifact to inventory via generic collection choice');
+    }
 
     // Handle item consumption if required
     if (choice.requiresItem && (choice as any).consumesItem) {

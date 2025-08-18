@@ -379,7 +379,7 @@ export class SpecialEventsSystem {
         // Extract artifact ID from event ID (format: artifact_discovery_<id>)
         const artifactId = event.id.replace('artifact_discovery_', '');
         const artifact = AnimusArtifactSystem.getArtifactById(artifactId);
-        if (artifact && choiceId.startsWith('collect_')) {
+        if (artifact && (choiceId.startsWith('collect_') || choiceId === 'claim_artifact' || choiceId === 'take_artifact' || choiceId === 'collect_artifact')) {
           // Collect the artifact - add to inventory
           const newCharacter = { ...character };
           const newGameData = { ...gameData };
