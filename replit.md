@@ -43,9 +43,10 @@ Preferred communication style: Simple, everyday language.
   - Corrected maximum artifact limit from 10 to proper 3 per playthrough limit
   - Resolved TypeScript LSP errors in enhanced game engine
   - Added 25+ unique artifacts distributed across ALL game locations with proper coverage
-  - Increased discovery chance to 75% and reduced cooldown to 1 turn for immediate testing
+  - **FINAL FIX**: Fixed artifact scenario display bug where scenarios were generated but not shown to players
+  - Fixed special event choice processing to properly handle artifact collection into inventory
   - Implemented special events system reset for new games to ensure fresh artifact discovery
-  - Fixed collection system integration ensuring artifacts properly add to inventory
+  - Restored original discovery rates (5% chance, 2 turn cooldown, every 10th turn)
 
 # System Architecture
 

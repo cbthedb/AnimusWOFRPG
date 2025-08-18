@@ -155,16 +155,22 @@ export class EnhancedGameEngine {
       outcomeText = choice.consequences.join(". ");
     }
     
-    // Check if this is a special event choice
+    // Check if this is a special event choice and process it
     if (scenario.id.includes('artifact_') || scenario.id.includes('mindreading_') || scenario.id.includes('prophecy_')) {
       try {
-        const specialEvent = SpecialEventsSystem.checkForSpecialEvent(newCharacter, newGameData);
-        if (specialEvent && specialEvent.scenario.id === scenario.id) {
-          const result = SpecialEventsSystem.processSpecialEventChoice(specialEvent, choice.id, newCharacter, newGameData);
-          outcomeText = result.outcome;
-          Object.assign(newCharacter, result.newCharacter);
-          Object.assign(newGameData, result.newGameData);
-        }
+        // Create a mock special event from the current scenario to process the choice
+        const specialEvent = {
+          id: scenario.id,
+          type: scenario.id.includes('artifact_') ? 'artifact_discovery' : 
+                scenario.id.includes('mindreading_') ? 'mindreading_event' : 'prophecy_event',
+          scenario: scenario,
+          timestamp: gameData.turn
+        };
+        
+        const result = SpecialEventsSystem.processSpecialEventChoice(specialEvent as any, choice.id, newCharacter, newGameData);
+        outcomeText = result.outcome;
+        Object.assign(newCharacter, result.newCharacter);
+        Object.assign(newGameData, result.newGameData);
       } catch (error) {
         console.warn("Special event processing failed:", error);
       }
@@ -215,8 +221,8 @@ export class EnhancedGameEngine {
     // Initialize special events system with current game data
     SpecialEventsSystem.initializeEventState(newGameData);
     
-    // Check for special events every turn (for testing artifacts)
-    if (true) {
+    // Check for special events every 10 turns (turn 10, 20, 30, etc.)
+    if (nextTurn % 10 === 0) {
       console.log(`Turn ${nextTurn}: Checking for special events...`);
       const specialEvent = SpecialEventsSystem.checkForSpecialEvent(newCharacter, { ...newGameData, turn: nextTurn });
       if (specialEvent) {
