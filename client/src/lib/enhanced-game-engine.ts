@@ -79,7 +79,7 @@ export class EnhancedGameEngine {
     // Handle artifact collection if this is an artifact choice
     console.log(`Processing choice with ID: ${choice.id}`);
     
-    if (choice.id.startsWith('collect_') && choice.id.includes('_')) {
+    if (choice.id.startsWith('collect_')) {
       const artifactId = choice.id.replace('collect_', '');
       const pendingArtifact = (gameData as any).pendingArtifact;
       
@@ -196,8 +196,8 @@ export class EnhancedGameEngine {
     // Initialize special events system with current game data
     SpecialEventsSystem.initializeEventState(newGameData);
     
-    // Check for special events every 10 turns (turn 10, 20, 30, etc.)
-    if (nextTurn % 10 === 0) {
+    // Check for special events every turn during testing, or every 10 turns normally
+    if (nextTurn % 1 === 0) { // Changed from % 10 to % 1 for testing
       console.log(`Turn ${nextTurn}: Checking for special events...`);
       const specialEvent = SpecialEventsSystem.checkForSpecialEvent(newCharacter, { ...newGameData, turn: nextTurn });
       if (specialEvent) {
