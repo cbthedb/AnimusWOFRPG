@@ -19,10 +19,10 @@ export interface SpecialEventState {
 }
 
 export class SpecialEventsSystem {
-  private static readonly ARTIFACT_COOLDOWN_TURNS = 5; // 5 turns between artifacts
+  private static readonly ARTIFACT_COOLDOWN_TURNS = 1; // 1 turn between artifacts for testing
   private static readonly MINDREADING_COOLDOWN_TURNS = 10; // 10 turns  
   private static readonly PROPHECY_COOLDOWN_TURNS = 10; // 10 turns
-  private static readonly ARTIFACT_BASE_CHANCE = 0.15; // 15% chance per turn (more common but still special)
+  private static readonly ARTIFACT_BASE_CHANCE = 0.9; // 90% chance per turn for testing collection
   private static readonly SPECIAL_POWER_BASE_CHANCE = 0.12; // 12% chance per turn
   private static readonly MAX_ARTIFACTS_PER_GAME = 10; // Match the increased limit
   
@@ -228,6 +228,7 @@ export class SpecialEventsSystem {
       
       // Store artifact data for potential collection
       (gameData as any).pendingArtifact = artifact;
+      console.log(`Stored pending artifact: ${artifact.name} with ID: ${artifact.id}`);
       
       return {
         id: `artifact_${artifact.id}`,
