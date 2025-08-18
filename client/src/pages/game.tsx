@@ -21,6 +21,7 @@ import { AIDungeonMaster } from "@/lib/ai-dungeon-master";
 import { Location } from "@/lib/location-system";
 import { InventorySystem } from "@/lib/inventory-system";
 import { SoundtrackSystem } from "@/lib/soundtrack-system";
+import { SpecialEventsSystem } from "@/lib/special-events-system";
 
 export default function Game() {
   const { gameId } = useParams();
@@ -64,6 +65,9 @@ export default function Game() {
     if (gameId) {
       const loadedGame = LocalGameStorage.getGameState(gameId);
       if (loadedGame) {
+        // Initialize special events system for this game session
+        SpecialEventsSystem.initializeEventState(loadedGame.gameData);
+        
         setGameState({
           characterData: loadedGame.characterData,
           gameData: loadedGame.gameData

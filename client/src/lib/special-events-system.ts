@@ -19,12 +19,12 @@ export interface SpecialEventState {
 }
 
 export class SpecialEventsSystem {
-  private static readonly ARTIFACT_COOLDOWN_TURNS = 5; // 5 turns between artifacts
+  private static readonly ARTIFACT_COOLDOWN_TURNS = 1; // 1 turn between artifacts (very fast for testing)
   private static readonly MINDREADING_COOLDOWN_TURNS = 10; // 10 turns  
   private static readonly PROPHECY_COOLDOWN_TURNS = 10; // 10 turns
-  private static readonly ARTIFACT_BASE_CHANCE = 0.15; // 15% chance per turn (normal setting)
+  private static readonly ARTIFACT_BASE_CHANCE = 0.75; // 75% chance per turn (high for testing)
   private static readonly SPECIAL_POWER_BASE_CHANCE = 0.12; // 12% chance per turn
-  private static readonly MAX_ARTIFACTS_PER_GAME = 10; // Match the increased limit
+  private static readonly MAX_ARTIFACTS_PER_GAME = 3; // Maximum 3 artifacts per playthrough
   
   private static eventState: SpecialEventState = {
     lastArtifactEventTurn: 0,
@@ -41,10 +41,9 @@ export class SpecialEventsSystem {
       this.eventState = { ...this.eventState, ...stored };
     }
     
-    // Reset artifacts discovered count for testing if it's too high
+    // Reset artifacts discovered count for new games
     if (this.eventState.artifactsDiscovered >= this.MAX_ARTIFACTS_PER_GAME) {
-      console.log('Resetting artifacts discovered count for testing');
-      this.eventState.artifactsDiscovered = 0;
+      console.log('Maximum artifacts reached - no more will spawn this game');
     }
   }
   
@@ -59,10 +58,23 @@ export class SpecialEventsSystem {
     console.log(`Artifacts discovered count incremented to: ${this.eventState.artifactsDiscovered}`);
   }
   
-  // Method to reset artifacts discovered for testing
+  // Method to reset artifacts discovered for new games
   static resetArtifactsDiscovered(): void {
     this.eventState.artifactsDiscovered = 0;
-    console.log('Artifacts discovered count reset to 0');
+    this.eventState.lastArtifactEventTurn = 0;
+    console.log('Artifacts discovered count reset to 0 for new game');
+  }
+  
+  // Method to reset all event state for new games
+  static resetAllEventState(): void {
+    this.eventState = {
+      lastArtifactEventTurn: 0,
+      lastMindreadingEventTurn: 0,
+      lastProphecyEventTurn: 0,
+      artifactsDiscovered: 0,
+      maxArtifactsPerGame: this.MAX_ARTIFACTS_PER_GAME
+    };
+    console.log('All special event state reset for new game');
   }
   
   static checkForSpecialEvent(character: Character, gameData: GameData): SpecialEvent | null {

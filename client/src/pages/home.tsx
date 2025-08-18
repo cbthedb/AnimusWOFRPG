@@ -8,6 +8,7 @@ import { Character, GameData, InsertGameState } from "@shared/schema";
 import CharacterCreator from "@/components/character-creator";
 import { User, Sparkles, GamepadIcon, Save, Music, Info } from "lucide-react";
 import { useLocalGameState } from "@/hooks/use-local-game-state";
+import { SpecialEventsSystem } from "@/lib/special-events-system";
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
@@ -34,6 +35,9 @@ export default function Home() {
   };
 
   const createGameWithCharacter = (character: Character) => {
+    // Reset special events system for new games
+    SpecialEventsSystem.resetAllEventState();
+    
     const gameData: GameData = {
       turn: 1,
       location: "Jade Mountain Academy",

@@ -38,6 +38,14 @@ Preferred communication style: Simple, everyday language.
 - **Integrated Enhanced Game Systems** (January 2025): Seamlessly integrated all new social, family, and artifact systems into the existing game engine with proper consequence processing, relationship management, and story progression. Enhanced scenarios now contribute meaningfully to character development and world building.
 - **Fixed Random Animus Object Spawning** (January 2025): Disabled automatic artifact discovery in the special events system. Animus objects now only appear in specific discovery scenarios where players actively choose to search or investigate, eliminating unwanted random spawning.
 - **Enhanced Soundtrack System** (January 2025): Fixed audio overlapping issues by implementing audio lock mechanisms, proper track cleanup, and debounced transitions. Improved soul threshold music switching and AI control track handling for smoother audio experience.
+- **FIXED: Complete Animus Artifact System Overhaul** (December 2024): Resolved all critical issues preventing artifact discovery:
+  - Fixed invalid location mappings (Deep Ocean → Sea Kingdom, Ancient Ruins → Old Night Kingdom, etc.)  
+  - Corrected maximum artifact limit from 10 to proper 3 per playthrough limit
+  - Resolved TypeScript LSP errors in enhanced game engine
+  - Added 25+ unique artifacts distributed across ALL game locations with proper coverage
+  - Increased discovery chance to 75% and reduced cooldown to 1 turn for immediate testing
+  - Implemented special events system reset for new games to ensure fresh artifact discovery
+  - Fixed collection system integration ensuring artifacts properly add to inventory
 
 # System Architecture
 
