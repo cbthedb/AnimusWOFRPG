@@ -49,11 +49,11 @@ export class SoundtrackSystem {
       loop: false
     },
     
-    // Soul threshold triggers
+    // Soul threshold triggers - URLs properly encoded
     {
       id: "soul_below_40",
       name: "Soul Corruption Warning",
-      url: "/ost/ifsoulbelow40%loopsong_1755480743860.mp3",
+      url: "/ost/ifsoulbelow40%25loopsong_1755480743860.mp3",
       type: "soul_trigger",
       soulThreshold: 40,
       volume: 0.5,
@@ -62,7 +62,7 @@ export class SoundtrackSystem {
     {
       id: "soul_below_20",
       name: "Critical Soul Loss",
-      url: "/ost/ifsoulbelow20%playandloop_1755480787933.mp3",
+      url: "/ost/ifsoulbelow20%25playandloop_1755480787933.mp3",
       type: "soul_trigger",
       soulThreshold: 20,
       volume: 0.6,
@@ -73,7 +73,7 @@ export class SoundtrackSystem {
     {
       id: "soul_0_ai_control",
       name: "AI Takes Control",
-      url: "/ost/ifsoul0%play_1755480787934.mp3",
+      url: "/ost/ifsoul0%25play_1755480787934.mp3",
       type: "ai_control",
       soulThreshold: 0,
       volume: 0.8,
@@ -136,24 +136,48 @@ export class SoundtrackSystem {
       this.currentAudio.volume = this.volume * track.volume;
       this.currentAudio.loop = track.loop;
       
+      // Set up error handling
+      this.currentAudio.onerror = (error) => {
+        console.warn(`Audio error for ${track.name}:`, error);
+        console.warn(`Failed URL: ${track.url}`);
+      };
+      
+      // Set up load event
+      this.currentAudio.onloadstart = () => {
+        console.log(`Loading audio: ${track.name} from ${track.url}`);
+      };
+      
+      this.currentAudio.oncanplay = () => {
+        console.log(`Audio ready: ${track.name}`);
+      };
+      
       // Handle AI control track specially
       if (track.type === 'ai_control') {
         this.handleAIControlTrack(track);
       }
       
-      // Play the track
+      // Play the track with better error handling
       const playPromise = this.currentAudio.play();
       if (playPromise) {
-        playPromise.catch(error => {
-          console.warn("Could not play audio track:", error);
-        });
+        playPromise
+          .then(() => {
+            console.log(`🎵 Successfully playing: ${track.name}`);
+            this.currentTrack = trackId;
+          })
+          .catch(error => {
+            console.error(`Failed to play ${track.name}:`, error);
+            console.error(`URL: ${track.url}`);
+            // Try to fall back to basic music if soul track fails
+            if (track.type === 'soul_trigger' || track.type === 'ai_control') {
+              console.log("Soul track failed, falling back to basic music");
+              setTimeout(() => this.playBasicMusic(), 500);
+            }
+          });
       }
       
-      this.currentTrack = trackId;
-      console.log(`🎵 Now playing: ${track.name}`);
-      
     } catch (error) {
-      console.warn("Could not play audio track:", error);
+      console.error("Could not create audio track:", error);
+      console.error(`Track: ${track.name}, URL: ${track.url}`);
     }
   }
 
@@ -240,52 +264,59 @@ export class SoundtrackSystem {
 
   static updateBasedOnGameState(character: Character, gameData: GameData): void {
     const soulPercentage = character.soulPercentage || 100;
+    console.log(`Updating soundtrack for soul: ${soulPercentage}%`);
     
-    // AI Control handling (soul at 0%)
+    // Determine what track should be playing
+    let targetTrack = '';
+    
     if (soulPercentage === 0) {
-      if (this.currentTrack !== 'soul_0_ai_control') {
-        this.stopCurrentTrack();
-        // Small delay to ensure previous track stops
-        setTimeout(() => {
-          this.playTrack('soul_0_ai_control', true);
-        }, 200);
-      }
-      return;
+      targetTrack = 'soul_0_ai_control';
+    } else if (soulPercentage <= 20) {
+      targetTrack = 'soul_below_20';
+    } else if (soulPercentage <= 40) {
+      targetTrack = 'soul_below_40';
+    } else {
+      // Basic music for healthy soul
+      targetTrack = Math.random() > 0.5 ? 'basic_ost' : 'basic_ost_2';
     }
     
-    // Clear AI control if soul recovered
-    if (this.aiControlTimer && soulPercentage > 0) {
-      clearTimeout(this.aiControlTimer);
-      this.aiControlTimer = null;
-      if (this.onAIControlEnd) {
-        this.onAIControlEnd();
+    // Only change if different from current track
+    if (this.currentTrack !== targetTrack) {
+      console.log(`Switching from ${this.currentTrack} to ${targetTrack}`);
+      
+      // Clear any AI control timer if switching away from AI control
+      if (this.aiControlTimer && targetTrack !== 'soul_0_ai_control') {
+        clearTimeout(this.aiControlTimer);
+        this.aiControlTimer = null;
+        if (this.onAIControlEnd) {
+          this.onAIControlEnd();
+        }
       }
-    }
-    
-    // Soul threshold music handling - Fixed to ensure tracks play properly
-    if (soulPercentage <= 20) {
-      if (this.currentTrack !== 'soul_below_20') {
-        this.stopCurrentTrack();
-        // Delay ensures audio system has time to clear previous track
-        setTimeout(() => {
-          this.playTrack('soul_below_20', true);
-        }, 200);
-      }
-    } else if (soulPercentage > 20 && soulPercentage <= 40) {
-      if (this.currentTrack !== 'soul_below_40') {
-        this.stopCurrentTrack();
-        setTimeout(() => {
-          this.playTrack('soul_below_40', true);
-        }, 200);
-      }
-    } else if (soulPercentage > 40) {
-      // Return to basic music when soul recovers
-      if (this.currentTrack === 'soul_below_20' || this.currentTrack === 'soul_below_40') {
-        this.stopCurrentTrack();
-        setTimeout(() => {
-          this.playBasicMusic();
-        }, 200);
-      }
+      
+      // Stop current track immediately
+      this.stopCurrentTrack();
+      
+      // Play new track with a small delay to ensure clean transition
+      setTimeout(() => {
+        this.playTrack(targetTrack, true);
+        
+        // Handle AI control special case
+        if (targetTrack === 'soul_0_ai_control' && this.onAIControlStart) {
+          this.onAIControlStart();
+          // Set timer for AI control duration
+          this.aiControlTimer = setTimeout(() => {
+            if (this.onAIControlEnd) {
+              this.onAIControlEnd();
+            }
+            // Switch to appropriate soul music after AI control ends
+            if (soulPercentage <= 20) {
+              this.playTrack('soul_below_20', true);
+            } else {
+              this.playBasicMusic();
+            }
+          }, 133000);
+        }
+      }, 300);
     }
   }
 
@@ -348,6 +379,12 @@ export class SoundtrackSystem {
     }
     
     return false; // No AI control
+  }
+
+  static playBasicMusic(): void {
+    const basicTracks = ['basic_ost', 'basic_ost_2'];
+    const randomTrack = basicTracks[Math.floor(Math.random() * basicTracks.length)];
+    this.playTrack(randomTrack, true);
   }
 
   static isMutedState(): boolean {
