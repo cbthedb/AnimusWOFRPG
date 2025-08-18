@@ -77,11 +77,13 @@ export class EnhancedGameEngine {
     this.updateRelationships(newCharacter, choice, scenario);
 
     // Handle artifact collection if this is an artifact choice
+    console.log(`Processing choice with ID: ${choice.id}`);
+    
     if (choice.id.startsWith('collect_') && choice.id.includes('_')) {
       const artifactId = choice.id.replace('collect_', '');
       const pendingArtifact = (gameData as any).pendingArtifact;
       
-      console.log(`Attempting to collect artifact. Choice ID: ${choice.id}, Artifact ID: ${artifactId}`);
+      console.log(`ARTIFACT COLLECTION ATTEMPT - Choice ID: ${choice.id}, Artifact ID: ${artifactId}`);
       console.log(`Pending artifact:`, pendingArtifact);
       console.log(`Inventory before collection:`, newGameData.inventory?.length || 0, 'items');
       
