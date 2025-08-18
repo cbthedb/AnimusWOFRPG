@@ -66,6 +66,8 @@ export interface Character {
   isAIControlled: boolean;
   lifeEvents: LifeEvent[];
   romanticHistory: RomanticEvent[];
+  gameOver?: boolean;
+  gameOverReason?: string;
 }
 
 export interface Dragonet {
@@ -210,4 +212,24 @@ export interface ExplorationEvent {
   discovery: "ruins" | "scroll" | "treasure" | "enemy" | "ally" | "mystery";
   description: string;
   consequences: string[];
+}
+
+export interface GameData {
+  turn: number;
+  timeInfo: string;
+  currentScenario: Scenario;
+  yearsPassed: number;
+  currentSeason: "Spring" | "Summer" | "Fall" | "Winter";
+  history: GameEvent[];
+  location: string;
+  politicalEvents: PoliticalEvent[];
+  warStatus?: WarStatus;
+  explorationLog: ExplorationEvent[];
+  inventory: InventoryItem[];
+  relationships: Record<string, number>;
+  achievements: string[];
+  customSpells: CustomSpell[];
+  lastChoiceResult?: string;
+  awaitingResponse?: boolean;
+  gameOver?: boolean;
 }
