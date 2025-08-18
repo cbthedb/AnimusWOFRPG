@@ -22,7 +22,7 @@ export class SpecialEventsSystem {
   private static readonly ARTIFACT_COOLDOWN_TURNS = 1; // 1 turn between artifacts for testing
   private static readonly MINDREADING_COOLDOWN_TURNS = 10; // 10 turns  
   private static readonly PROPHECY_COOLDOWN_TURNS = 10; // 10 turns
-  private static readonly ARTIFACT_BASE_CHANCE = 1.0; // 100% chance per turn for testing collection
+  private static readonly ARTIFACT_BASE_CHANCE = 0.15; // 100% chance per turn for testing collection
   private static readonly SPECIAL_POWER_BASE_CHANCE = 0.12; // 12% chance per turn
   private static readonly MAX_ARTIFACTS_PER_GAME = 10; // Match the increased limit
   
@@ -40,11 +40,29 @@ export class SpecialEventsSystem {
     if (stored) {
       this.eventState = { ...this.eventState, ...stored };
     }
+    
+    // Reset artifacts discovered count for testing if it's too high
+    if (this.eventState.artifactsDiscovered >= this.MAX_ARTIFACTS_PER_GAME) {
+      console.log('Resetting artifacts discovered count for testing');
+      this.eventState.artifactsDiscovered = 0;
+    }
   }
   
   // Save event state to game data
   static saveEventState(gameData: GameData): void {
     (gameData as any).specialEventState = { ...this.eventState };
+  }
+  
+  // Method to increment artifacts discovered counter
+  static incrementArtifactsDiscovered(): void {
+    this.eventState.artifactsDiscovered++;
+    console.log(`Artifacts discovered count incremented to: ${this.eventState.artifactsDiscovered}`);
+  }
+  
+  // Method to reset artifacts discovered for testing
+  static resetArtifactsDiscovered(): void {
+    this.eventState.artifactsDiscovered = 0;
+    console.log('Artifacts discovered count reset to 0');
   }
   
   static checkForSpecialEvent(character: Character, gameData: GameData): SpecialEvent | null {
@@ -96,7 +114,7 @@ export class SpecialEventsSystem {
           event = this.tryGenerateArtifactEvent(character, gameData, currentTurn);
           if (event) {
             this.eventState.lastArtifactEventTurn = currentTurn;
-            this.eventState.artifactsDiscovered++;
+            // Don't increment discovered count until actually collected
             console.log('Artifact event generated successfully!');
             return event;
           }

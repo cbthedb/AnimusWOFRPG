@@ -93,6 +93,9 @@ export class EnhancedGameEngine {
         // Directly assign the new inventory instead of using Object.assign
         newGameData.inventory = collectionResult.newGameData.inventory;
         
+        // Increment artifacts discovered counter only when successfully collected
+        SpecialEventsSystem.incrementArtifactsDiscovered();
+        
         // Add collection message to last choice result
         newGameData.lastChoiceResult = collectionResult.message;
         
