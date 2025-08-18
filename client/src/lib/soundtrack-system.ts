@@ -123,6 +123,13 @@ export class SoundtrackSystem {
       return;
     }
 
+    // Stop current track properly to prevent audio conflicts
+    if (this.currentAudio) {
+      this.currentAudio.pause();
+      this.currentAudio.currentTime = 0;
+      this.currentAudio = null;
+    }
+
     // Stop current audio
     this.stopCurrentTrack();
 
@@ -235,8 +242,54 @@ export class SoundtrackSystem {
   }
 
   static updateBasedOnGameState(character: Character, gameData: GameData): void {
-    const contextualTrack = this.getContextualTrack(character, gameData);
-    this.playTrack(contextualTrack);
+    const soulPercentage = character.soulPercentage || 100;
+    
+    // AI Control handling (soul at 0%)
+    if (soulPercentage === 0) {
+      if (this.currentTrack !== 'soul_0_ai_control') {
+        this.stopCurrentTrack();
+        // Small delay to ensure previous track stops
+        setTimeout(() => {
+          this.playTrack('soul_0_ai_control', true);
+        }, 200);
+      }
+      return;
+    }
+    
+    // Clear AI control if soul recovered
+    if (this.aiControlTimer && soulPercentage > 0) {
+      clearTimeout(this.aiControlTimer);
+      this.aiControlTimer = null;
+      if (this.onAIControlEnd) {
+        this.onAIControlEnd();
+      }
+    }
+    
+    // Soul threshold music handling - Fixed to ensure tracks play properly
+    if (soulPercentage <= 20) {
+      if (this.currentTrack !== 'soul_below_20') {
+        this.stopCurrentTrack();
+        // Delay ensures audio system has time to clear previous track
+        setTimeout(() => {
+          this.playTrack('soul_below_20', true);
+        }, 200);
+      }
+    } else if (soulPercentage > 20 && soulPercentage <= 40) {
+      if (this.currentTrack !== 'soul_below_40') {
+        this.stopCurrentTrack();
+        setTimeout(() => {
+          this.playTrack('soul_below_40', true);
+        }, 200);
+      }
+    } else if (soulPercentage > 40) {
+      // Return to basic music when soul recovers
+      if (this.currentTrack === 'soul_below_20' || this.currentTrack === 'soul_below_40') {
+        this.stopCurrentTrack();
+        setTimeout(() => {
+          this.playBasicMusic();
+        }, 200);
+      }
+    }
   }
 
   static playButtonSound(): void {

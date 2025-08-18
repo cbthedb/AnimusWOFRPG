@@ -68,8 +68,8 @@ export class SpecialEventsSystem {
     // Collect eligible event types
     const eligibleEvents = [];
     
-    // Always check artifact discovery for all characters
-    if (this.canTriggerArtifactEvent(currentTurn) && this.eventState.artifactsDiscovered < this.MAX_ARTIFACTS_PER_GAME) {
+    // Always check artifact discovery for all characters every 10 turns
+    if (currentTurn % 10 === 0 && this.eventState.artifactsDiscovered < this.MAX_ARTIFACTS_PER_GAME) {
       eligibleEvents.push('artifact');
     }
     

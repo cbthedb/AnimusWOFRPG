@@ -164,7 +164,7 @@ export class EnhancedGameEngine {
     // Process enhanced consequences from our new systems
     if (choice.consequences && choice.consequences.length > 0) {
       try {
-        EnhancedGameIntegration.processEnhancedConsequences(newCharacter, newGameData, choice.consequences, scenario);
+        this.processEnhancedConsequences(newCharacter, newGameData, choice.consequences, scenario);
       } catch (error) {
         console.warn("Enhanced consequence processing failed:", error);
       }
@@ -243,6 +243,62 @@ export class EnhancedGameEngine {
     }
 
     return { newCharacter, newGameData, event };
+  }
+
+  // Process enhanced consequences and social interactions
+  private static processEnhancedConsequences(character: Character, gameData: GameData, consequences: string[], scenario: Scenario): void {
+    consequences.forEach(consequence => {
+      // Extract names and process relationships from consequence text
+      if (consequence.includes('warmly engage') || consequence.includes('positive connection') || consequence.includes('building a positive')) {
+        // Extract dragon name from the consequence
+        const nameMatch = consequence.match(/with\s+([A-Za-z]+)/);
+        if (nameMatch && nameMatch[1]) {
+          const dragonName = nameMatch[1];
+          EnhancedSocialSystem.processRelationshipChange(
+            character,
+            dragonName,
+            scenario.location || 'Unknown',
+            15,
+            'cooperation'
+          );
+        }
+      }
+      
+      // Handle romantic developments
+      if (consequence.includes('romantic connection') || consequence.includes('pursue a romantic')) {
+        const nameMatch = consequence.match(/with\s+([A-Za-z]+)/);
+        if (nameMatch && nameMatch[1]) {
+          const dragonName = nameMatch[1];
+          if (!character.relationships[dragonName]) {
+            character.relationships[dragonName] = {
+              name: dragonName,
+              type: 'romantic',
+              strength: 60,
+              history: ['Romantic connection developed'],
+              isAlive: true
+            };
+          } else {
+            character.relationships[dragonName].type = 'romantic';
+            character.relationships[dragonName].strength = Math.max(60, character.relationships[dragonName].strength);
+          }
+        }
+      }
+      
+      // Handle family bond strengthening for dragonets
+      if (consequence.includes('loving support') || consequence.includes('family bond')) {
+        const nameMatch = consequence.match(/to\s+([A-Za-z]+)/);
+        if (nameMatch && nameMatch[1]) {
+          const dragonetName = nameMatch[1];
+          const dragonet = character.dragonets.find(d => d.name === dragonetName);
+          if (dragonet) {
+            dragonet.personalityTraits = dragonet.personalityTraits || [];
+            if (!dragonet.personalityTraits.includes('Well-loved')) {
+              dragonet.personalityTraits.push('Well-loved');
+            }
+          }
+        }
+      }
+    });
   }
 
   static processCustomAction(

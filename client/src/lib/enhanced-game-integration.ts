@@ -194,14 +194,22 @@ export class EnhancedGameIntegration {
         break;
     }
     
-    // Apply relationship change
+    // Apply relationship change and ensure it's saved properly
     EnhancedSocialSystem.processRelationshipChange(
       character,
       socialEvent.participantName,
       socialEvent.participantTribe,
       relationshipChange,
-      socialEvent.type
+      socialEvent.type || 'cooperation'
     );
+    
+    // Force character update to ensure relationships are saved and notify the system
+    console.log(`Relationship updated: ${socialEvent.participantName} - Type: ${character.relationships[socialEvent.participantName]?.type}, Strength: ${character.relationships[socialEvent.participantName]?.strength}`);
+    
+    // Ensure the character data is marked as dirty for saving
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('characterUpdated', { detail: character }));
+    }
   }
 
   // Process romance event outcomes

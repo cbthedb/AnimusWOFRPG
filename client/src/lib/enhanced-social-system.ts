@@ -192,24 +192,35 @@ export class EnhancedSocialSystem {
     relationshipChange: number,
     eventType: SocialEvent['type']
   ): void {
+    // Ensure relationships object exists
+    if (!character.relationships) {
+      character.relationships = {};
+    }
+    
     if (!character.relationships[dragonName]) {
       // Create new relationship
       character.relationships[dragonName] = {
         name: dragonName,
         type: this.getRelationshipType(relationshipChange, eventType),
         strength: Math.max(0, Math.min(100, 50 + relationshipChange)),
-        history: [`First met through ${eventType}`],
+        history: [`First met through ${eventType || 'social encounter'}`],
         isAlive: true
       };
+      console.log(`New relationship created: ${dragonName} - ${character.relationships[dragonName].type}`);
     } else {
       // Update existing relationship
       const relationship = character.relationships[dragonName];
       relationship.strength = Math.max(0, Math.min(100, relationship.strength + relationshipChange));
-      relationship.history.push(`${eventType} event: ${relationshipChange > 0 ? 'improved' : 'worsened'} relationship`);
+      relationship.history.push(`${eventType || 'social'} event: ${relationshipChange > 0 ? 'improved' : 'worsened'} relationship`);
       
       // Update relationship type based on new strength
+      const oldType = relationship.type;
       relationship.type = this.getRelationshipType(relationship.strength, eventType);
+      console.log(`Relationship updated: ${dragonName} - ${oldType} -> ${relationship.type} (strength: ${relationship.strength})`);
     }
+    
+    // Force a character save to local storage
+    console.log(`Total relationships after update: ${Object.keys(character.relationships).length}`);
   }
 
   private static getRelationshipType(strengthOrChange: number, eventType: SocialEvent['type']): Relationship['type'] {
