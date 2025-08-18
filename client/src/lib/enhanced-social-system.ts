@@ -142,14 +142,23 @@ export class EnhancedSocialSystem {
     return availableTribes[Math.floor(Math.random() * availableTribes.length)];
   }
 
-  static generateSocialEvent(character: Character): SocialEvent {
+  static generateSocialEvent(character: Character): SocialEvent & { narrativeText: string[] } {
     const baseEvent = this.SOCIAL_EVENTS[Math.floor(Math.random() * this.SOCIAL_EVENTS.length)];
     const participantTribe = this.generateRandomTribe(character.tribe);
+    const participantName = this.generateRandomDragonName(participantTribe);
+    
+    // Create proper narrative text that shows who the character is interacting with
+    const narrativeText = [
+      `You encounter ${participantName}, a ${participantTribe} dragon, near the academy courtyard.`,
+      baseEvent.description.replace(/A classmate|Another dragon|A dragon/g, participantName),
+      `${participantName} watches your reaction carefully, waiting to see how you'll respond.`
+    ];
     
     return {
       ...baseEvent,
-      participantName: this.generateRandomDragonName(participantTribe),
-      participantTribe
+      participantName,
+      participantTribe,
+      narrativeText
     };
   }
 

@@ -360,4 +360,76 @@ export class AnimusArtifactSystem {
   static getArtifactById(id: string): AnimusArtifact | undefined {
     return ANIMUS_ARTIFACTS.find(artifact => artifact.id === id);
   }
+
+  static generateArtifactChoices(artifact: AnimusArtifact): {
+    id: string;
+    text: string;
+    description: string;
+    soulCost: number;
+    sanityCost: number;
+    consequences: string[];
+    collectsArtifact: boolean;
+  }[] {
+    return [
+      {
+        id: `collect_${artifact.id}`,
+        text: `Collect the ${artifact.name}`,
+        description: "Take the artifact and add it to your inventory",
+        soulCost: 0,
+        sanityCost: 3,
+        consequences: [`You carefully collect the ${artifact.name} and store it safely`],
+        collectsArtifact: true
+      },
+      {
+        id: `examine_${artifact.id}`,
+        text: "Examine it closely but don't touch",
+        description: "Study the artifact without collecting it",
+        soulCost: 0,
+        sanityCost: 1,
+        consequences: ["You study the artifact carefully but choose not to take it"],
+        collectsArtifact: false
+      },
+      {
+        id: `ignore_${artifact.id}`,
+        text: "Leave it alone",
+        description: "Walk away from the dangerous artifact",
+        soulCost: 0,
+        sanityCost: 0,
+        consequences: ["You decide the artifact is too dangerous and leave it behind"],
+        collectsArtifact: false
+      }
+    ];
+  }
+
+  static collectArtifact(artifact: AnimusArtifact, character: Character, gameData: GameData): {
+    newCharacter: Character;
+    newGameData: GameData;
+    message: string;
+  } {
+    const newCharacter = { ...character };
+    const newGameData = { ...gameData };
+
+    // Add artifact to inventory
+    const inventoryItem = {
+      id: artifact.id,
+      name: artifact.name,
+      description: artifact.description,
+      type: artifact.type,
+      enchantments: artifact.enchantments,
+      isActive: false,
+      canGiveAway: artifact.canGiveAway
+    };
+
+    newGameData.inventory.push(inventoryItem);
+
+    const message = `You have collected the ${artifact.name}! It has been added to your inventory.`;
+    
+    console.log(`Artifact ${artifact.name} added to inventory. Total items: ${newGameData.inventory.length}`);
+
+    return {
+      newCharacter,
+      newGameData,
+      message
+    };
+  }
 }
