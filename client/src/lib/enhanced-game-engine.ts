@@ -11,7 +11,6 @@ import { InventorySystem } from "./inventory-system";
 import { SpecialEventsSystem } from "./special-events-system";
 import { ExpandedScenarioSystem } from './expanded-scenarios';
 import { EnhancedGameIntegration } from "./enhanced-game-integration";
-import { SoundtrackSystem } from "./soundtrack-system";
 
 export class EnhancedGameEngine {
   static processChoice(
@@ -33,33 +32,11 @@ export class EnhancedGameEngine {
       newCharacter.sanityPercentage = Math.min(100, character.sanityPercentage + 3);
     }
 
-    // Check for game over condition (animus magic at 0% soul)
-    if (choice.soulCost > 0 && character.soulPercentage <= 0) {
-      if (SoundtrackSystem.handleAnimusMagicAtZero()) {
-        // Return game over state
-        return {
-          newCharacter: { ...character, gameOver: true, gameOverReason: "animus_magic_death" },
-          newGameData: { ...gameData, gameOver: true },
-          event: {
-            turn: gameData.turn,
-            scenario: scenario.id,
-            choice: choice.id,
-            consequences: ["Your dragon has died from animus magic corruption"],
-            soulLoss: 0,
-            sanityLoss: 0
-          }
-        };
-      }
-    }
-
     // Apply soul loss and update corruption stage
     if (choice.soulCost > 0) {
       const actualSoulLoss = this.calculateSoulLoss(choice.soulCost);
       newCharacter.soulPercentage = Math.max(0, character.soulPercentage - actualSoulLoss);
       newCharacter.soulCorruptionStage = SoulCorruptionManager.getSoulCorruptionStage(newCharacter.soulPercentage);
-      
-      // Update soundtrack based on new soul level
-      SoundtrackSystem.updateBackgroundMusic(newCharacter, newGameData);
     }
 
     // Apply sanity changes
@@ -76,9 +53,6 @@ export class EnhancedGameEngine {
 
     // Age progression - 1 year per turn
     this.progressTime(newCharacter, newGameData, 1);
-    
-    // Update background music based on current state
-    SoundtrackSystem.updateBackgroundMusic(newCharacter, newGameData);
 
     // Handle relationships based on choice
     this.updateRelationships(newCharacter, choice, scenario);

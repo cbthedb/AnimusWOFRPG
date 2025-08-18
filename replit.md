@@ -9,7 +9,6 @@ The application is built as a full-stack web game with a React frontend and Expr
 Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
-- **Comprehensive Soundtrack System Integration** (January 2025): Successfully integrated 7-file audio system with existing enhanced AI controller. Added background music based on soul levels, button click sounds, AI control overlays during 0% soul periods, and game over screens for animus magic abuse. Music toggle button added to header. System enforces 2:13 minute AI control periods and game over conditions.
 - **Character Customization System** (January 2025): Added comprehensive character creator allowing players to choose tribe, powers, attributes, and animus status, plus randomization options.
 - **Local Storage Migration** (January 2025): Completely converted from PostgreSQL database to local browser storage. Game now runs without any database dependencies or Replit Core requirements.
 - **Enhanced Romance & Family System** (January 2025): Added comprehensive romance mechanics, mating system, dragonet inheritance, and multi-generational family tracking.

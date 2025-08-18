@@ -66,8 +66,6 @@ export interface Character {
   isAIControlled: boolean;
   lifeEvents: LifeEvent[];
   romanticHistory: RomanticEvent[];
-  gameOver?: boolean;
-  gameOverReason?: string;
 }
 
 export interface Dragonet {
@@ -118,12 +116,9 @@ export interface GameData {
   politicalEvents: PoliticalEvent[];
   warStatus: WarStatus;
   explorationLog: ExplorationEvent[];
-  continent?: "Pyrrhia" | "Pantala";
-  lastChoiceResult?: string;
-  awaitingResponse?: boolean;
-  gameOver?: boolean;
-  achievements?: string[];
-  customSpells?: CustomSpell[];
+  continent?: "Pyrrhia" | "Pantala"; // Track which continent player is on
+  lastChoiceResult?: string; // Store the outcome text to display
+  awaitingResponse?: boolean; // Whether waiting for user to continue
 }
 
 export interface InventoryItem {
@@ -216,5 +211,3 @@ export interface ExplorationEvent {
   description: string;
   consequences: string[];
 }
-
-
