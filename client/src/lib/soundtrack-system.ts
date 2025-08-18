@@ -182,6 +182,8 @@ export class SoundtrackSystem {
   }
 
   private static handleAIControlTrack(track: SoundtrackTrack): void {
+    console.log('AI Control track starting...');
+    
     // Trigger AI control mode
     if (this.onAIControlStart) {
       this.onAIControlStart();
@@ -193,13 +195,16 @@ export class SoundtrackSystem {
     }
     
     this.aiControlTimer = setTimeout(() => {
+      console.log('AI Control duration ended, showing warning...');
+      
       // Show warning and end AI control
       if (this.onAIControlEnd) {
         this.onAIControlEnd();
       }
       
-      // Switch back to appropriate background music
-      this.playTrack('soul_below_20', true);
+      // Important: Don't automatically switch to another track
+      // Let the game handle the next music choice based on player action
+      console.log('AI Control ended, waiting for next game state update...');
       
     }, track.duration || 133000);
   }
@@ -287,11 +292,8 @@ export class SoundtrackSystem {
     } else if (soulPercentage <= 40) {
       targetTrack = 'soul_below_40';
     } else {
-      // Only switch to basic music if we're not already playing a soul track
-      // This prevents interrupting soul tracks unnecessarily
-      if (this.currentTrack === 'soul_below_20' || this.currentTrack === 'soul_below_40' || this.currentTrack === 'soul_0_ai_control') {
-        return; // Don't change track - soul tracks take priority
-      }
+      // When soul recovers above 40%, always switch to basic music
+      // Don't keep playing soul tracks when soul is healthy
       targetTrack = Math.random() > 0.5 ? 'basic_ost' : 'basic_ost_2';
     }
     
@@ -315,21 +317,9 @@ export class SoundtrackSystem {
       setTimeout(() => {
         this.playTrack(targetTrack, true);
         
-        // Handle AI control special case
-        if (targetTrack === 'soul_0_ai_control' && this.onAIControlStart) {
-          this.onAIControlStart();
-          // Set timer for AI control duration
-          this.aiControlTimer = setTimeout(() => {
-            if (this.onAIControlEnd) {
-              this.onAIControlEnd();
-            }
-            // Switch to appropriate soul music after AI control ends
-            if (soulPercentage <= 20) {
-              this.playTrack('soul_below_20', true);
-            } else {
-              this.playBasicMusic();
-            }
-          }, 133000);
+        // Handle AI control special case - only for 0% soul
+        if (targetTrack === 'soul_0_ai_control') {
+          this.handleAIControlTrack(this.TRACKS.find(t => t.id === targetTrack)!);
         }
       }, 300);
     }

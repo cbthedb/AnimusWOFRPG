@@ -68,13 +68,14 @@ export class SpecialEventsSystem {
     // Collect eligible event types
     const eligibleEvents = [];
     
-    // Check artifact discovery with proper counting from inventory
-    const currentArtifacts = (gameData.inventory || []).filter(item => item.type === 'magical_artifact').length;
-    console.log(`Current artifacts in inventory: ${currentArtifacts}/${this.MAX_ARTIFACTS_PER_GAME}`);
+    // Check artifact discovery - only in specific scenarios, not random
+    // Artifacts should ONLY be discovered through dedicated artifact discovery scenarios
+    // Remove random artifact spawning - artifacts will only appear in scenarios specifically designed for them
+    // This ensures artifacts only appear when the player chooses to explore or investigate specific areas
+    console.log('Artifact discovery disabled for random events - artifacts only appear in specific scenarios');
     
-    if (currentArtifacts < this.MAX_ARTIFACTS_PER_GAME && (currentTurn % 10 === 0 || Math.random() < this.ARTIFACT_BASE_CHANCE)) {
-      eligibleEvents.push('artifact');
-    }
+    // Note: To add artifacts, create specific discovery scenarios in the scenario system
+    // that give players the choice to search for or investigate mysterious objects
     
     // Only check mindreading if character has the ability
     if (hasMindreading && this.canTriggerMindreadingEvent(character, currentTurn)) {
